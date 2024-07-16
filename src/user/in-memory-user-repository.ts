@@ -1,4 +1,5 @@
-import { CreateUserParams } from "./user-repository";
+import { Uuid } from "@/global";
+import { UserRepository } from "./user-repository";
 
 export type PersistedUser = {
   firstName: string;
@@ -7,14 +8,8 @@ export type PersistedUser = {
   uuid: `${string}-${string}-${string}-${string}-${string}`;
 };
 
-export interface InMemoryUserRepository {
-  create: (user: CreateUserParams) => Promise<PersistedUser>;
-}
-
-export default class InMemoryUserRepositoryFactory
-  implements InMemoryUserRepository
-{
-  private users;
+export default class InMemoryUserRepositoryFactory implements UserRepository {
+  private users: Map<Uuid, PersistedUser>;
 
   constructor() {
     this.users = new Map();
@@ -23,12 +18,18 @@ export default class InMemoryUserRepositoryFactory
   async create(user) {
     const { firstName, lastName, email } = user;
     const uuid = crypto.randomUUID();
-    await this.users.set(uuid, { firstName, lastName, email });
+    await this.users.set(uuid, { firstName, lastName, email, uuid });
     return Promise.resolve({
       firstName,
       lastName,
       email,
       uuid,
     } as PersistedUser);
+  }
+
+  async findByEmail(email: string) {
+    return Promise.resolve(
+      Array.from(this.users.values()).filter((user) => user.email === email)
+    );
   }
 }

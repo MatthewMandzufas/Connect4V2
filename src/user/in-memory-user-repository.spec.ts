@@ -41,8 +41,14 @@ describe("in-memory-user-repository", () => {
         email: "jeff.goldblum@email.com",
       });
 
-      expect(await inMemoryUserRepository.findByEmail(johnDoeUser.email)).toBe([
-        { firstName: "John", lastName: "Doe", email: "john.doe@email.com" },
+      expect(
+        await inMemoryUserRepository.findByEmail(johnDoeUser.email)
+      ).toEqual([
+        expect.objectContaining({
+          firstName: "John",
+          lastName: "Doe",
+          email: "john.doe@email.com",
+        }),
       ]);
     });
   });
