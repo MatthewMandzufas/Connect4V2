@@ -18,3 +18,5 @@ declare module "expect" {
 //     toBeUUID(): R;
 //   }
 // }
+
+export type Uuid = `${string}-${string}-${string}-${string}-${string}`;

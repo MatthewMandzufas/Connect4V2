@@ -1,4 +1,4 @@
-import UserService from "@/user-service";
+import UserService from "@/user/user-service";
 import InMemoryUserRepositoryFactory from "./in-memory-user-repository";
 
 describe("user-service", () => {

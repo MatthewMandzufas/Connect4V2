@@ -1,18 +1,14 @@
-type CreateUserParams = {
-  firstName: string;
-  lastName: string;
-  email: string;
-};
+import { CreateUserParams } from "./user-repository";
 
-type PersistedUser = {
+export type PersistedUser = {
   firstName: string;
   lastName: string;
   email: string;
   uuid: `${string}-${string}-${string}-${string}-${string}`;
 };
 
-interface InMemoryUserRepository {
-  create: (user: CreateUserParams) => PersistedUser;
+export interface InMemoryUserRepository {
+  create: (user: CreateUserParams) => Promise<PersistedUser>;
 }
 
 export default class InMemoryUserRepositoryFactory
@@ -24,15 +20,15 @@ export default class InMemoryUserRepositoryFactory
     this.users = new Map();
   }
 
-  create(user) {
+  async create(user) {
     const { firstName, lastName, email } = user;
     const uuid = crypto.randomUUID();
-    this.users.set(uuid, { firstName, lastName, email });
-    return {
+    await this.users.set(uuid, { firstName, lastName, email });
+    return Promise.resolve({
       firstName,
       lastName,
       email,
       uuid,
-    };
+    } as PersistedUser);
   }
 }
