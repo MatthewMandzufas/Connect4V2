@@ -11,7 +11,7 @@ describe("user-integration", () => {
           email: "john.doe@email.com",
         });
         expect(response.statusCode).toBe(201);
-        expect(response.body).toBe(
+        expect(response.body).toEqual(
           expect.objectContaining({
             firstName: "John",
             lastName: "Doe",
@@ -19,7 +19,7 @@ describe("user-integration", () => {
             uuid: expect.toBeUUID(),
           })
         );
-        expect(response.headers["Content-Type"]).toMatch(/json/);
+        expect(response.headers["content-type"]).toMatch(/json/);
       });
     });
   });
