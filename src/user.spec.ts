@@ -27,7 +27,7 @@ describe("user-integration", () => {
       });
     });
     describe("given a user already exists with a given email", () => {
-      it.skip("forbids the creation of a user the same email", async () => {
+      it("forbids the creation of a user the same email", async () => {
         const johnDoeUser = {
           firstName: "John",
           lastName: "Doe",
