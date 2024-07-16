@@ -1,8 +1,11 @@
+import UserService from "@/user-service";
+import InMemoryUserRepositoryFactory from "./in-memory-user-repository";
+
 describe("user-service", () => {
   describe("given the details of a user that does not exist", () => {
-    it.skip("creates the user", async () => {
-      const mockRepository = jest.fn();
-      const userService = new UserService(mockRepository);
+    it("creates the user", async () => {
+      const inMemoryUserRepository = new InMemoryUserRepositoryFactory();
+      const userService = new UserService(inMemoryUserRepository);
       const user = await userService.create({
         firstName: "John",
         lastName: "Doe",
