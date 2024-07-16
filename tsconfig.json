@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "module": "CommonJS",
+    "types": ["jest"],
     "esModuleInterop": true,
     "target": "es6",
     "moduleResolution": "Node",
@@ -10,5 +11,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "lib": ["es2015"]
+  "lib": ["es2015"],
+  "include": ["src", "global.d.ts"]
 }
