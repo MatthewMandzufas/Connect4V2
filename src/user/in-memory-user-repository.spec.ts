@@ -25,4 +25,25 @@ describe("in-memory-user-repository", () => {
       );
     });
   });
+  describe("given an email", () => {
+    it("returns a list of associated users", async () => {
+      const johnDoeUser = {
+        firstName: "John",
+        lastName: "Doe",
+        email: "john.doe@email.com",
+      };
+
+      const inMemoryUserRepository = new InMemoryUserRepository();
+      await inMemoryUserRepository.create(johnDoeUser);
+      await inMemoryUserRepository.create({
+        firstName: "Jeff",
+        lastName: "Goldblum",
+        email: "jeff.goldblum@email.com",
+      });
+
+      expect(await inMemoryUserRepository.findByEmail(johnDoeUser.email)).toBe([
+        { firstName: "John", lastName: "Doe", email: "john.doe@email.com" },
+      ]);
+    });
+  });
 });
