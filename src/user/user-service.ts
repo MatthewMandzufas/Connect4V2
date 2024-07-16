@@ -1,8 +1,10 @@
 import InMemoryUserRepositoryFactory, {
   PersistedUser,
-} from "./in-memory-user-repository";
+} from "@/user/in-memory-user-repository";
+import { isEmpty } from "ramda";
 import { CreateUserParams, UserRepository } from "./user-repository";
 
+export class UserAlreadyExistsError extends Error {}
 interface UserServiceInterface {
   create: (userDetails: CreateUserParams) => Promise<PersistedUser>;
 }
@@ -15,6 +17,10 @@ export default class UserService implements UserServiceInterface {
   }
 
   async create(userDetails: CreateUserParams) {
-    return await this.#userRepository.create(userDetails);
+    if (isEmpty(await this.#userRepository.findByEmail(userDetails.email))) {
+      return await this.#userRepository.create(userDetails);
+    } else {
+      throw new UserAlreadyExistsError("A user with that email already exists");
+    }
   }
 }

@@ -1,4 +1,4 @@
-import UserService from "@/user/user-service";
+import UserService, { UserAlreadyExistsError } from "@/user/user-service";
 import InMemoryUserRepositoryFactory from "./in-memory-user-repository";
 
 describe("user-service", () => {
@@ -32,7 +32,7 @@ describe("user-service", () => {
       };
 
       await userService.create(johnDoeUser);
-      expect(await userService.create(johnDoeUser)).toThrow(
+      expect(userService.create(johnDoeUser)).rejects.toThrow(
         new UserAlreadyExistsError("A user with that email already exists")
       );
     });
