@@ -21,4 +21,20 @@ describe("user-service", () => {
       );
     });
   });
+  describe("given the email of a user that already exists", () => {
+    it('throws a "user already exists" error', async () => {
+      const userRepository = new InMemoryUserRepositoryFactory();
+      const userService = new UserService(userRepository);
+      const johnDoeUser = {
+        firstName: "John",
+        lastName: "Doe",
+        email: "john.doe@email.com",
+      };
+
+      await userService.create(johnDoeUser);
+      expect(await userService.create(johnDoeUser)).toThrow(
+        new UserAlreadyExistsError("A user with that email already exists")
+      );
+    });
+  });
 });
