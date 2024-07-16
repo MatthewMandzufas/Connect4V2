@@ -26,9 +26,9 @@ describe("user-service", () => {
       const userRepository = new InMemoryUserRepositoryFactory();
       const userService = new UserService(userRepository);
       const johnDoeUser = {
-        firstName: "John",
+        firstName: "John1",
         lastName: "Doe",
-        email: "john.doe@email.com",
+        email: "john1.doe@email.com",
       };
 
       await userService.create(johnDoeUser);

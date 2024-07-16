@@ -1,6 +1,4 @@
-import InMemoryUserRepositoryFactory, {
-  PersistedUser,
-} from "@/user/in-memory-user-repository";
+import { PersistedUser } from "@/user/in-memory-user-repository";
 import { isEmpty } from "ramda";
 import { CreateUserParams, UserRepository } from "./user-repository";
 
@@ -12,7 +10,7 @@ interface UserServiceInterface {
 export default class UserService implements UserServiceInterface {
   #userRepository: UserRepository;
 
-  constructor(userRepository: InMemoryUserRepositoryFactory) {
+  constructor(userRepository: UserRepository) {
     this.#userRepository = userRepository;
   }
 
