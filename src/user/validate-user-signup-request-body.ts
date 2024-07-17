@@ -12,7 +12,9 @@ const validSchema = Joi.object({
 export default function validateUserSignupRequestBody(
   userSignUpRequestBody: UserSignupRequestBody
 ): ValidationResult {
-  const validationResult = validSchema.validate(userSignUpRequestBody);
+  const validationResult = validSchema.validate(userSignUpRequestBody, {
+    abortEarly: false,
+  });
   const isValid = validationResult.error === undefined;
 
   if (!isValid) {

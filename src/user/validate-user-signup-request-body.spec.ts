@@ -49,16 +49,16 @@ describe("validate-user-signup-request-body", () => {
         isValid: false,
         errors: [
           {
-            message: '"password" is required',
-            path: "password",
-          },
-          {
             message: '"lastName" is required',
             path: "lastName",
           },
           {
             message: '"email" is required',
             path: "email",
+          },
+          {
+            message: '"password" is required',
+            path: "password",
           },
         ],
       });
