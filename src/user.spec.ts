@@ -9,6 +9,7 @@ describe("user-integration", () => {
           firstName: "John",
           lastName: "Doe",
           email: "john.doe@email.com",
+          password: "12345678",
         };
 
         const response = await request(app)
@@ -32,6 +33,7 @@ describe("user-integration", () => {
           firstName: "Alex",
           lastName: "Bon",
           email: "alex.don@email.com",
+          password: "12345678",
         };
         await request(app).post("/user/signup").send(johnDoeUser);
 
@@ -46,21 +48,27 @@ describe("user-integration", () => {
       });
     });
     describe("given invalid user details", () => {
-      it.skip("forbids the creation of the user", async () => {
-        const userWithMissingPassword = {
-          firstName: "D",
-          lastName: "A",
-          email: "d.a@email.com",
+      it("forbids the creation of the user", async () => {
+        const userWithMissingPasswordAndLastName = {
+          firstName: "Dasiy",
+          email: "daisy.a@email.com",
         };
 
         const response = await request(app)
           .post("/user/signup")
-          .send(userWithMissingPassword);
+          .send(userWithMissingPasswordAndLastName);
 
-        expect(response.body.errors).toEqual([
-          "Invalid user details provided. Expected a first name, last name, email and password.",
-        ]);
         expect(response.statusCode).toBe(403);
+        expect(response.body.errors).toEqual([
+          {
+            message: '"lastName" is required',
+            path: "lastName",
+          },
+          {
+            message: '"password" is required',
+            path: "password",
+          },
+        ]);
         expect(response.headers["content-type"]).toMatch(/json/);
       });
     });

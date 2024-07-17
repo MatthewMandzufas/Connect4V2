@@ -1,8 +1,19 @@
 import UserService from "@/user/user-service";
 import express from "express";
+import validateUserSignupRequestBody from "./validate-user-signup-request-body";
 
 const userRouterFactory = (userService: UserService) => {
   const userRouter = express.Router();
+
+  userRouter.post("/signup", (req, res, next) => {
+    const { isValid, errors } = validateUserSignupRequestBody(req.body);
+
+    if (!isValid) {
+      res.status(403).send({ errors });
+    }
+    next();
+  });
+
   userRouter.post("/signup", (req, res, next) => {
     const { firstName, lastName, email } = req.body;
     userService
