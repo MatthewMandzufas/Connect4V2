@@ -1,6 +1,8 @@
 import UserService, { UserAlreadyExistsError } from "@/user/user-service";
 import InMemoryUserRepositoryFactory from "./in-memory-user-repository";
 
+import argon2 from "argon2";
+
 describe("user-service", () => {
   describe("given the details of a user that does not exist", () => {
     it("creates the user", async () => {
@@ -35,6 +37,21 @@ describe("user-service", () => {
       expect(userService.create(johnDoeUser)).rejects.toThrow(
         new UserAlreadyExistsError("A user with that email already exists")
       );
+    });
+  });
+  describe("given a user with a plaintext password", () => {
+    it("creates the user with a hashed password", async () => {
+      const userRepository = new InMemoryUserRepositoryFactory();
+      const userService = new UserService(userRepository);
+      const JoshKennedyUser = {
+        firstName: "Josh",
+        lastName: "Kennedy",
+        email: "Josh.Kennedy@email.com",
+        password: "Hello123",
+      };
+      const user = await userService.create(JoshKennedyUser);
+      const hashedPassword = await argon2.hash("Hello123");
+      expect(user.password).toEqual(hashedPassword);
     });
   });
 });
