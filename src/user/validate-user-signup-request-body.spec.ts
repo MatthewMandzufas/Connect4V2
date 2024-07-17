@@ -17,7 +17,7 @@ describe("validate-user-signup-request-body", () => {
     });
   });
   describe("given a signup request body with a missing field", () => {
-    it("throws an error", () => {
+    it("fails validation", () => {
       const userRequestBody = {
         firstName: "Nigel",
         lastName: "Thornberry",
@@ -32,6 +32,33 @@ describe("validate-user-signup-request-body", () => {
           {
             message: '"password" is required',
             path: "password",
+          },
+        ],
+      });
+    });
+  });
+  describe("given a user signup request body with multiple missing fields", () => {
+    it("fails validation", () => {
+      const userRequestBody = {
+        firstName: "Nigel",
+      };
+      const validationResult = validateUserSignupRequestBody(
+        userRequestBody as UserSignupRequestBody
+      );
+      expect(validationResult).toEqual({
+        isValid: false,
+        errors: [
+          {
+            message: '"password" is required',
+            path: "password",
+          },
+          {
+            message: '"lastName" is required',
+            path: "lastName",
+          },
+          {
+            message: '"email" is required',
+            path: "email",
           },
         ],
       });
