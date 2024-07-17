@@ -9,7 +9,7 @@ describe("user-integration", () => {
           firstName: "John",
           lastName: "Doe",
           email: "john.doe@email.com",
-          password: "12345678",
+          password: "HelloWorldPassword",
         };
 
         const response = await request(app)
@@ -33,7 +33,7 @@ describe("user-integration", () => {
           firstName: "Alex",
           lastName: "Bon",
           email: "alex.don@email.com",
-          password: "12345678",
+          password: "hellopassword",
         };
         await request(app).post("/user/signup").send(johnDoeUser);
 

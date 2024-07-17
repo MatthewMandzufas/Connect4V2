@@ -13,6 +13,8 @@ describe("in-memory-user-repository", () => {
         firstName: "John",
         lastName: "Doe",
         email: "john.doe@email.com",
+        password:
+          "$argon2id$v=19$m=65536,t=3,p=4$42OHhoG0FCA+xCPt5PppZQ$XAk4t8UkXR2WFuGdU5EDTXB7/dtdzpmlHQODWOzsa6E",
       });
 
       expect(createdUser).toEqual(
@@ -31,6 +33,8 @@ describe("in-memory-user-repository", () => {
         firstName: "John",
         lastName: "Doe",
         email: "john.doe@email.com",
+        password:
+          "$argon2id$v=19$m=65536,t=3,p=4$42OHhoG0FCA+xCPt5PppZQ$XAk4t8UkXR2WFuGdU5EDTXB7/dtdzpmlHQODWOzsa6E",
       };
 
       const inMemoryUserRepository = new InMemoryUserRepository();
@@ -39,6 +43,8 @@ describe("in-memory-user-repository", () => {
         firstName: "Jeff",
         lastName: "Goldblum",
         email: "jeff.goldblum@email.com",
+        password:
+          "$argon2id$v=19$m=65536,t=3,p=4$42OHhoG0FCA+xCPt5PppZQ$XAk4t8UkXR2WFuGdU5EDTXB7/dtdzpmlHQODWOzsa6E",
       });
 
       expect(

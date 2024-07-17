@@ -1,4 +1,5 @@
 import { PersistedUser } from "@/user/in-memory-user-repository";
+import argon2 from "argon2";
 import { isEmpty } from "ramda";
 import { CreateUserParams, UserRepository } from "./user-repository";
 
@@ -16,7 +17,10 @@ export default class UserService implements UserServiceInterface {
 
   async create(userDetails: CreateUserParams) {
     if (isEmpty(await this.#userRepository.findByEmail(userDetails.email))) {
-      return await this.#userRepository.create(userDetails);
+      return await this.#userRepository.create({
+        ...userDetails,
+        password: await argon2.hash(userDetails.password),
+      });
     } else {
       throw new UserAlreadyExistsError("A user with that email already exists");
     }

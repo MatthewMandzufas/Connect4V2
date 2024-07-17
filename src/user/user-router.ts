@@ -15,9 +15,9 @@ const userRouterFactory = (userService: UserService) => {
   });
 
   userRouter.post("/signup", (req, res, next) => {
-    const { firstName, lastName, email } = req.body;
+    const { firstName, lastName, email, password } = req.body;
     userService
-      .create({ firstName, lastName, email })
+      .create({ firstName, lastName, email, password })
       .then((user) => res.status(201).send(user))
       .catch((error: Error) => {
         res.status(403).send({ errors: [error.message] });

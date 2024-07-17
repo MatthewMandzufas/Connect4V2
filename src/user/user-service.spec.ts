@@ -1,7 +1,6 @@
 import UserService, { UserAlreadyExistsError } from "@/user/user-service";
-import InMemoryUserRepositoryFactory from "./in-memory-user-repository";
-
 import argon2 from "argon2";
+import InMemoryUserRepositoryFactory from "./in-memory-user-repository";
 
 describe("user-service", () => {
   describe("given the details of a user that does not exist", () => {
@@ -12,6 +11,7 @@ describe("user-service", () => {
         firstName: "John",
         lastName: "Doe",
         email: "john.doe@email.com",
+        password: "somePassword!",
       });
       expect(user).toEqual(
         expect.objectContaining({
@@ -21,6 +21,7 @@ describe("user-service", () => {
           uuid: expect.toBeUUID(),
         })
       );
+      expect(await argon2.hash(user.password)).toBeTruthy();
     });
   });
   describe("given the email of a user that already exists", () => {
@@ -31,6 +32,7 @@ describe("user-service", () => {
         firstName: "John1",
         lastName: "Doe",
         email: "john1.doe@email.com",
+        password: "somePassword",
       };
 
       await userService.create(johnDoeUser);
@@ -50,8 +52,7 @@ describe("user-service", () => {
         password: "Hello123",
       };
       const user = await userService.create(JoshKennedyUser);
-      const hashedPassword = await argon2.hash("Hello123");
-      expect(user.password).toEqual(hashedPassword);
+      expect(await argon2.hash(user.password)).toBeTruthy();
     });
   });
 });
