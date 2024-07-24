@@ -1,3 +1,4 @@
-export type Uuid = `${string}-${string}-${string}-${string}-${string}`;
+type Uuid = `${string}-${string}-${string}-${string}-${string}`;
 
-export type Env = "production" | "test";
+type JwtPublicKey = Uint8Array;
+type NodeEnv = "production" | "test";
