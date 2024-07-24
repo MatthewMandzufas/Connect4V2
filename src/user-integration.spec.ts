@@ -170,6 +170,47 @@ describe("user-integration", () => {
             ]);
           });
         });
+
+        describe("and their token is expired", () => {
+          it.todo("responds with http status code 401");
+        });
+        describe("and their token is valid", () => {
+          it("responds with the user's details", async () => {
+            const userSignupDetails = {
+              firstName: "Rolling",
+              lastName: "Cat",
+              email: "chef@email.com",
+              password: "skdhakslndkasnd",
+            };
+
+            await request(app).post("/user/signup").send(userSignupDetails);
+
+            const userCredentials = {
+              userName: "chef@email.com",
+              password: "skdhakslndkasnd",
+            };
+            const authorizationHeader = await request(app)
+              .post("/user/login")
+              .send(userCredentials)
+              .then((loginResponse) =>
+                pipe<[Response], string>(path(["headers", "authorization"]))(
+                  loginResponse
+                )
+              );
+            const response = await request(app)
+              .get("/user")
+              .set("Authorization", authorizationHeader)
+              .send();
+
+            const userDetails = {
+              firstName: "Rolling",
+              lastName: "Cat",
+              email: "chef@email.com",
+            };
+            expect(response.statusCode).toBe(200);
+            expect(response.body).toEqual(userDetails);
+          });
+        });
       });
     });
   });
