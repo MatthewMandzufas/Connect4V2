@@ -3,6 +3,15 @@ import UserService, { AuthenticationFailedError } from "@/user/user-service";
 import express, { RequestHandler } from "express";
 import { EncryptJWT, generateKeyPair, KeyLike } from "jose";
 
+const userDetailsRequestHandlerFactory =
+  (userService: UserService): RequestHandler =>
+  (req, res, next) => {
+    res
+      .status(401)
+      .send({ errors: ["You must be logged in to view your user details"] });
+    next();
+  };
+
 const signupRequestHandlerFactory =
   (userService: UserService): RequestHandler =>
   (req, res, next) => {
@@ -61,6 +70,7 @@ const userRouterFactory = (
   keys?: PredefinedPublicKeySet
 ) => {
   const userRouter = express.Router();
+  userRouter.get("/", userDetailsRequestHandlerFactory(userService));
   userRouter.post("/signup", signupRequestHandlerFactory(userService));
   userRouter.post(
     "/login",
