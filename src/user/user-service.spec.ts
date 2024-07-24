@@ -1,58 +1,135 @@
-import UserService, { UserAlreadyExistsError } from "@/user/user-service";
+import InMemoryUserRepository from "@/user/in-memory-user-repository";
+import UserService, {
+  AuthenticationFailedError,
+  UserAlreadyExistsError,
+} from "@/user/user-service";
 import argon2 from "argon2";
-import InMemoryUserRepositoryFactory from "./in-memory-user-repository";
+
+const user1Details = {
+  firstName: "John",
+  lastName: "Doe",
+  email: "john.doe@foo.com",
+  password: "iamjohndoe",
+};
 
 describe("user-service", () => {
-  describe("given the details of a user that does not exist", () => {
-    it("creates the user", async () => {
-      const inMemoryUserRepository = new InMemoryUserRepositoryFactory();
-      const userService = new UserService(inMemoryUserRepository);
-      const user = await userService.create({
-        firstName: "John",
-        lastName: "Doe",
-        email: "john.doe@email.com",
-        password: "somePassword!",
+  describe("user creation", () => {
+    describe("given the details of a user that doesn't exist", () => {
+      it("creates the user", async () => {
+        const userRepository = new InMemoryUserRepository();
+        const userService = new UserService(userRepository);
+        expect(await userService.create(user1Details)).toEqual(
+          expect.objectContaining({
+            firstName: "John",
+            lastName: "Doe",
+            email: "john.doe@foo.com",
+            uuid: expect.toBeUUID(),
+          })
+        );
       });
-      expect(user).toEqual(
-        expect.objectContaining({
-          firstName: "John",
-          lastName: "Doe",
-          email: "john.doe@email.com",
-          uuid: expect.toBeUUID(),
-        })
-      );
-      expect(await argon2.hash(user.password)).toBeTruthy();
+    });
+    describe("given an email is already associated with an existing user", () => {
+      it("throws a 'user already exists' error when attempting to create users with the same email", async () => {
+        const userRepository = new InMemoryUserRepository();
+        const userService = new UserService(userRepository);
+        await userService.create(user1Details);
+        expect(userService.create(user1Details)).rejects.toThrow(
+          new UserAlreadyExistsError("A user with that email already exists")
+        );
+      });
+    });
+    describe("given a user with a plain-text password", () => {
+      it("creates the user with a hashed password", async () => {
+        const userRepository = new InMemoryUserRepository();
+        const userService = new UserService(userRepository);
+        const userDetails = {
+          firstName: "Osamu",
+          lastName: "Dazai",
+          email: "od@nlh.jp",
+          password: "nolongerhuman",
+        };
+        await userService.create(userDetails);
+        const [{ password: hashedPassword }] = await userRepository.findByEmail(
+          userDetails.email
+        );
+        expect(
+          await argon2.verify(hashedPassword, userDetails.password)
+        ).toBeTruthy();
+      });
     });
   });
-  describe("given the email of a user that already exists", () => {
-    it('throws a "user already exists" error', async () => {
-      const userRepository = new InMemoryUserRepositoryFactory();
-      const userService = new UserService(userRepository);
-      const johnDoeUser = {
-        firstName: "John1",
-        lastName: "Doe",
-        email: "john1.doe@email.com",
-        password: "somePassword",
-      };
 
-      await userService.create(johnDoeUser);
-      expect(userService.create(johnDoeUser)).rejects.toThrow(
-        new UserAlreadyExistsError("A user with that email already exists")
-      );
+  describe("user authentication", () => {
+    describe("given a registered user", () => {
+      describe("when an authentication attempt for that user is made with invalid credentials", () => {
+        it("throws a 'Authentication failed' error", async () => {
+          const userRepository = new InMemoryUserRepository();
+          const userService = new UserService(userRepository);
+          const userDetails = {
+            firstName: "Fernando",
+            lastName: "Pessoa",
+            email: "tbod@book.com",
+            password: "oaisdhfgoishdfg",
+          };
+          await userService.create(userDetails);
+          const userCredentials = {
+            email: "tbod@book.com",
+            password: "wrongpasswordlmao",
+          };
+          expect(userService.authenticate(userCredentials)).rejects.toThrow(
+            new AuthenticationFailedError("Authentication failed")
+          );
+        });
+      });
+      describe("when an authentication attempt for that user is made with valid credentials", () => {
+        it("returns a message indicating the user was authenticated", async () => {
+          const userRepository = new InMemoryUserRepository();
+          const userService = new UserService(userRepository);
+          const userDetails = {
+            firstName: "William",
+            lastName: "Faulkner",
+            email: "wf@gmail.com",
+            password: "dhfgkjhsdfkljghlksdfhg",
+          };
+          await userService.create(userDetails);
+          const userCredentials = {
+            email: "wf@gmail.com",
+            password: "dhfgkjhsdfkljghlksdfhg",
+          };
+          expect(userService.authenticate(userCredentials)).resolves.toEqual({
+            message: "Authentication succeeded",
+          });
+        });
+      });
+    });
+    describe("given an unregistered user", () => {
+      describe("when an authentication attempt is made", () => {
+        it("throws an 'Authentication failed' error", () => {
+          const userRepository = new InMemoryUserRepository();
+          const userService = new UserService(userRepository);
+          const userCredentials = {
+            email: "aldhux@bnw.com",
+            password: "lidfhglksdhfglkjhsdlkfjhgkl",
+          };
+          expect(userService.authenticate(userCredentials)).rejects.toThrow(
+            new AuthenticationFailedError("Authentication failed")
+          );
+        });
+      });
     });
   });
-  describe("given a user with a plaintext password", () => {
-    it("creates the user with a hashed password", async () => {
-      const userRepository = new InMemoryUserRepositoryFactory();
-      const userService = new UserService(userRepository);
-      const JoshKennedyUser = {
-        firstName: "Josh",
-        lastName: "Kennedy",
-        email: "Josh.Kennedy@email.com",
-        password: "Hello123",
-      };
-      const user = await userService.create(JoshKennedyUser);
-      expect(await argon2.hash(user.password)).toBeTruthy();
+
+  describe("get user details", () => {
+    describe("given the email for a user does not exist", () => {
+      it("throws a 'NoSuchUser' error", async () => {
+        const userRepository = new InMemoryUserRepository();
+        const userService = new UserService(userRepository);
+        const userEmail = "Tim.Kelley@email.com";
+
+        expect(userService.getUserDetails(userEmail)).rejects.toThrow(
+          new NoSuchUserError("User does not exist")
+        );
+      });
     });
   });
 });
