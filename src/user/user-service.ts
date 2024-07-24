@@ -1,5 +1,6 @@
 import type {
   UserCredentials,
+  UserDetails,
   UserRepository,
   UserSignupDetails,
 } from "@/user/user-repository.d";
@@ -16,7 +17,7 @@ interface UserServiceInterface {
   authenticate: (
     userCredentials: UserCredentials
   ) => Promise<{ message: String }>;
-  getUserDetails: (userEmail: string) => Promise<void>;
+  getUserDetails: (userEmail: string) => Promise<UserDetails>;
 }
 
 class UserService implements UserServiceInterface {
@@ -63,6 +64,8 @@ class UserService implements UserServiceInterface {
     if (persistedUser === undefined) {
       throw new NoSuchUserError("User does not exist");
     }
+    const { password, uuid, ...userDetails } = persistedUser;
+    return userDetails;
   }
 }
 

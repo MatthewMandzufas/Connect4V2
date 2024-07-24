@@ -146,9 +146,9 @@ describe("user-service", () => {
 
         expect(
           userService.getUserDetails(userSignupDetails.email)
-        ).resolves.toBe({
+        ).resolves.toEqual({
           firstName: "Patrick",
-          lastName: "Lipsinki",
+          lastName: "Lipinski",
           email: "PL@email.com",
         });
       });
