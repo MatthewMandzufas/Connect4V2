@@ -7,17 +7,21 @@ describe("get-is-user-authorized", () => {
       it("returns false", async () => {
         const { privateKey, publicKey } = await generateKeyPair("RS256");
         const token = "pakhjsfdokjahbnsokrdh";
-        expect(getIsUserAuthorized(token, privateKey)).resolves.toBe(false);
+        expect(
+          getIsUserAuthorized(token, privateKey, "someEma@email.com")
+        ).resolves.toBe(false);
       });
     });
     describe("which is expired", () => {
       it("returns false", async () => {
         const { privateKey, publicKey } = await generateKeyPair("RS256");
         const token = await new EncryptJWT()
-          .setProtectedHeader({ alg: "RSA-DAEP-256", enc: "A128CBC-HS256" })
+          .setProtectedHeader({ alg: "RSA-OAEP-256", enc: "A128CBC-HS256" })
           .setExpirationTime("1 day ago")
           .encrypt(publicKey);
-        expect(getIsUserAuthorized(token, privateKey)).resolves.toBe(false);
+        expect(
+          getIsUserAuthorized(token, privateKey, "ksdaksnd@email.com")
+        ).resolves.toBe(false);
       });
     });
   });
