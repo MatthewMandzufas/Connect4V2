@@ -144,4 +144,19 @@ describe("user-integration", () => {
       });
     });
   });
+  describe("user", () => {
+    describe("given a user does not provide an authorisation token", () => {
+      describe("when they attempt to view their user details", () => {
+        it("responds with http status code 401", async () => {
+          const response = await request(app).get("/user").send();
+          expect(response.statusCode).toBe(401);
+          expect(response.body.errors).toEqual([
+            {
+              message: "You must be logged in to view your user details",
+            },
+          ]);
+        });
+      });
+    });
+  });
 });
