@@ -132,5 +132,26 @@ describe("user-service", () => {
         );
       });
     });
+    describe("given the email for a user that does not exist", () => {
+      it("it returns the user's details", async () => {
+        const userRepository = new InMemoryUserRepository();
+        const userService = new UserService(userRepository);
+        const userSignupDetails = {
+          firstName: "Patrick",
+          lastName: "Lipinski",
+          email: "PL@email.com",
+          password: "kasdlkajsdlkajsd",
+        };
+        await userService.create(userSignupDetails);
+
+        expect(
+          userService.getUserDetails(userSignupDetails.email)
+        ).resolves.toBe({
+          firstName: "Patrick",
+          lastName: "Lipsinki",
+          email: "PL@email.com",
+        });
+      });
+    });
   });
 });
