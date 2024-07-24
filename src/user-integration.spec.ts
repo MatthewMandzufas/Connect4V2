@@ -151,10 +151,24 @@ describe("user-integration", () => {
           const response = await request(app).get("/user").send();
           expect(response.statusCode).toBe(401);
           expect(response.body.errors).toEqual([
-            {
-              message: "You must be logged in to view your user details",
-            },
+            "You must be logged in to view your user details",
+            ,
           ]);
+        });
+      });
+      describe("given a user provided an authorisation token", () => {
+        describe("and their token is invalid", () => {
+          it("responds with http status code 401", async () => {
+            const response = await request(app)
+              .get("/user")
+              .send()
+              .set("Authorization", "somethingTokenW")
+              .send();
+            expect(response.statusCode).toBe(401);
+            expect(response.body.errors).toEqual([
+              "You must be logged in to view your user details",
+            ]);
+          });
         });
       });
     });
