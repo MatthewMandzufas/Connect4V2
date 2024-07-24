@@ -1,6 +1,7 @@
 import InMemoryUserRepository from "@/user/in-memory-user-repository";
 import UserService, {
   AuthenticationFailedError,
+  NoSuchUserError,
   UserAlreadyExistsError,
 } from "@/user/user-service";
 import argon2 from "argon2";

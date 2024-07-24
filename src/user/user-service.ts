@@ -1,18 +1,22 @@
 import type {
   UserCredentials,
-  UserDetails,
   UserRepository,
+  UserSignupDetails,
 } from "@/user/user-repository.d";
 import argon2, { hash } from "argon2";
 import { isEmpty } from "ramda";
 export class UserAlreadyExistsError extends Error {}
 export class AuthenticationFailedError extends Error {}
+export class NoSuchUserError extends Error {}
 
 interface UserServiceInterface {
-  create: (userDetails: UserDetails) => Promise<UserDetails & { uuid: Uuid }>;
+  create: (
+    userDetails: UserSignupDetails
+  ) => Promise<UserSignupDetails & { uuid: Uuid }>;
   authenticate: (
     userCredentials: UserCredentials
   ) => Promise<{ message: String }>;
+  getUserDetails: (userEmail: string) => Promise<void>;
 }
 
 class UserService implements UserServiceInterface {
@@ -21,7 +25,7 @@ class UserService implements UserServiceInterface {
     this.#userRepository = userRepository;
   }
 
-  async create(userDetails: UserDetails) {
+  async create(userDetails: UserSignupDetails) {
     if (isEmpty(await this.#userRepository.findByEmail(userDetails.email))) {
       return await this.#userRepository.create({
         ...userDetails,
@@ -50,6 +54,15 @@ class UserService implements UserServiceInterface {
     return {
       message: "Authentication succeeded",
     };
+  }
+
+  async getUserDetails(userEmail: string) {
+    const persistedUsersWithProvidedEmail =
+      await this.#userRepository.findByEmail(userEmail);
+    const persistedUser = persistedUsersWithProvidedEmail[0];
+    if (persistedUser === undefined) {
+      throw new NoSuchUserError("User does not exist");
+    }
   }
 }
 
