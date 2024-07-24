@@ -24,5 +24,16 @@ describe("get-is-user-authorized", () => {
         ).resolves.toBe(false);
       });
     });
+    describe("which was not issued for the user", () => {
+      it("returns false", async () => {
+        const { privateKey, publicKey } = await generateKeyPair("RS256");
+        const token = await new EncryptJWT({ userName: "notEmail@email.com" })
+          .setProtectedHeader({ alg: "RSA-OAEP-256", enc: "A128CBC-HS256" })
+          .encrypt(publicKey);
+        expect(
+          getIsUserAuthorized(token, privateKey, "email@email.com")
+        ).resolves.toBe(false);
+      });
+    });
   });
 });
