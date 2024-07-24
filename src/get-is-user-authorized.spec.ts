@@ -1,3 +1,4 @@
+import getIsUserAuthorized from "@/get-is-user-authorized";
 import { generateKeyPair } from "jose";
 
 describe("get-is-user-authorized", () => {
@@ -6,7 +7,7 @@ describe("get-is-user-authorized", () => {
       it("returns false", async () => {
         const { privateKey, publicKey } = await generateKeyPair("RS256");
         const token = "pakhjsfdokjahbnsokrdh";
-        expect(getIsUserAuthorized(token, privateKey)).toBe(false);
+        expect(getIsUserAuthorized(token, privateKey)).resolves.toBe(false);
       });
     });
   });
