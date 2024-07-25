@@ -35,5 +35,18 @@ describe("get-is-user-authorized", () => {
         ).resolves.toBe(false);
       });
     });
+    describe("which is valid for the user", () => {
+      it("returns true", async () => {
+        const { privateKey, publicKey } = await generateKeyPair("RS256");
+        const token = await new EncryptJWT({
+          userName: "Harley.Reid@email.com",
+        })
+          .setProtectedHeader({ alg: "RSA-OAEP-256", enc: "A128CBC-HS256" })
+          .encrypt(publicKey);
+        expect(
+          getIsUserAuthorized(token, privateKey, "Harley.Reid@email.com")
+        ).resolves.toBe(true);
+      });
+    });
   });
 });
