@@ -2,7 +2,6 @@ import { appFactory } from "@/app";
 import { generateKeyPair, jwtDecrypt } from "jose";
 import { last, path, pipe, split } from "ramda";
 import request, { Response } from "supertest";
-const app = appFactory();
 
 const user1Details = {
   firstName: "John",
@@ -14,6 +13,10 @@ describe("user-integration", () => {
   describe("signup", () => {
     describe("given the user does not exist", () => {
       it("creates a user", async () => {
+        const app = appFactory({
+          stage: "test",
+          keys: { jwtKeyPair: await generateKeyPair("RS256") },
+        });
         const response = await request(app)
           .post("/user/signup")
           .send(user1Details);
@@ -31,6 +34,11 @@ describe("user-integration", () => {
     });
     describe("given a user already exists with a given email", () => {
       it("forbids creation of another user with that email", async () => {
+        const app = appFactory({
+          stage: "test",
+          keys: { jwtKeyPair: await generateKeyPair("RS256") },
+        });
+
         await request(app).post("/user/signup").send(user1Details);
         const response = await request(app)
           .post("/user/signup")
@@ -43,15 +51,20 @@ describe("user-integration", () => {
       });
     });
     describe("given invalid user details", () => {
-      it.skip("forbids creation of user", async () => {
+      it("forbids creation of user", async () => {
+        const app = appFactory({
+          stage: "test",
+          keys: { jwtKeyPair: await generateKeyPair("RS256") },
+        });
+
         const response = await request(app).post("/user/signup").send({
           firstName: "Frank",
           lastName: "Herbert",
         });
         expect(response.statusCode).toBe(403);
         expect(response.body.errors).toEqual([
-          { message: `"password" is required`, path: "password" },
           { message: `"email" is required`, path: "email" },
+          { message: `"password" is required`, path: "password" },
         ]);
       });
     });
@@ -60,8 +73,13 @@ describe("user-integration", () => {
     describe("given a user already exists", () => {
       describe("and they provide the correct credentials", () => {
         it("they are provided with a session token", async () => {
-          const { publicKey, privateKey } = await generateKeyPair("RS256");
-          const app = appFactory({ jwtPublicKeySet: publicKey });
+          const jwtKeyPair = await generateKeyPair("RS256");
+          const app = appFactory({
+            stage: "test",
+            keys: {
+              jwtKeyPair,
+            },
+          });
 
           const date = Date.now();
           jest.useFakeTimers({ doNotFake: ["setImmediate"] });
@@ -89,7 +107,7 @@ describe("user-integration", () => {
                 last
               )(loginResponse)
             )
-            .then((jwt) => jwtDecrypt(jwt, privateKey));
+            .then((jwt) => jwtDecrypt(jwt, jwtKeyPair.privateKey));
 
           const durationOfDayInSeconds = 24 * 60 * 60;
           const currentDateInSeconds = Math.floor(date / 1000);
@@ -112,6 +130,11 @@ describe("user-integration", () => {
       });
       describe("and they provide incorrect credentials", () => {
         it("returns with http error code 403", async () => {
+          const app = appFactory({
+            stage: "test",
+            keys: { jwtKeyPair: await generateKeyPair("RS256") },
+          });
+
           const userDetails = {
             firstName: "Mikhail",
             lastName: "Bulgakov",
@@ -133,6 +156,11 @@ describe("user-integration", () => {
     });
     describe("given credentials for a user that does not exist", () => {
       it("responds with http status code 403", async () => {
+        const app = appFactory({
+          stage: "test",
+          keys: { jwtKeyPair: await generateKeyPair("RS256") },
+        });
+
         const credentials = {
           email: "some@email.com",
           password: "asljdalsdsd",
@@ -148,6 +176,11 @@ describe("user-integration", () => {
     describe("given a user does not provide an authorisation token", () => {
       describe("when they attempt to view their user details", () => {
         it("responds with http status code 401", async () => {
+          const app = appFactory({
+            stage: "test",
+            keys: { jwtKeyPair: await generateKeyPair("RS256") },
+          });
+
           const response = await request(app).get("/user").send();
           expect(response.statusCode).toBe(401);
           expect(response.body.errors).toEqual([
@@ -159,6 +192,11 @@ describe("user-integration", () => {
       describe("given a user provided an authorisation token", () => {
         describe("and their token is invalid", () => {
           it("responds with http status code 401", async () => {
+            const app = appFactory({
+              stage: "test",
+              keys: { jwtKeyPair: await generateKeyPair("RS256") },
+            });
+
             const response = await request(app)
               .get("/user")
               .send()
@@ -176,6 +214,12 @@ describe("user-integration", () => {
         });
         describe("and their token is valid", () => {
           it("responds with the user's details", async () => {
+            const keys = { jwtKeyPair: await generateKeyPair("RS256") };
+            const app = appFactory({
+              stage: "test",
+              keys,
+            });
+
             const userSignupDetails = {
               firstName: "Rolling",
               lastName: "Cat",
@@ -183,7 +227,10 @@ describe("user-integration", () => {
               password: "skdhakslndkasnd",
             };
 
-            await request(app).post("/user/signup").send(userSignupDetails);
+            const user = await request(app)
+              .post("/user/signup")
+              .send(userSignupDetails);
+            expect(user.statusCode).toBe(201);
 
             const userCredentials = {
               userName: "chef@email.com",
@@ -197,10 +244,11 @@ describe("user-integration", () => {
                   loginResponse
                 )
               );
+
             const response = await request(app)
               .get("/user")
               .set("Authorization", authorizationHeader)
-              .send();
+              .send({ email: "chef@email.com" });
 
             const userDetails = {
               firstName: "Rolling",

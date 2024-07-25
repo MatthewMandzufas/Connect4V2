@@ -1,14 +1,28 @@
-import { PredefinedPublicKeySet } from "@/user/user-router.d";
+import getIsUserAuthorized from "@/get-is-user-authorized";
+import { KeyPairSet } from "@/user/user-router.d";
 import UserService, { AuthenticationFailedError } from "@/user/user-service";
 import express, { RequestHandler } from "express";
 import { EncryptJWT, generateKeyPair, KeyLike } from "jose";
 
 const userDetailsRequestHandlerFactory =
-  (userService: UserService): RequestHandler =>
-  (req, res, next) => {
-    res
-      .status(401)
-      .send({ errors: ["You must be logged in to view your user details"] });
+  (userService: UserService, jwtPrivateKey: KeyLike): RequestHandler =>
+  async (req, res, next) => {
+    const { email } = req.body;
+
+    const authorizationToken = req.headers.authorization;
+    const isAuthorized = await getIsUserAuthorized(
+      authorizationToken,
+      jwtPrivateKey,
+      email
+    );
+    if (isAuthorized) {
+      const userDetails = await userService.getUserDetails(email);
+      res.status(200).send(userDetails);
+    } else {
+      res
+        .status(401)
+        .send({ errors: ["You must be logged in to view your user details"] });
+    }
     next();
   };
 
@@ -52,10 +66,7 @@ const loginRequestHandlerFactory =
         .setNotBefore("0s")
         .encrypt(jwtPublicKey)
         .then((jwtContent) =>
-          res
-            .status(200)
-            .setHeader("Authorization", `Basic ${jwtContent}`)
-            .send()
+          res.status(200).setHeader("Authorization", jwtContent).send()
         );
     } catch (err) {
       if (err instanceof AuthenticationFailedError)
@@ -65,16 +76,16 @@ const loginRequestHandlerFactory =
     }
   };
 
-const userRouterFactory = (
-  userService: UserService,
-  keys?: PredefinedPublicKeySet
-) => {
+const userRouterFactory = (userService: UserService, keys: KeyPairSet) => {
   const userRouter = express.Router();
-  userRouter.get("/", userDetailsRequestHandlerFactory(userService));
+  userRouter.get(
+    "/",
+    userDetailsRequestHandlerFactory(userService, keys.jwtKeyPair.privateKey)
+  );
   userRouter.post("/signup", signupRequestHandlerFactory(userService));
   userRouter.post(
     "/login",
-    loginRequestHandlerFactory(userService, keys?.jwtPublicKeySet)
+    loginRequestHandlerFactory(userService, keys.jwtKeyPair.publicKey)
   );
   return userRouter;
 };
