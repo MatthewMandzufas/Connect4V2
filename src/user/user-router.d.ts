@@ -7,6 +7,9 @@ export type UserSignupRequestBody = {
   password: string;
 };
 
-export type PredefinedPublicKeySet = {
-  jwtPublicKeySet: KeyLike;
+export type KeyPairSet = {
+  jwtKeyPair?: {
+    publicKey: KeyLike;
+    privateKey: KeyLike;
+  };
 };

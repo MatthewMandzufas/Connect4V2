@@ -1,5 +1,5 @@
 import userRouterFactory from "@/user/user-router";
-import { PredefinedPublicKeySet } from "@/user/user-router.d";
+import { KeyPairSet } from "@/user/user-router.d";
 import UserService from "@/user/user-service";
 import { Router } from "express";
 import InMemoryUserRepositoryFactory from "./user/in-memory-user-repository";
@@ -9,8 +9,8 @@ export enum RouterType {
 }
 
 const resolveRouters = (
-  env: NodeEnv,
-  keys?: PredefinedPublicKeySet
+  env: Stage,
+  keys?: KeyPairSet
 ): Record<RouterType, Router> => {
   const userRepository =
     env !== "production"

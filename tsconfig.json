@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
-    "module": "CommonJS",
+    "module": "NodeNext",
     "types": ["jest"],
     "esModuleInterop": true,
     "target": "es6",
-    "moduleResolution": "Node",
+    "moduleResolution": "NodeNext",
     "outDir": "dist",
     "isolatedModules": true,
     "paths": {

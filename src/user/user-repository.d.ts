@@ -1,8 +1,14 @@
-export type UserDetails = {
+export type UserSignupDetails = {
   firstName: string;
   lastName: string;
   email: string;
   password: string;
+};
+
+export type UserDetails = {
+  firstName: string;
+  lastName: string;
+  email: string;
 };
 
 export type UserCredentials = {
@@ -10,11 +16,11 @@ export type UserCredentials = {
   password: string;
 };
 
-type PersistedUser = UserDetails & {
+type PersistedUser = UserSignupDetails & {
   uuid: Uuid;
 };
 
 export interface UserRepository {
-  create: (userDetails: UserDetails) => Promise<PersistedUser>;
+  create: (userDetails: UserSignupDetails) => Promise<PersistedUser>;
   findByEmail: (email: string) => Promise<Array<PersistedUser>>;
 }
