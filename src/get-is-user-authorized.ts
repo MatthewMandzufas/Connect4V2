@@ -10,6 +10,7 @@ const getIsUserAuthorized = async (
     const { payload } = await jwtDecrypt(token, privateKey);
 
     if (payload.userName !== userEmail) return false;
+    return true;
   } catch (error) {
     if (error instanceof JWEInvalid || error instanceof JWTExpired)
       return false;
