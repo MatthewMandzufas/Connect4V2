@@ -189,75 +189,121 @@ describe("user-integration", () => {
           ]);
         });
       });
-      describe("given a user provided an authorisation token", () => {
-        describe("and their token is invalid", () => {
-          it("responds with http status code 401", async () => {
-            const app = appFactory({
-              stage: "test",
-              keys: { jwtKeyPair: await generateKeyPair("RS256") },
-            });
-
-            const response = await request(app)
-              .get("/user")
-              .send()
-              .set("Authorization", "somethingTokenW")
-              .send();
-            expect(response.statusCode).toBe(401);
-            expect(response.body.errors).toEqual([
-              "You must be logged in to view your user details",
-            ]);
+    });
+    describe("given a user provided an authorisation token", () => {
+      describe("and their token is invalid", () => {
+        it("responds with http status code 401", async () => {
+          const app = appFactory({
+            stage: "test",
+            keys: { jwtKeyPair: await generateKeyPair("RS256") },
           });
+
+          const response = await request(app)
+            .get("/user")
+            .send()
+            .set("Authorization", "somethingTokenW")
+            .send();
+          expect(response.statusCode).toBe(401);
+          expect(response.body.errors).toEqual([
+            "You must be logged in to view your user details",
+          ]);
         });
+      });
 
-        describe("and their token is expired", () => {
-          it.todo("responds with http status code 401");
-        });
-        describe("and their token is valid", () => {
-          it("responds with the user's details", async () => {
-            const keys = { jwtKeyPair: await generateKeyPair("RS256") };
-            const app = appFactory({
-              stage: "test",
-              keys,
-            });
-
-            const userSignupDetails = {
-              firstName: "Rolling",
-              lastName: "Cat",
-              email: "chef@email.com",
-              password: "skdhakslndkasnd",
-            };
-
-            const user = await request(app)
-              .post("/user/signup")
-              .send(userSignupDetails);
-            expect(user.statusCode).toBe(201);
-
-            const userCredentials = {
-              userName: "chef@email.com",
-              password: "skdhakslndkasnd",
-            };
-            const authorizationHeader = await request(app)
-              .post("/user/login")
-              .send(userCredentials)
-              .then((loginResponse) =>
-                pipe<[Response], string>(path(["headers", "authorization"]))(
-                  loginResponse
-                )
-              );
-
-            const response = await request(app)
-              .get("/user")
-              .set("Authorization", authorizationHeader)
-              .send({ email: "chef@email.com" });
-
-            const userDetails = {
-              firstName: "Rolling",
-              lastName: "Cat",
-              email: "chef@email.com",
-            };
-            expect(response.statusCode).toBe(200);
-            expect(response.body).toEqual(userDetails);
+      describe("and their token is expired", () => {
+        it("responds with http status code 401", async () => {
+          jest.useFakeTimers({
+            doNotFake: ["setImmediate"],
           });
+          const keys = { jwtKeyPair: await generateKeyPair("RS256") };
+          const app = appFactory({
+            stage: "test",
+            keys,
+          });
+
+          const userSignupDetails = {
+            firstName: "Rolling",
+            lastName: "Cat",
+            email: "khai@email.com",
+            password: "skdhakslndkasnd",
+          };
+
+          const user = await request(app)
+            .post("/user/signup")
+            .send(userSignupDetails);
+          expect(user.statusCode).toBe(201);
+
+          const userCredentials = {
+            userName: "khai@email.com",
+            password: "skdhakslndkasnd",
+          };
+          const authorizationHeader = await request(app)
+            .post("/user/login")
+            .send(userCredentials)
+            .then((loginResponse) =>
+              pipe<[Response], string>(path(["headers", "authorization"]))(
+                loginResponse
+              )
+            );
+
+          jest.setSystemTime(200000);
+          const response = await request(app)
+            .get("/user")
+            .set("Authorization", authorizationHeader)
+            .send({ email: "khai@email.com" });
+
+          expect(response.statusCode).toBe(401);
+          expect(response.body.errors).toEqual([
+            "You must be logged in to view your user details",
+          ]);
+          jest.useRealTimers();
+        });
+      });
+      describe("and their token is valid", () => {
+        it("responds with the user's details", async () => {
+          const keys = { jwtKeyPair: await generateKeyPair("RS256") };
+          const app = appFactory({
+            stage: "test",
+            keys,
+          });
+
+          const userSignupDetails = {
+            firstName: "Rolling",
+            lastName: "Cat",
+            email: "chef@email.com",
+            password: "skdhakslndkasnd",
+          };
+
+          const user = await request(app)
+            .post("/user/signup")
+            .send(userSignupDetails);
+          expect(user.statusCode).toBe(201);
+
+          const userCredentials = {
+            userName: "chef@email.com",
+            password: "skdhakslndkasnd",
+          };
+          const authorizationHeader = await request(app)
+            .post("/user/login")
+            .send(userCredentials)
+            .then((loginResponse) =>
+              pipe<[Response], string>(path(["headers", "authorization"]))(
+                loginResponse
+              )
+            );
+
+          const response = await request(app)
+            .get("/user")
+            .set("Authorization", authorizationHeader)
+            .send({ email: "chef@email.com" });
+
+          const userDetails = {
+            firstName: "Rolling",
+            lastName: "Cat",
+            email: "chef@email.com",
+          };
+          expect(response.statusCode).toBe(200);
+          expect(response.body).toEqual(userDetails);
         });
       });
     });
