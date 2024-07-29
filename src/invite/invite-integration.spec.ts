@@ -39,6 +39,7 @@ describe("invite-integration", () => {
 
           const response = await request(app).post("/invite").send({
             invitee: "Jake.Waterman@email.com",
+            inviter: "Oscar.Allen@email.com",
           });
           expect(response.statusCode).toBe(201);
           expect(response.body.invite).toEqual({
