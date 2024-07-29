@@ -1,5 +1,6 @@
 import InMemoryUserRepositoryFactory from "@/user/in-memory-user-repository";
 import UserService from "@/user/user-service";
+import InMemoryInviteRepository from "./in-memory-invite-repository";
 import InviteService from "./invite-service";
 
 const createUserServiceWithInviterAndInvitee = () => {
@@ -33,7 +34,8 @@ describe("invite-service", () => {
         jest.setSystemTime(currentTime);
 
         const userService = createUserServiceWithInviterAndInvitee();
-        const inviteService = new InviteService(userService);
+        const inviteRepository = new InMemoryInviteRepository();
+        const inviteService = new InviteService(userService, inviteRepository);
         const inviteDetails = inviteService.create({
           invitee: "player2@email.com",
           inviter: "player1@email.com",
@@ -42,6 +44,9 @@ describe("invite-service", () => {
         expect(inviteDetails).toEqual({
           uuid: expect.toBeUUID(),
           exp: currentTime + lengthOfDayInMilliseconds,
+          inviter: "player1@email.com",
+          invitee: "player2@email.com",
+          status: "PENDING",
         });
       });
     });
