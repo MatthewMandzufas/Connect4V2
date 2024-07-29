@@ -17,6 +17,7 @@ export const appFactory = (
   const routers = resolveRouters(process.env.NODE_ENV as Stage, keys);
   const app = express()
     .use(express.json())
-    .use("/user", validateUserSignupRequest, routers[RouterType.userRouter]);
+    .use("/user", validateUserSignupRequest, routers[RouterType.userRouter])
+    .use("/invite", routers[RouterType.inviteRouter]);
   return app;
 };

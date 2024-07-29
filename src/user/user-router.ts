@@ -9,6 +9,7 @@ const userDetailsRequestHandlerFactory =
   async (req, res, next) => {
     const { email } = req.body;
 
+    // TODO: Move this to some middleware?
     const authorizationToken = req.headers.authorization;
     const isAuthorized = await getIsUserAuthorized(
       authorizationToken,

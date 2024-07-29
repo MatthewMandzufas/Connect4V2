@@ -12,13 +12,14 @@ export default class InMemoryInviteRepository implements InviteRepository {
   }
 
   async create(inviteCreationDetails: InviteCreationDetails) {
-    const { inviter, invitee, exp } = inviteCreationDetails;
+    const { inviter, invitee, exp, status } = inviteCreationDetails;
     const uuid = crypto.randomUUID();
-    await this.invites.set(uuid, { inviter, invitee, exp, uuid });
+    await this.invites.set(uuid, { inviter, invitee, exp, uuid, status });
     return Promise.resolve({
       inviter,
       invitee,
       exp,
+      status,
       uuid,
     });
   }

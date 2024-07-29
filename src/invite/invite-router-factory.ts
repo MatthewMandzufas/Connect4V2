@@ -1,10 +1,11 @@
 import express, { RequestHandler } from "express";
+import InviteService from "./invite-service";
 
-const createInvitationRequestHandler: RequestHandler =
+const createInvitationRequestHandler =
   (inviteService: InviteService): RequestHandler =>
-  (req, res, next) => {
+  async (req, res, next) => {
     const { invitee, inviter } = req.body;
-    const { uuid, exp } = inviteService({ invitee, inviter });
+    const { uuid, exp } = await inviteService.create({ invitee, inviter });
     const inviteDetails = {
       inviter,
       invitee,
@@ -12,9 +13,10 @@ const createInvitationRequestHandler: RequestHandler =
       exp,
     };
     res.status(201).send({ invite: inviteDetails });
+    next();
   };
 
-const inviteRouterFactory = () => {
+const inviteRouterFactory = (inviteService: InviteService) => {
   const inviteRouter = express.Router();
 
   inviteRouter.post("/", createInvitationRequestHandler(inviteService));

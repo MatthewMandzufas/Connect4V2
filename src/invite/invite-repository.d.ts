@@ -1,7 +1,10 @@
+import { InviteStatus } from "./invite-service.d";
+
 type InviteCreationDetails = {
   inviter: String;
   invitee: String;
   exp: number;
+  status: InviteStatus;
 };
 
 type PersistedInvite = InviteCreationDetails & {
