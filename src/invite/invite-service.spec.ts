@@ -1,5 +1,6 @@
 import InMemoryUserRepositoryFactory from "@/user/in-memory-user-repository";
 import UserService from "@/user/user-service";
+import InviteService from "./invite-service";
 
 const createUserServiceWithInviterAndInvitee = () => {
   const userRepository = new InMemoryUserRepositoryFactory();
@@ -33,7 +34,7 @@ describe("invite-service", () => {
 
         const userService = createUserServiceWithInviterAndInvitee();
         const inviteService = new InviteService(userService);
-        const inviteDetails = inviteService({
+        const inviteDetails = inviteService.create({
           invitee: "player2@email.com",
           inviter: "player1@email.com",
         });
