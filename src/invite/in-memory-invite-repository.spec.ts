@@ -1,3 +1,5 @@
+import InMemoryInviteRepository from "@/invite/in-memory-invite-repository";
+
 describe("in-memory-invite-repository", () => {
   describe("given the details of an invite", () => {
     it("creates the invite", async () => {
