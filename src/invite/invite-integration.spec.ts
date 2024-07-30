@@ -55,17 +55,21 @@ describe("invite-integration", () => {
               password: "jsdknasknasd",
             };
 
-            await request(app).post("/signup").send(inviterUserDetails);
-            await request(app).post("/signup").send(inviteeUserDetails);
-            await request(app).post("/login").send({
+            await request(app).post("/user/signup").send(inviterUserDetails);
+            await request(app).post("/user/signup").send(inviteeUserDetails);
+            const loginResponse = await request(app).post("/user/login").send({
               userName: "Oscar.Allen@email.com",
               password: "lkfksdfksdfj",
             });
 
-            const response = await request(app).post("/invite").send({
-              invitee: "Jake.Waterman@email.com",
-              inviter: "Oscar.Allen@email.com",
-            });
+            const response = await request(app)
+              .post("/invite")
+              .set("Authorization", loginResponse.headers.authorization)
+              .send({
+                // email: "Oscar.Allen@email.com",
+                invitee: "Jake.Waterman@email.com",
+                inviter: "Oscar.Allen@email.com",
+              });
             expect(response.statusCode).toBe(201);
             expect(response.body.invite).toEqual({
               inviter: "Oscar.Allen@email.com",

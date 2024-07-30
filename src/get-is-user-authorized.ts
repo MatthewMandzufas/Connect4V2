@@ -1,5 +1,4 @@
 import { jwtDecrypt, KeyLike } from "jose";
-import { JWEInvalid, JWTExpired } from "jose/errors";
 
 const getIsUserAuthorized = async (
   token: string,
@@ -14,8 +13,7 @@ const getIsUserAuthorized = async (
     }
     return true;
   } catch (error) {
-    if (error instanceof JWEInvalid || error instanceof JWTExpired)
-      return false;
+    return false;
   }
 };
 

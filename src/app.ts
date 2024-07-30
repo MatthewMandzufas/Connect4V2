@@ -2,26 +2,29 @@ import resolveRouters, { RouterType } from "@/resolve-routers";
 import { KeyPairSet } from "@/user/user-router.d";
 import validateUserSignupRequest from "@/user/validate-user-signup-request";
 import express, { RequestHandler } from "express";
-import { KeyLike } from "jose";
-import getIsUserAuthorized from "./get-is-user-authorized";
+import { jwtDecrypt, KeyLike } from "jose";
 
 type AppFactoryParameters = {
   stage: Stage;
   keys: KeyPairSet;
 };
 
-const createAuthorizationMiddleware =
+const createAuthenticationMiddleware =
   (jwtPrivateKey: KeyLike): RequestHandler =>
   async (req, res, next) => {
-    const authorizationToken = req.headers.authorization;
+    const authorizationField = req.headers.authorization;
 
-    const { email } = req.body;
-    res.locals.user = email;
-    res.locals.isAuthorized = await getIsUserAuthorized(
-      authorizationToken,
-      jwtPrivateKey,
-      email
-    );
+    if (authorizationField) {
+      try {
+        const { payload } = await jwtDecrypt(
+          authorizationField.split(" ")[1],
+          jwtPrivateKey
+        );
+        res.locals.claims = {
+          email: payload.userName,
+        };
+      } catch (error) {}
+    }
 
     next();
   };
@@ -35,7 +38,7 @@ export const appFactory = (
   const routers = resolveRouters(process.env.NODE_ENV as Stage, keys);
   const app = express()
     .use(express.json())
-    .use(createAuthorizationMiddleware(keys.jwtKeyPair.privateKey))
+    .use(createAuthenticationMiddleware(keys.jwtKeyPair.privateKey))
     .use("/user", validateUserSignupRequest, routers[RouterType.userRouter])
     .use("/invite", routers[RouterType.inviteRouter]);
   return app;

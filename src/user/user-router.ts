@@ -6,8 +6,10 @@ import { EncryptJWT, generateKeyPair, KeyLike } from "jose";
 const userDetailsRequestHandlerFactory =
   (userService: UserService, jwtPrivateKey: KeyLike): RequestHandler =>
   async (req, res, next) => {
-    if (res.locals.isAuthorized) {
-      const userDetails = await userService.getUserDetails(res.locals.user);
+    if (res.locals.claims?.email) {
+      const userDetails = await userService.getUserDetails(
+        res.locals.claims?.email
+      );
       res.status(200).send(userDetails);
     } else {
       res
@@ -57,7 +59,10 @@ const loginRequestHandlerFactory =
         .setNotBefore("0s")
         .encrypt(jwtPublicKey)
         .then((jwtContent) =>
-          res.status(200).setHeader("Authorization", jwtContent).send()
+          res
+            .status(200)
+            .setHeader("Authorization", `Bearer: ${jwtContent}`)
+            .send()
         );
     } catch (err) {
       if (err instanceof AuthenticationFailedError)
