@@ -57,7 +57,15 @@ describe("invite-integration", () => {
               password: "jsdknasknasd",
             };
 
+            const thirdParty = {
+              firstName: "some",
+              lastName: "user",
+              email: "Some.User@email.com",
+              password: "jsdknasknasd",
+            };
+
             await request(app).post("/user/signup").send(inviterUserDetails);
+            await request(app).post("/user/signup").send(thirdParty);
             await request(app).post("/user/signup").send(inviteeUserDetails);
             const loginResponse = await request(app).post("/user/login").send({
               userName: "Tyler.Brockman@email.com",
@@ -76,7 +84,6 @@ describe("invite-integration", () => {
               errors: ["You must be the authorized user to send an invitation"],
             });
           });
-          // TODO: Apply authorisation for invites routes specifically for that route, use middleware
         });
         describe("when the inviter sends an invite to the invitee", () => {
           it("creates an invitation", async () => {
