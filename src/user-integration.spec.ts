@@ -9,14 +9,23 @@ const user1Details = {
   email: "john.doe@foo.com",
   password: "iamjohndoe",
 };
+
 describe("user-integration", () => {
+  let jwtKeyPair;
+  let app;
+  beforeAll(async () => {
+    jwtKeyPair = await generateKeyPair("RS256");
+  });
+  beforeEach(() => {
+    app = appFactory({
+      stage: "test",
+      keys: { jwtKeyPair },
+    });
+  });
+
   describe("signup", () => {
     describe("given the user does not exist", () => {
       it("creates a user", async () => {
-        const app = appFactory({
-          stage: "test",
-          keys: { jwtKeyPair: await generateKeyPair("RS256") },
-        });
         const response = await request(app)
           .post("/user/signup")
           .send(user1Details);
@@ -34,11 +43,6 @@ describe("user-integration", () => {
     });
     describe("given a user already exists with a given email", () => {
       it("forbids creation of another user with that email", async () => {
-        const app = appFactory({
-          stage: "test",
-          keys: { jwtKeyPair: await generateKeyPair("RS256") },
-        });
-
         await request(app).post("/user/signup").send(user1Details);
         const response = await request(app)
           .post("/user/signup")
@@ -52,11 +56,6 @@ describe("user-integration", () => {
     });
     describe("given invalid user details", () => {
       it("forbids creation of user", async () => {
-        const app = appFactory({
-          stage: "test",
-          keys: { jwtKeyPair: await generateKeyPair("RS256") },
-        });
-
         const response = await request(app).post("/user/signup").send({
           firstName: "Frank",
           lastName: "Herbert",
@@ -73,14 +72,6 @@ describe("user-integration", () => {
     describe("given a user already exists", () => {
       describe("and they provide the correct credentials", () => {
         it("they are provided with a session token", async () => {
-          const jwtKeyPair = await generateKeyPair("RS256");
-          const app = appFactory({
-            stage: "test",
-            keys: {
-              jwtKeyPair,
-            },
-          });
-
           const date = Date.now();
           jest.useFakeTimers({ doNotFake: ["setImmediate"] });
           jest.setSystemTime(date);
@@ -130,11 +121,6 @@ describe("user-integration", () => {
       });
       describe("and they provide incorrect credentials", () => {
         it("returns with http error code 403", async () => {
-          const app = appFactory({
-            stage: "test",
-            keys: { jwtKeyPair: await generateKeyPair("RS256") },
-          });
-
           const userDetails = {
             firstName: "Mikhail",
             lastName: "Bulgakov",
@@ -156,11 +142,6 @@ describe("user-integration", () => {
     });
     describe("given credentials for a user that does not exist", () => {
       it("responds with http status code 403", async () => {
-        const app = appFactory({
-          stage: "test",
-          keys: { jwtKeyPair: await generateKeyPair("RS256") },
-        });
-
         const credentials = {
           email: "some@email.com",
           password: "asljdalsdsd",
@@ -176,11 +157,6 @@ describe("user-integration", () => {
     describe("given a user does not provide an authorisation token", () => {
       describe("when they attempt to view their user details", () => {
         it("responds with http status code 401", async () => {
-          const app = appFactory({
-            stage: "test",
-            keys: { jwtKeyPair: await generateKeyPair("RS256") },
-          });
-
           const response = await request(app).get("/user").send();
           expect(response.statusCode).toBe(401);
           expect(response.body.errors).toEqual([
@@ -193,11 +169,6 @@ describe("user-integration", () => {
     describe("given a user provided an authorisation token", () => {
       describe("and their token is invalid", () => {
         it("responds with http status code 401", async () => {
-          const app = appFactory({
-            stage: "test",
-            keys: { jwtKeyPair: await generateKeyPair("RS256") },
-          });
-
           const response = await request(app)
             .get("/user")
             .send()
@@ -214,11 +185,6 @@ describe("user-integration", () => {
         it("responds with http status code 401", async () => {
           jest.useFakeTimers({
             doNotFake: ["setImmediate"],
-          });
-          const keys = { jwtKeyPair: await generateKeyPair("RS256") };
-          const app = appFactory({
-            stage: "test",
-            keys,
           });
 
           const userSignupDetails = {
@@ -261,12 +227,6 @@ describe("user-integration", () => {
       });
       describe("and their token is valid", () => {
         it("responds with the user's details", async () => {
-          const keys = { jwtKeyPair: await generateKeyPair("RS256") };
-          const app = appFactory({
-            stage: "test",
-            keys,
-          });
-
           const userSignupDetails = {
             firstName: "Rolling",
             lastName: "Cat",
