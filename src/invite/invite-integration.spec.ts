@@ -42,7 +42,40 @@ describe("invite-integration", () => {
     describe("and the inviter is logged in", () => {
       describe("and an invitee that is an existing user", () => {
         describe("when the inviter sends an invitation on behalf of another user", () => {
-          it.todo("returns https status code 401");
+          it("returns https status code 401", async () => {
+            const inviterUserDetails = {
+              firstName: "Tyler",
+              lastName: "Brockman",
+              email: "Tyler.Brockman@email.com",
+              password: "lkfksdfksdfj",
+            };
+
+            const inviteeUserDetails = {
+              firstName: "Matt",
+              lastName: "Pridis",
+              email: "Matt.Pridis@email.com",
+              password: "jsdknasknasd",
+            };
+
+            await request(app).post("/user/signup").send(inviterUserDetails);
+            await request(app).post("/user/signup").send(inviteeUserDetails);
+            const loginResponse = await request(app).post("/user/login").send({
+              userName: "Tyler.Brockman@email.com",
+              password: "lkfksdfksdfj",
+            });
+
+            const response = await request(app)
+              .post("/invite")
+              .set("Authorization", loginResponse.headers.authorization)
+              .send({
+                invitee: "Matt.Pridis@email.com",
+                inviter: "Some.User@email.com",
+              });
+            expect(response.statusCode).toBe(401);
+            expect(response.body).toEqual({
+              errors: ["You must be the authorized user to send an invitation"],
+            });
+          });
           // TODO: Apply authorisation for invites routes specifically for that route, use middleware
         });
         describe("when the inviter sends an invite to the invitee", () => {
