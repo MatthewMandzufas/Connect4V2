@@ -1,10 +1,11 @@
 import { appFactory } from "@/app";
-import { generateKeyPair } from "jose";
+import { Express } from "express";
+import { generateKeyPair, GenerateKeyPairResult, KeyLike } from "jose";
 import request from "supertest";
 
 describe("invite-integration", () => {
-  let app;
-  let jwtKeyPair;
+  let app: Express;
+  let jwtKeyPair: GenerateKeyPairResult<KeyLike>;
   beforeAll(async () => {
     jwtKeyPair = await generateKeyPair("RS256");
   });
@@ -12,7 +13,12 @@ describe("invite-integration", () => {
   beforeEach(() => {
     app = appFactory({
       stage: "test",
-      keys: { jwtKeyPair },
+      keys: {
+        jwtKeyPair: {
+          publicKey: jwtKeyPair.publicKey,
+          privateKey: jwtKeyPair.privateKey,
+        },
+      },
     });
   });
 
@@ -35,6 +41,10 @@ describe("invite-integration", () => {
   describe("given an inviter that is an existing user", () => {
     describe("and the inviter is logged in", () => {
       describe("and an invitee that is an existing user", () => {
+        describe("when the inviter sends an invitation on behalf of another user", () => {
+          it.todo("returns https status code 401");
+          // TODO: Apply authorisation for invites routes specifically for that route, use middleware
+        });
         describe("when the inviter sends an invite to the invitee", () => {
           it("creates an invitation", async () => {
             jest.useFakeTimers({ doNotFake: ["setImmediate"] });

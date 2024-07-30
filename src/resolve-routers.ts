@@ -14,7 +14,7 @@ export enum RouterType {
 
 const resolveRouters = (
   env: Stage,
-  keys?: KeyPairSet
+  keys: KeyPairSet
 ): Record<RouterType, Router> => {
   const userRepository =
     env !== "production"

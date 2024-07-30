@@ -1,5 +1,11 @@
 import { appFactory } from "@/app";
-import { generateKeyPair, jwtDecrypt } from "jose";
+import { Express } from "express";
+import {
+  generateKeyPair,
+  GenerateKeyPairResult,
+  jwtDecrypt,
+  KeyLike,
+} from "jose";
 import { last, path, pipe, split } from "ramda";
 import request, { Response } from "supertest";
 
@@ -11,15 +17,20 @@ const user1Details = {
 };
 
 describe("user-integration", () => {
-  let jwtKeyPair;
-  let app;
+  let jwtKeyPair: GenerateKeyPairResult<KeyLike>;
+  let app: Express;
   beforeAll(async () => {
     jwtKeyPair = await generateKeyPair("RS256");
   });
   beforeEach(() => {
     app = appFactory({
       stage: "test",
-      keys: { jwtKeyPair },
+      keys: {
+        jwtKeyPair: {
+          publicKey: jwtKeyPair.publicKey,
+          privateKey: jwtKeyPair.privateKey,
+        },
+      },
     });
   });
 

@@ -8,7 +8,7 @@ const userDetailsRequestHandlerFactory =
   async (req, res, next) => {
     if (res.locals.claims?.email) {
       const userDetails = await userService.getUserDetails(
-        res.locals.claims?.email
+        res.locals.claims.email
       );
       res.status(200).send(userDetails);
     } else {
@@ -40,7 +40,7 @@ const signupRequestHandlerFactory =
   };
 
 const loginRequestHandlerFactory =
-  (userService: UserService, jwtPublicKey?: KeyLike): RequestHandler =>
+  (userService: UserService, jwtPublicKey: KeyLike): RequestHandler =>
   async (req, res, next) => {
     jwtPublicKey ??= (await generateKeyPair("RS256")).publicKey;
     const { userName, password } = req.body;
