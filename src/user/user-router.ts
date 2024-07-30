@@ -1,4 +1,3 @@
-import getIsUserAuthorized from "@/get-is-user-authorized";
 import { KeyPairSet } from "@/user/user-router.d";
 import UserService, { AuthenticationFailedError } from "@/user/user-service";
 import express, { RequestHandler } from "express";
@@ -7,17 +6,8 @@ import { EncryptJWT, generateKeyPair, KeyLike } from "jose";
 const userDetailsRequestHandlerFactory =
   (userService: UserService, jwtPrivateKey: KeyLike): RequestHandler =>
   async (req, res, next) => {
-    const { email } = req.body;
-
-    // TODO: Move this to some middleware?
-    const authorizationToken = req.headers.authorization;
-    const isAuthorized = await getIsUserAuthorized(
-      authorizationToken,
-      jwtPrivateKey,
-      email
-    );
-    if (isAuthorized) {
-      const userDetails = await userService.getUserDetails(email);
+    if (res.locals.isAuthorized) {
+      const userDetails = await userService.getUserDetails(res.locals.user);
       res.status(200).send(userDetails);
     } else {
       res

@@ -27,7 +27,7 @@ describe("invite-integration", () => {
         const response = await request(app).post("/invite").send(inviteDetails);
         expect(response.statusCode).toBe(401);
         expect(response.body.errors).toEqual([
-          { message: "You must be logged in to send an invitation" },
+          "You must be logged in to send an invitation",
         ]);
       });
     });
