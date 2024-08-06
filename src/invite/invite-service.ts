@@ -10,6 +10,7 @@ interface InviteServiceInterface {
   create: (
     inviteCreationDetails: InviteCreationDetails
   ) => Promise<InviteDetails>;
+  getUsersInvites: (userEmail: string) => Promise<Array<InviteDetails>>;
 }
 
 export class InvalidInvitationError extends Error {}
