@@ -14,9 +14,9 @@ const createAuthorizationMiddleware: RequestHandler = (req, res, next) => {
 const createGetInviteMiddleware =
   (inviteService: InviteService): RequestHandler =>
   (req, res, next) => {
-    inviteService
-      .getUsersInvites(res.locals.claims.email)
-      .then((invites) => res.status(200).send(invites));
+    inviteService.getUsersInvites(res.locals.claims.email).then((invites) => {
+      res.status(200).send({ invites });
+    });
   };
 
 const inviteRouterFactory = (inviteService: InviteService) =>

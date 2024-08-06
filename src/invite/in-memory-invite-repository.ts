@@ -14,7 +14,7 @@ export default class InMemoryInviteRepository implements InviteRepository {
   async create(inviteCreationDetails: InviteCreationDetails) {
     const { inviter, invitee, exp, status } = inviteCreationDetails;
     const uuid = crypto.randomUUID();
-    await this.invites.set(uuid, { inviter, invitee, exp, uuid, status });
+    this.invites.set(uuid, { inviter, invitee, exp, uuid, status });
     return Promise.resolve({
       inviter,
       invitee,
@@ -24,7 +24,9 @@ export default class InMemoryInviteRepository implements InviteRepository {
     });
   }
 
-  async loadInvites(inviteUuid: string) {
-    return this.invites.get(inviteUuid);
+  async loadInvites(userEmail: string) {
+    return Array.from(this.invites.values()).filter(
+      (invite) => invite.inviter === userEmail || invite.invitee === userEmail
+    );
   }
 }

@@ -36,18 +36,18 @@ describe("in-memory-invite-repository", () => {
       } satisfies InviteCreationDetails;
 
       const inMemoryInviteRepository = new InMemoryInviteRepository();
-      const { uuid: inviteUuid } = await inMemoryInviteRepository.create(
-        inviteDetails
-      );
-      expect(inMemoryInviteRepository.loadInvites(inviteUuid)).resolves.toEqual(
+      await inMemoryInviteRepository.create(inviteDetails);
+      expect(
+        inMemoryInviteRepository.loadInvites("player1@email.com")
+      ).resolves.toEqual([
         {
           inviter: "player1@email.com",
           invitee: "player2@email.com",
           uuid: expect.toBeUUID(),
           exp: 1000,
           status: InviteStatus.PENDING,
-        }
-      );
+        },
+      ]);
     });
   });
 });

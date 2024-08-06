@@ -242,8 +242,6 @@ describe("invite-integration", () => {
               .send();
 
             expect(response.statusCode).toBe(200);
-            // TODO: GET GREEN :)
-            // TODO: Also fix other skipped test cases
             expect(response.body.invites).toEqual([
               {
                 inviter: "player1@email.com",
