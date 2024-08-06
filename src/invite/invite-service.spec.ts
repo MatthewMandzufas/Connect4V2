@@ -22,10 +22,12 @@ const createUserServiceWithInviterAndInvitee = async () => {
   };
   await userService.create(inviterUserDetails);
   await userService.create(inviteeUserDetails);
-  return Promise.resolve(userService);
+  const inviteRepository = new InMemoryInviteRepository();
+  const inviteService = new InviteService(userService, inviteRepository);
+  return inviteService;
 };
 
-describe.skip("invite-service", () => {
+describe("invite-service", () => {
   const lengthOfDayInMilliseconds = 1000 * 60 * 60 * 24;
   describe("given an inviter who is an existing user", () => {
     describe("and an invitee who is an existing user", () => {
@@ -34,9 +36,8 @@ describe.skip("invite-service", () => {
         const currentTime = Date.now();
         jest.setSystemTime(currentTime);
 
-        const userService = createUserServiceWithInviterAndInvitee();
-        const inviteRepository = new InMemoryInviteRepository();
-        const inviteService = new InviteService(userService, inviteRepository);
+        const inviteService = await createUserServiceWithInviterAndInvitee();
+
         const inviteDetails = await inviteService.create({
           invitee: "player2@email.com",
           inviter: "player1@email.com",
@@ -53,10 +54,7 @@ describe.skip("invite-service", () => {
     });
     describe("and the invitee is the inviter", () => {
       it("it throws an 'InvalidInvitation' error", async () => {
-        const userService = createUserServiceWithInviterAndInvitee();
-        const inviteRepository = new InMemoryInviteRepository();
-        const inviteService = new InviteService(userService, inviteRepository);
-
+        const inviteService = await createUserServiceWithInviterAndInvitee();
         expect(
           inviteService.create({
             invitee: "player1@email.com",
@@ -69,14 +67,12 @@ describe.skip("invite-service", () => {
     });
     describe("and the invitee is not an existing user", () => {
       it("throws an 'InvalidInvitation' error", async () => {
-        const userService = createUserServiceWithInviterAndInvitee();
-        const inviteRepository = new InMemoryInviteRepository();
-        const inviteService = new InviteService(userService, inviteRepository);
+        const inviteService = await createUserServiceWithInviterAndInvitee();
 
         expect(
           inviteService.create({
-            invitee: "player1@email.com",
-            inviter: "player9@email.com",
+            invitee: "player9@email.com",
+            inviter: "player1@email.com",
           })
         ).rejects.toThrow(new InvalidInvitationError("Invitee does not exist"));
       });
