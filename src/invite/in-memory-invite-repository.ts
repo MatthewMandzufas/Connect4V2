@@ -23,4 +23,8 @@ export default class InMemoryInviteRepository implements InviteRepository {
       uuid,
     });
   }
+
+  async loadInvites(inviteUuid: string) {
+    return this.invites.get(inviteUuid);
+  }
 }

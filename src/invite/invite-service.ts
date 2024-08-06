@@ -29,6 +29,8 @@ class InviteService implements InviteServiceInterface {
     this.#inviteRepository = inviteRepository;
   }
 
+  async getUsersInvites(userEmail: string) {}
+
   async create(inviteCreationDetails: InviteCreationDetails) {
     const { inviter, invitee } = inviteCreationDetails;
     if (inviter === invitee) {
