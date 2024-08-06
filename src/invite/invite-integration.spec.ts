@@ -193,7 +193,7 @@ describe("invite-integration", () => {
     describe("given an invite exists", () => {
       describe("and a user is logged in as the invitee", () => {
         describe("when the user retrieves their received invite", () => {
-          it.skip("their invite will be retrieved", async () => {
+          it("their invite will be retrieved", async () => {
             jest.useFakeTimers({ doNotFake: ["setImmediate"] });
             const currentTime = Date.now();
             jest.setSystemTime(currentTime);
