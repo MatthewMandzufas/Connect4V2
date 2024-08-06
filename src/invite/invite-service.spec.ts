@@ -67,5 +67,19 @@ describe("invite-service", () => {
         );
       });
     });
+    describe("and the invitee is not an existing user", () => {
+      it("throws an 'InvalidInvitation' error", () => {
+        const userService = createUserServiceWithInviterAndInvitee();
+        const inviteRepository = new InMemoryInviteRepository();
+        const inviteService = new InviteService(userService, inviteRepository);
+
+        expect(
+          inviteService.create({
+            invitee: "player1@email.com",
+            inviter: "player9@email.com",
+          })
+        ).rejects.toThrow(new InvalidInvitationError("Invitee does not exist"));
+      });
+    });
   });
 });
