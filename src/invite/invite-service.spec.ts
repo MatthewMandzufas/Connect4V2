@@ -1,7 +1,7 @@
 import InMemoryUserRepositoryFactory from "@/user/in-memory-user-repository";
 import UserService from "@/user/user-service";
 import InMemoryInviteRepository from "./in-memory-invite-repository";
-import InviteService from "./invite-service";
+import InviteService, { InvalidInvitationError } from "./invite-service";
 import { InviteStatus } from "./invite-service.d";
 
 const createUserServiceWithInviterAndInvitee = () => {
@@ -52,16 +52,17 @@ describe("invite-service", () => {
       });
     });
     describe("and the invitee is the inviter", () => {
-      it("it throws an 'InvalidInvitation' error", () => {
-        const userRepository = new InMemoryUserRepositoryFactory();
-        const userService = new UserService(userRepository);
+      it("it throws an 'InvalidInvitation' error", async () => {
+        const userService = createUserServiceWithInviterAndInvitee();
         const inviteRepository = new InMemoryInviteRepository();
         const inviteService = new InviteService(userService, inviteRepository);
-        const inviteDetails = {
-          inviter: "somePlayer@email.com",
-          invitee: "somePlayer@email.com",
-        };
-        expect(inviteService.create(inviteDetails)).rejects.toThrow(
+
+        expect(() =>
+          inviteService.create({
+            invitee: "player1@email.com",
+            inviter: "player1@email.com",
+          })
+        ).rejects.toThrow(
           new InvalidInvitationError("Users cannot send invites to themselves")
         );
       });
