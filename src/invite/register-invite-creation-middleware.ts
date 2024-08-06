@@ -10,6 +10,16 @@ const authorizeInvitationCreationRequest: RequestHandler = (req, res, next) => {
       });
 };
 
+const resolveErrorMessage = (errorMessage: string) => {
+  switch (errorMessage) {
+    case "Users cannot send invites to themselves": {
+      return errorMessage;
+    }
+    default:
+      return "Invitation could not be sent";
+  }
+};
+
 const createCreateInvitation =
   (inviteService: InviteService): RequestHandler =>
   async (req, res, next) => {
@@ -19,7 +29,9 @@ const createCreateInvitation =
       .then(({ uuid, exp }) =>
         res.status(201).send({ invite: { inviter, invitee, uuid, exp } })
       )
-      .catch((error) => res.status(403).send({ errors: [error.message] }));
+      .catch((error) => {
+        res.status(403).send({ errors: [resolveErrorMessage(error.message)] });
+      });
   };
 
 const registerInviteCreationMiddleware = (

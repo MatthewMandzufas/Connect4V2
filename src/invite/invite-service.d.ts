@@ -1,6 +1,6 @@
 export type InviteCreationDetails = {
-  inviter: String;
-  invitee: String;
+  inviter: string;
+  invitee: string;
 };
 
 export enum InviteStatus {
@@ -8,9 +8,9 @@ export enum InviteStatus {
 }
 
 export type InviteDetails = {
-  inviter: String;
-  invitee: String;
-  uuid: String;
+  inviter: string;
+  invitee: string;
+  uuid: string;
   exp: number;
   status: InviteStatus;
 };

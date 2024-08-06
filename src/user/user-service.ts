@@ -16,7 +16,7 @@ interface UserServiceInterface {
   ) => Promise<UserSignupDetails & { uuid: Uuid }>;
   authenticate: (
     userCredentials: UserCredentials
-  ) => Promise<{ message: String }>;
+  ) => Promise<{ message: string }>;
   getUserDetails: (userEmail: string) => Promise<UserDetails>;
   getDoesUserExist: (userEmail: string) => Promise<boolean>;
 }

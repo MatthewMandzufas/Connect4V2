@@ -1,14 +1,14 @@
 import { InviteStatus } from "./invite-service.d";
 
 type InviteCreationDetails = {
-  inviter: String;
-  invitee: String;
+  inviter: string;
+  invitee: string;
   exp: number;
   status: InviteStatus;
 };
 
 type PersistedInvite = InviteCreationDetails & {
-  uuid: String;
+  uuid: string;
 };
 
 export interface InviteRepository {

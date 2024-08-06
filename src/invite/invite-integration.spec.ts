@@ -127,6 +127,7 @@ describe("invite-integration", () => {
               uuid: expect.toBeUUID(),
               exp: currentTime + lengthOfDayInMilliseconds,
             });
+            jest.useRealTimers();
           });
         });
       });
@@ -181,8 +182,76 @@ describe("invite-integration", () => {
               });
             expect(response.statusCode).toBe(403);
             expect(response.body.errors).toEqual([
-              "Invitations cannot be sent to unregistered users",
+              "Invitation could not be sent",
             ]);
+          });
+        });
+      });
+    });
+  });
+  describe("retrieving received invites", () => {
+    describe("given an invite exists", () => {
+      describe("and a user is logged in as the invitee", () => {
+        describe("when the user retrieves their received invite", () => {
+          it("their invite will be retrieved", async () => {
+            jest.useFakeTimers({ doNotFake: ["setImmediate"] });
+            const currentTime = Date.now();
+            jest.setSystemTime(currentTime);
+
+            const user1Details = {
+              firstName: "player",
+              lastName: "1",
+              email: "player1@email.com",
+              password: "somethingSafe",
+            };
+            const user2Details = {
+              firstName: "player",
+              lastName: "1",
+              email: "player2@email.com",
+              password: "somethingSafe",
+            };
+
+            await Promise.allSettled([
+              request(app).post("/user/signup").send(user1Details),
+              request(app).post("/user/signup").send(user2Details),
+            ]);
+            const inviterResponse = await request(app)
+              .post("/user/login")
+              .send({
+                userName: "player1@email.com",
+                password: "somethingSafe",
+              });
+
+            await request(app)
+              .post("/invite")
+              .set("Authorization", inviterResponse.header.authorization)
+              .send({
+                invitee: "player2@email.com",
+                inviter: "player1@email.com",
+              });
+
+            const inviteeResponse = await request(app)
+              .post("/user/login")
+              .send({
+                userName: "player2@email.com",
+                password: "somethingSafe",
+              });
+            const response = await request(app)
+              .get("/invite/inbox")
+              .set("Authorization", inviteeResponse.header.authorization)
+              .send();
+
+            expect(response.statusCode).toBe(200);
+            expect(response.body.invites).toEqual([
+              {
+                inviter: "player1@email.com",
+                invitee: "player2@email.com",
+                uuid: expect.toBeUUID(),
+                exp: currentTime + lengthOfDayInMilliseconds,
+                status: "PENDING",
+              },
+            ]);
+            jest.useRealTimers();
           });
         });
       });

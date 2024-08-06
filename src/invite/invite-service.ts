@@ -35,11 +35,13 @@ class InviteService implements InviteServiceInterface {
         "Users cannot send invites to themselves"
       );
     }
-    const isInviteeUserDoesNotExist =
-      this.#userService.getDoesUserExist(invitee);
-    if (isInviteeUserDoesNotExist) {
+    const inviteeDoesNotExist = !(await this.#userService.getDoesUserExist(
+      invitee
+    ));
+    if (inviteeDoesNotExist) {
       throw new InvalidInvitationError("Invitee does not exist");
     }
+
     const exp = Date.now() + lengthOfDayInMilliseconds;
     const { uuid, status } = await this.#inviteRepository.create({
       exp,
