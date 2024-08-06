@@ -166,7 +166,9 @@ describe("user-service", () => {
           password: "kasdlkajsdlkajsd",
         };
         await userService.create(userSignupDetails);
-        expect(userService.getDoesUserExist("Jeff.Bezos@email.com")).toBe(true);
+        expect(
+          userService.getDoesUserExist("Jeff.Bezos@email.com")
+        ).resolves.toBe(true);
       });
     });
   });

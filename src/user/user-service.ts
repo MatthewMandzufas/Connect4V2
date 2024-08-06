@@ -18,6 +18,7 @@ interface UserServiceInterface {
     userCredentials: UserCredentials
   ) => Promise<{ message: String }>;
   getUserDetails: (userEmail: string) => Promise<UserDetails>;
+  getDoesUserExist: (userEmail: string) => Promise<boolean>;
 }
 
 class UserService implements UserServiceInterface {
@@ -55,6 +56,12 @@ class UserService implements UserServiceInterface {
     return {
       message: "Authentication succeeded",
     };
+  }
+
+  async getDoesUserExist(userEmail: string) {
+    const persistedUsersWithProvidedEmail =
+      await this.#userRepository.findByEmail(userEmail);
+    return persistedUsersWithProvidedEmail.length !== 0;
   }
 
   async getUserDetails(userEmail: string) {
