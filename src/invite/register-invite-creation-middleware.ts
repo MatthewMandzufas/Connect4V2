@@ -14,15 +14,12 @@ const createCreateInvitation =
   (inviteService: InviteService): RequestHandler =>
   async (req, res, next) => {
     const { invitee, inviter } = req.body;
-    const { uuid, exp } = await inviteService.create({ invitee, inviter });
-    const inviteDetails = {
-      inviter,
-      invitee,
-      uuid,
-      exp,
-    };
-
-    res.status(201).send({ invite: inviteDetails });
+    inviteService
+      .create({ invitee, inviter })
+      .then(({ uuid, exp }) =>
+        res.status(201).send({ invite: { inviter, invitee, uuid, exp } })
+      )
+      .catch((error) => res.status(403).send({ errors: [error.message] }));
   };
 
 const registerInviteCreationMiddleware = (

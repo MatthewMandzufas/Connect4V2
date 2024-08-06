@@ -57,7 +57,7 @@ describe("invite-service", () => {
         const inviteRepository = new InMemoryInviteRepository();
         const inviteService = new InviteService(userService, inviteRepository);
 
-        expect(() =>
+        expect(
           inviteService.create({
             invitee: "player1@email.com",
             inviter: "player1@email.com",

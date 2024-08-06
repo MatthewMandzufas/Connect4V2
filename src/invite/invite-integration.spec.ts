@@ -154,7 +154,7 @@ describe("invite-integration", () => {
 
           expect(response.statusCode).toBe(403);
           expect(response.body.errors).toEqual([
-            "You cannot send an invite to yourself",
+            "Users cannot send invites to themselves",
           ]);
         });
       });
