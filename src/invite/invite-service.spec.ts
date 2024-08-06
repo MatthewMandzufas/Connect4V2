@@ -51,5 +51,20 @@ describe("invite-service", () => {
         });
       });
     });
+    describe("and the invitee is the inviter", () => {
+      it("it throws an 'InvalidInvitation' error", () => {
+        const userRepository = new InMemoryUserRepositoryFactory();
+        const userService = new UserService(userRepository);
+        const inviteRepository = new InMemoryInviteRepository();
+        const inviteService = new InviteService(userService, inviteRepository);
+        const inviteDetails = {
+          inviter: "somePlayer@email.com",
+          invitee: "somePlayer@email.com",
+        };
+        expect(inviteService.create(inviteDetails)).rejects.toThrow(
+          new InvalidInvitationError("Users cannot send invites to themselves")
+        );
+      });
+    });
   });
 });
