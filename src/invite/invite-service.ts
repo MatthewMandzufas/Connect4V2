@@ -10,7 +10,7 @@ interface InviteServiceInterface {
   create: (
     inviteCreationDetails: InviteCreationDetails
   ) => Promise<InviteDetails>;
-  getUsersInvites: (userEmail: string) => Promise<Array<InviteDetails>>;
+  getUsersInvites: (userEmail: string) => Promise<InviteDetails>;
 }
 
 export class InvalidInvitationError extends Error {}
@@ -29,7 +29,9 @@ class InviteService implements InviteServiceInterface {
     this.#inviteRepository = inviteRepository;
   }
 
-  async getUsersInvites(userEmail: string) {}
+  async getUsersInvites(inviteUuid: string) {
+    return await this.#inviteRepository.loadInvites(inviteUuid);
+  }
 
   async create(inviteCreationDetails: InviteCreationDetails) {
     const { inviter, invitee } = inviteCreationDetails;

@@ -59,13 +59,11 @@ describe("invite-service", () => {
 
           const inviteService = await createUserServiceWithInviterAndInvitee();
 
-          inviteService.create({
+          const { uuid: inviteUuid } = await inviteService.create({
             invitee: "player2@email.com",
             inviter: "player1@email.com",
           });
-          expect(
-            inviteService.getUsersInvites("player1@email.com")
-          ).resolves.toEqual({
+          expect(inviteService.getUsersInvites(inviteUuid)).resolves.toEqual({
             uuid: expect.toBeUUID(),
             inviter: "player1@email.com",
             invitee: "player2@email.com",
