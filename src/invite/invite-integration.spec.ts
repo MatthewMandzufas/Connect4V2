@@ -79,7 +79,7 @@ describe("invite-integration", () => {
                 invitee: "Matt.Pridis@email.com",
                 inviter: "Some.User@email.com",
               });
-            expect(response.statusCode).toBe(401);
+            expect(response.statusCode).toBe(403);
             expect(response.body).toEqual({
               errors: ["You must be the authorized user to send an invitation"],
             });
