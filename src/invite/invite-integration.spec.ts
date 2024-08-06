@@ -158,6 +158,34 @@ describe("invite-integration", () => {
           ]);
         });
       });
+      describe("and the invitee is not an existing user", () => {
+        describe("when the inviter send an invite to the invitee", () => {
+          it("responds with http status code 403", async () => {
+            const userDetails = {
+              firstName: "Oscar",
+              lastName: "Allen",
+              email: "Oscar.Allen@email.com",
+              password: "lkfksdfksdfj",
+            };
+            await request(app).post("/user/signup").send(userDetails);
+            const loginResponse = await request(app).post("/user/login").send({
+              userName: "Oscar.Allen@email.com",
+              password: "lkfksdfksdfj",
+            });
+            const response = await request(app)
+              .post("/invite")
+              .set("Authorization", loginResponse.header.authorization)
+              .send({
+                inviter: "Oscar.Allen@email.com",
+                invitee: "NotExistingUser@email.com",
+              });
+            expect(response.statusCode).toBe(403);
+            expect(response.body.errors).toEqual([
+              "Invitations cannot be sent to unregistered users",
+            ]);
+          });
+        });
+      });
     });
   });
 });
