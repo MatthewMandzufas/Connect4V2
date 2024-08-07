@@ -258,12 +258,3 @@ describe("invite-integration", () => {
     });
   });
 });
-
-// TODO: implement tests for a testFixture which I WOULD LIKE TO USE
-// Example of what its usage may be like is below
-
-// const fixture = new TestFixture("http://api.connect-4.com")
-//   .createUser("testUser", "password123")
-//   .login("testUser", "password123")
-//   .logout()
-//   .deleteUser("testUser");
