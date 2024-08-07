@@ -65,8 +65,23 @@ describe(`test-fixture.js`, () => {
       });
     });
     describe(`logging in a user`, () => {
-      describe(`given an existing users details`, () => {
-        it.todo(`logs in the user`);
+      describe(`given an existing users credentials`, () => {
+        it(`logs in the user`, async () => {
+          const testFixture = new TestFixture();
+          const userDetails = {
+            firstName: "Jeremy",
+            lastName: "Cameron",
+            email: "Jez@email.com",
+            password: "SuperDuperSafe",
+          };
+          await testFixture.signUpUser(userDetails);
+          const userCredentials = {
+            userName: "Jez@email.com",
+            password: "SuperDuperSafe",
+          };
+          const response = await testFixture.loginUser(userCredentials);
+          expect(response.statusCode).toBe(200);
+        });
       });
     });
     describe(`sending an invite`, () => {
