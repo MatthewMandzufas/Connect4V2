@@ -15,5 +15,5 @@ export interface InviteRepository {
   create: (
     inviteCreationDetails: InviteCreationDetails
   ) => Promise<PersistedInvite>;
-  loadInvites: (userEmail: string) => Promise<Array<PersistedInvite>>;
+  loadInviteeInvites: (userEmail: string) => Promise<Array<PersistedInvite>>;
 }

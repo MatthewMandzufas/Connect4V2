@@ -64,7 +64,7 @@ describe("invite-service", () => {
             inviter: "player1@email.com",
           });
           expect(
-            inviteService.getUsersInvites("player1@email.com")
+            inviteService.getInvitesReceivedByUser("player2@email.com")
           ).resolves.toEqual([
             {
               uuid: expect.toBeUUID(),

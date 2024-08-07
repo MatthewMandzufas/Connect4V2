@@ -11,18 +11,21 @@ const createAuthorizationMiddleware: RequestHandler = (req, res, next) => {
       });
 };
 
-const createGetInviteMiddleware =
+const createGetInviteRequestHandler =
   (inviteService: InviteService): RequestHandler =>
-  (req, res, next) => {
-    inviteService.getUsersInvites(res.locals.claims.email).then((invites) => {
-      res.status(200).send({ invites });
-    });
+  async (req, res, next) => {
+    await inviteService
+      .getInvitesReceivedByUser(res.locals.claims.email)
+      .then((invites) => {
+        res.status(200).send({ invites });
+      });
   };
 
 const inviteRouterFactory = (inviteService: InviteService) =>
   pipe(
     (router) => router.use(createAuthorizationMiddleware),
-    (router) => router.get("/inbox", createGetInviteMiddleware(inviteService)),
+    (router) =>
+      router.get("/inbox", createGetInviteRequestHandler(inviteService)),
     (router) => registerInviteCreationMiddleware(router, inviteService)
   )(express.Router());
 

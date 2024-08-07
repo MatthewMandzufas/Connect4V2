@@ -26,8 +26,8 @@ describe("in-memory-invite-repository", () => {
       });
     });
   });
-  describe("given the email of the inviter", () => {
-    it("returns the associated invites", async () => {
+  describe("given the email of the invitee", () => {
+    it("returns the associated invites where they have been invited", async () => {
       const inviteDetails = {
         inviter: "player1@email.com",
         invitee: "player2@email.com",
@@ -38,7 +38,7 @@ describe("in-memory-invite-repository", () => {
       const inMemoryInviteRepository = new InMemoryInviteRepository();
       await inMemoryInviteRepository.create(inviteDetails);
       expect(
-        inMemoryInviteRepository.loadInvites("player1@email.com")
+        inMemoryInviteRepository.loadInviteeInvites("player2@email.com")
       ).resolves.toEqual([
         {
           inviter: "player1@email.com",
