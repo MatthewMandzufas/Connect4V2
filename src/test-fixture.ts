@@ -15,10 +15,23 @@ type UserCredentials = {
   password: string;
 };
 
+type SendInviteDetails = {
+  inviter: string;
+  invitee: string;
+  authField: string;
+};
+
 interface Fixture {
+  sendInvite: ({
+    inviter,
+    invitee,
+    authField,
+  }: SendInviteDetails) => Promise<Response>;
   signUpUserWithDetails: (userDetails: UserDetails) => Promise<Response>;
   loginUser: (userCredentials: UserCredentials) => Promise<Response>;
+  loginUserAuth: (userCredentials: UserCredentials) => Promise<string>;
   signUpUserWithEmail: (userEmail: string) => Promise<Response>;
+  signUpAndLoginEmail: (userEmail: string) => Promise<string>;
 }
 export default class TestFixture implements Fixture {
   private app: Promise<Express> | Express;
@@ -36,11 +49,37 @@ export default class TestFixture implements Fixture {
     });
   }
 
+  async sendInvite({ inviter, invitee, authField }: SendInviteDetails) {
+    const response = await request(await this.app)
+      .post("/invite")
+      .set("Authorization", authField)
+      .send({ inviter, invitee });
+    return response;
+  }
+
+  async signUpAndLoginEmail(userEmail: string) {
+    await this.signUpUserWithEmail(userEmail);
+    const response = await this.loginUserAuth({
+      userName: userEmail,
+      password: "GenericPassword",
+    });
+    return response;
+  }
+
   async loginUser(userCredentials: UserCredentials) {
     const response = await request(await this.app)
       .post("/user/login")
       .send(userCredentials);
     return response;
+  }
+
+  async loginUserAuth(userCredentials: UserCredentials) {
+    const response = await request(await this.app)
+      .post("/user/login")
+      .send(userCredentials);
+
+    const authField = response.header.authorization;
+    return authField;
   }
 
   async signUpUserWithEmail(userEmail: string) {

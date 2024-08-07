@@ -1,3 +1,5 @@
+import { generateKeyPair } from "jose";
+import { appFactory } from "./app";
 import TestFixture from "./test-fixture";
 
 describe(`test-fixture.js`, () => {
@@ -102,19 +104,80 @@ describe(`test-fixture.js`, () => {
           };
           const response = await testFixture.loginUser(userCredentials);
           expect(response.statusCode).toBe(200);
-          // TODO: !
-          // expect(response.headers.authorization).toBeInstanceOf(String);
         });
-        it.todo(`returns the authorisation!`);
+        describe(`login user and get auth field`, () => {
+          it(`returns the authorisation field`, async () => {
+            const testFixture = new TestFixture();
+            await testFixture.signUpUserWithEmail("user@email.com");
+            const authField = await testFixture.loginUserAuth({
+              userName: "user@email.com",
+              password: "GenericPassword",
+            });
+            expect(authField).toEqual(expect.any(String));
+          });
+        });
+      });
+    });
+    describe(`signup and login`, () => {
+      describe(`given a valid email`, () => {
+        it(`signs up and logs in a user`, async () => {
+          const testFixture = new TestFixture();
+          const authField = await testFixture.signUpAndLoginEmail(
+            "myUser@email.com"
+          );
+          expect(authField).toEqual(expect.any(String));
+        });
       });
     });
     describe(`sending an invite`, () => {
       describe(`given a valid inviter/invitee`, () => {
-        it.todo(`creates an invite`);
+        it(`creates an invite`, async () => {
+          const testFixture = new TestFixture();
+          await testFixture.signUpAndLoginEmail("anotherUser@email.com");
+          const authField = await testFixture.signUpAndLoginEmail(
+            "someUser@email.com"
+          );
+          const response = await testFixture.sendInvite({
+            inviter: "someUser@email.com",
+            invitee: "anotherUser@email.com",
+            authField,
+          });
+          expect(response.statusCode).toBe(201);
+          expect(response.body.invite).toEqual({
+            inviter: "someUser@email.com",
+            invitee: "anotherUser@email.com",
+            exp: expect.any(Number),
+            uuid: expect.toBeUUID(),
+          });
+        });
       });
     });
   });
   describe(`Given an app`, () => {
-    it.todo(`returns a text fixture`);
+    it(`returns a working test fixture `, async () => {
+      const app = appFactory({
+        stage: "test",
+        keys: {
+          jwtKeyPair: await generateKeyPair("RS256"),
+        },
+      });
+      const testFixture = new TestFixture(app);
+      await testFixture.signUpAndLoginEmail("anotherUser@email.com");
+      const authField = await testFixture.signUpAndLoginEmail(
+        "someUser@email.com"
+      );
+      const response = await testFixture.sendInvite({
+        inviter: "someUser@email.com",
+        invitee: "anotherUser@email.com",
+        authField,
+      });
+      expect(response.statusCode).toBe(201);
+      expect(response.body.invite).toEqual({
+        inviter: "someUser@email.com",
+        invitee: "anotherUser@email.com",
+        exp: expect.any(Number),
+        uuid: expect.toBeUUID(),
+      });
+    });
   });
 });
