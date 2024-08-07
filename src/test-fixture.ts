@@ -16,8 +16,9 @@ type UserCredentials = {
 };
 
 interface Fixture {
-  signUpUser: (userDetails: UserDetails) => Promise<Response>;
+  signUpUserWithDetails: (userDetails: UserDetails) => Promise<Response>;
   loginUser: (userCredentials: UserCredentials) => Promise<Response>;
+  signUpUserWithEmail: (userEmail: string) => Promise<Response>;
 }
 export default class TestFixture implements Fixture {
   private app: Promise<Express> | Express;
@@ -42,7 +43,19 @@ export default class TestFixture implements Fixture {
     return response;
   }
 
-  async signUpUser(userDetails: UserDetails) {
+  async signUpUserWithEmail(userEmail: string) {
+    const response = await request(await this.app)
+      .post("/user/signup")
+      .send({
+        firstName: "GenericFirstName",
+        lastName: "GenericLastName",
+        email: userEmail,
+        password: "GenericPassword",
+      });
+    return response;
+  }
+
+  async signUpUserWithDetails(userDetails: UserDetails) {
     const response = await request(await this.app)
       .post("/user/signup")
       .send(userDetails);
