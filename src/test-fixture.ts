@@ -10,8 +10,14 @@ type UserDetails = {
   password: string;
 };
 
+type UserCredentials = {
+  userName: string;
+  password: string;
+};
+
 interface Fixture {
   signUpUser: (userDetails: UserDetails) => Promise<Response>;
+  loginUser: (userCredentials: UserCredentials) => Promise<Response>;
 }
 export default class TestFixture implements Fixture {
   private app: Promise<Express> | Express;
@@ -27,6 +33,13 @@ export default class TestFixture implements Fixture {
         jwtKeyPair: await generateKeyPair("RS256"),
       },
     });
+  }
+
+  async loginUser(userCredentials: UserCredentials) {
+    const response = await request(await this.app)
+      .post("/user/login")
+      .send(userCredentials);
+    return response;
   }
 
   async signUpUser(userDetails: UserDetails) {
