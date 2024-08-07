@@ -6,7 +6,7 @@ describe(`test-fixture.js`, () => {
     it(`returns a text fixture, generating a default app`, () => {
       expect(testFixture).toBeInstanceOf(TestFixture);
     });
-    describe(`signing up users users`, () => {
+    describe(`signing up users`, () => {
       describe(`signing up a single user`, () => {
         describe(`given a users details`, () => {
           it(`signs up a user`, async () => {

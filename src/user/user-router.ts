@@ -31,7 +31,14 @@ const signupRequestHandlerFactory =
         password,
       })
       .then((user) => {
-        res.status(201).send(user);
+        res
+          .status(201)
+          .send({
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            uuid: user.uuid,
+          });
       })
       .catch((err: Error) => {
         res.status(403).send({ errors: [err.message] });
