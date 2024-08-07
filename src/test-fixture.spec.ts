@@ -2,14 +2,15 @@ import TestFixture from "./test-fixture";
 
 describe(`test-fixture.js`, () => {
   describe(`Given no parameters`, () => {
-    const testFixture = new TestFixture();
     it(`returns a text fixture, generating a default app`, () => {
+      const testFixture = new TestFixture();
       expect(testFixture).toBeInstanceOf(TestFixture);
     });
     describe(`signing up users`, () => {
       describe(`signing up a single user`, () => {
         describe(`given a users details`, () => {
           it(`signs up a user`, async () => {
+            const testFixture = new TestFixture();
             const userDetails = {
               firstName: "joe",
               lastName: "blogs",
@@ -29,7 +30,37 @@ describe(`test-fixture.js`, () => {
       });
       describe(`signing up multiple users`, () => {
         describe(`given multiple users details`, () => {
-          it.todo(`signs up all users`);
+          it(`signs up all users`, async () => {
+            const testFixture = new TestFixture();
+            const user1Details = {
+              firstName: "joe",
+              lastName: "blogs",
+              email: "joe.blogs@email.com",
+              password: "somethingSafe",
+            };
+            const user2Details = {
+              firstName: "joe1",
+              lastName: "blogs",
+              email: "joe1.blogs@email.com",
+              password: "somethingSafe",
+            };
+            const firstResponse = await testFixture.signUpUser(user1Details);
+            const secondResponse = await testFixture.signUpUser(user2Details);
+            expect(firstResponse.statusCode).toBe(201);
+            expect(secondResponse.statusCode).toBe(201);
+            expect(firstResponse.body).toEqual({
+              firstName: "joe",
+              lastName: "blogs",
+              email: "joe.blogs@email.com",
+              uuid: expect.toBeUUID(),
+            });
+            expect(secondResponse.body).toEqual({
+              firstName: "joe1",
+              lastName: "blogs",
+              email: "joe1.blogs@email.com",
+              uuid: expect.toBeUUID(),
+            });
+          });
         });
       });
     });
