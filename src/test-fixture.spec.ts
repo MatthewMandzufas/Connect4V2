@@ -8,6 +8,21 @@ describe(`test-fixture.js`, () => {
     });
     describe(`signing up users`, () => {
       describe(`signing up a single user`, () => {
+        describe(`given a users emails`, () => {
+          it(`signs up the user`, async () => {
+            const testFixture = new TestFixture();
+            const response = await testFixture.signUpUserWithEmail(
+              "user1@email.com"
+            );
+            expect(response.statusCode).toBe(201);
+            expect(response.body).toEqual({
+              firstName: "GenericFirstName",
+              lastName: "GenericLastName",
+              email: "user1@email.com",
+              uuid: expect.toBeUUID(),
+            });
+          });
+        });
         describe(`given a users details`, () => {
           it(`signs up a user`, async () => {
             const testFixture = new TestFixture();
@@ -17,7 +32,9 @@ describe(`test-fixture.js`, () => {
               email: "joe.blogs@email.com",
               password: "somethingSafe",
             };
-            const response = await testFixture.signUpUser(userDetails);
+            const response = await testFixture.signUpUserWithDetails(
+              userDetails
+            );
             expect(response.statusCode).toBe(201);
             expect(response.body).toEqual({
               firstName: "joe",
@@ -44,8 +61,12 @@ describe(`test-fixture.js`, () => {
               email: "joe1.blogs@email.com",
               password: "somethingSafe",
             };
-            const firstResponse = await testFixture.signUpUser(user1Details);
-            const secondResponse = await testFixture.signUpUser(user2Details);
+            const firstResponse = await testFixture.signUpUserWithDetails(
+              user1Details
+            );
+            const secondResponse = await testFixture.signUpUserWithDetails(
+              user2Details
+            );
             expect(firstResponse.statusCode).toBe(201);
             expect(secondResponse.statusCode).toBe(201);
             expect(firstResponse.body).toEqual({
@@ -74,14 +95,17 @@ describe(`test-fixture.js`, () => {
             email: "Jez@email.com",
             password: "SuperDuperSafe",
           };
-          await testFixture.signUpUser(userDetails);
+          await testFixture.signUpUserWithDetails(userDetails);
           const userCredentials = {
             userName: "Jez@email.com",
             password: "SuperDuperSafe",
           };
           const response = await testFixture.loginUser(userCredentials);
           expect(response.statusCode).toBe(200);
+          // TODO: !
+          // expect(response.headers.authorization).toBeInstanceOf(String);
         });
+        it.todo(`returns the authorisation!`);
       });
     });
     describe(`sending an invite`, () => {
