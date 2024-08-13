@@ -151,6 +151,22 @@ describe(`test-fixture.js`, () => {
           });
         });
       });
+      describe(`given emails`, () => {
+        it(`creates an invite`, async () => {
+          const testFixture = new TestFixture();
+          const response = await testFixture.sendInviteEmails({
+            inviter: "sender@email.com",
+            invitee: "receiver@email.com",
+          });
+          expect(response.statusCode).toBe(201);
+          expect(response.body.invite).toEqual({
+            inviter: "sender@email.com",
+            invitee: "receiver@email.com",
+            exp: expect.any(Number),
+            uuid: expect.toBeUUID(),
+          });
+        });
+      });
     });
   });
   describe(`Given an app`, () => {

@@ -27,6 +27,7 @@ interface Fixture {
     invitee,
     authField,
   }: SendInviteDetails) => Promise<Response>;
+  sendInviteEmails: ({ inviter, invitee }) => Promise<Response>;
   signUpUserWithDetails: (userDetails: UserDetails) => Promise<Response>;
   loginUser: (userCredentials: UserCredentials) => Promise<Response>;
   loginUserAuth: (userCredentials: UserCredentials) => Promise<string>;
@@ -54,6 +55,13 @@ export default class TestFixture implements Fixture {
       .post("/invite")
       .set("Authorization", authField)
       .send({ inviter, invitee });
+    return response;
+  }
+
+  async sendInviteEmails({ inviter, invitee }) {
+    await this.signUpUserWithEmail(invitee);
+    const authField = await this.signUpAndLoginEmail(inviter);
+    const response = await this.sendInvite({ inviter, invitee, authField });
     return response;
   }
 
