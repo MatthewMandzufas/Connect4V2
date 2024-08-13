@@ -63,7 +63,7 @@ describe("invite-service", () => {
             invitee: "player2@email.com",
             inviter: "player1@email.com",
           });
-          expect(
+          await expect(
             inviteService.getInvitesReceivedByUser("player2@email.com")
           ).resolves.toEqual([
             {

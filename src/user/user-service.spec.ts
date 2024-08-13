@@ -97,7 +97,9 @@ describe("user-service", () => {
             email: "wf@gmail.com",
             password: "dhfgkjhsdfkljghlksdfhg",
           };
-          expect(userService.authenticate(userCredentials)).resolves.toEqual({
+          await expect(
+            userService.authenticate(userCredentials)
+          ).resolves.toEqual({
             message: "Authentication succeeded",
           });
         });
@@ -144,7 +146,7 @@ describe("user-service", () => {
         };
         await userService.create(userSignupDetails);
 
-        expect(
+        await expect(
           userService.getUserDetails(userSignupDetails.email)
         ).resolves.toEqual({
           firstName: "Patrick",
@@ -166,7 +168,7 @@ describe("user-service", () => {
           password: "kasdlkajsdlkajsd",
         };
         await userService.create(userSignupDetails);
-        expect(
+        await expect(
           userService.getDoesUserExist("Jeff.Bezos@email.com")
         ).resolves.toBe(true);
       });

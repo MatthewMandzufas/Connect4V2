@@ -37,7 +37,7 @@ describe("in-memory-invite-repository", () => {
 
       const inMemoryInviteRepository = new InMemoryInviteRepository();
       await inMemoryInviteRepository.create(inviteDetails);
-      expect(
+      await expect(
         inMemoryInviteRepository.loadInviteeInvites("player2@email.com")
       ).resolves.toEqual([
         {
