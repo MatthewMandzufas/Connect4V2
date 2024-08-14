@@ -3,14 +3,12 @@ import { KeyPairSet } from "@/user/user-router.d";
 import validateUserSignupRequest from "@/user/validate-user-signup-request";
 import express, { RequestHandler } from "express";
 import { jwtDecrypt, KeyLike } from "jose";
-import { ServiceEvent, Stage } from "./global";
-
-type ServiceEventHandlers = Record<ServiceEvent, ServiceEventHandler>;
+import { Stage } from "./global";
 
 type AppFactoryParameters = {
   stage: Stage;
   keys: KeyPairSet;
-  eventHandlers?: ServiceEventHandlers;
+  publishEvent?: (queue: string, payload: any) => Promise<any>;
 };
 
 const createAuthenticationMiddleware =
@@ -34,12 +32,17 @@ const createAuthenticationMiddleware =
   };
 
 export const appFactory = (
-  { keys }: AppFactoryParameters = {
+  { keys, publishEvent }: AppFactoryParameters = {
     stage: "production",
     keys: {},
+    publishEvent: (queue, payload) => Promise.resolve(),
   }
 ) => {
-  const routers = resolveRouters(process.env.NODE_ENV as Stage, keys);
+  const routers = resolveRouters(
+    process.env.NODE_ENV as Stage,
+    keys,
+    publishEvent
+  );
   const app = express()
     .use(express.json())
     .use(createAuthenticationMiddleware(keys.jwtKeyPair.privateKey))

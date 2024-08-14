@@ -1,5 +1,6 @@
 import InMemoryUserRepositoryFactory from "@/user/in-memory-user-repository";
 import UserService from "@/user/user-service";
+import createInviteEventHandlers from "./create-invite-event-handler";
 import InMemoryInviteRepository from "./in-memory-invite-repository";
 import InviteService, { InvalidInvitationError } from "./invite-service";
 import {
@@ -27,7 +28,11 @@ const createUserServiceWithInviterAndInvitee = async () => {
   await userService.create(inviterUserDetails);
   await userService.create(inviteeUserDetails);
   const inviteRepository = new InMemoryInviteRepository();
-  const inviteService = new InviteService(userService, inviteRepository);
+  const inviteService = new InviteService(
+    userService,
+    inviteRepository,
+    createInviteEventHandlers(() => Promise.resolve())
+  );
   return inviteService;
 };
 
@@ -56,7 +61,7 @@ describe("invite-service", () => {
         });
       });
       describe("and the service was created with an invitation created callback", () => {
-        it.skip("calls the callback with the details of the created invitation", async () => {
+        it("calls the callback with the details of the created invitation", async () => {
           expect.assertions(1);
           const mockedInvitationCreationCallback = jest.fn();
           const userRepository = new InMemoryUserRepositoryFactory();
@@ -87,16 +92,13 @@ describe("invite-service", () => {
             invitee: "player2@email.com",
             inviter: "player1@email.com",
           });
-          expect(mockedInvitationCreationCallback).toHaveBeenCalledWith(
-            "invite_created",
-            {
-              inviter: "player1@email.com",
-              invitee: "player2@email.com",
-              exp: expect.any(Number),
-              status: InviteStatus.PENDING,
-              uuid: expect.toBeUUID(),
-            }
-          );
+          expect(mockedInvitationCreationCallback).toHaveBeenCalledWith({
+            inviter: "player1@email.com",
+            invitee: "player2@email.com",
+            exp: expect.any(Number),
+            status: InviteStatus.PENDING,
+            uuid: expect.toBeUUID(),
+          });
         });
       });
       describe("and an existing invite", () => {
