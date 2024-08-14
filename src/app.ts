@@ -3,10 +3,14 @@ import { KeyPairSet } from "@/user/user-router.d";
 import validateUserSignupRequest from "@/user/validate-user-signup-request";
 import express, { RequestHandler } from "express";
 import { jwtDecrypt, KeyLike } from "jose";
+import { ServiceEvent, Stage } from "./global";
+
+type ServiceEventHandlers = Record<ServiceEvent, ServiceEventHandler>;
 
 type AppFactoryParameters = {
   stage: Stage;
   keys: KeyPairSet;
+  eventHandlers?: ServiceEventHandlers;
 };
 
 const createAuthenticationMiddleware =

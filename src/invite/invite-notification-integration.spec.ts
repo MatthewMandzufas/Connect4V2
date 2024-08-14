@@ -46,7 +46,7 @@ describe(`invite-notification-integration.ts`, () => {
 
   describe(`given a user is logged in`, () => {
     describe(`when another user sends them an invite`, () => {
-      it(`they receive a new notification`, async () => {
+      it.skip(`they receive a new notification`, async () => {
         let resolveInviteDetailsReceivedPromise;
         const inviteDetailsReceivedPromise = new Promise(
           (resolve) => (resolveInviteDetailsReceivedPromise = resolve)

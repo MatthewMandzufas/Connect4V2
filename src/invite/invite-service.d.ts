@@ -3,9 +3,9 @@ export type InviteCreationDetails = {
   invitee: string;
 };
 
-type InviteServiceEventHandler = <InviteDetails>(
+export type InviteServiceEventHandler = <T extends InviteDetails>(
   message: InviteDetails
-) => Promise<boolean>;
+) => Promise<void>;
 
 export type InviteServiceEventHandlers = Record<
   InviteEvents,

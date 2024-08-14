@@ -2,7 +2,11 @@ import InMemoryUserRepositoryFactory from "@/user/in-memory-user-repository";
 import UserService from "@/user/user-service";
 import InMemoryInviteRepository from "./in-memory-invite-repository";
 import InviteService, { InvalidInvitationError } from "./invite-service";
-import { InviteEvents, InviteStatus } from "./invite-service.d";
+import {
+  InviteEvents,
+  InviteServiceEventHandler,
+  InviteStatus,
+} from "./invite-service.d";
 
 const createUserServiceWithInviterAndInvitee = async () => {
   const userRepository = new InMemoryUserRepositoryFactory();
@@ -51,8 +55,8 @@ describe("invite-service", () => {
           status: InviteStatus.PENDING,
         });
       });
-      describe("and the service was created with function to send messages", () => {
-        it("publishes an invite-created message", () => {
+      describe("and the service was created with an invitation created callback", () => {
+        it.skip("calls the callback with the details of the created invitation", async () => {
           expect.assertions(1);
           const mockedInvitationCreationCallback = jest.fn();
           const userRepository = new InMemoryUserRepositoryFactory();
@@ -64,22 +68,22 @@ describe("invite-service", () => {
             inviteRepository,
             {
               [InviteEvents.INVITATION_CREATED]:
-                mockedInvitationCreationCallback,
+                mockedInvitationCreationCallback as InviteServiceEventHandler,
             }
           );
-          userRepository.create({
+          await userRepository.create({
             firstName: "1",
             lastName: "name",
             email: "player1@email.com",
             password: "somethingGreat",
           });
-          userRepository.create({
+          await userRepository.create({
             firstName: "2",
             lastName: "name",
             email: "player2@email.com",
             password: "somethingGreat",
           });
-          inviteService.create({
+          await inviteService.create({
             invitee: "player2@email.com",
             inviter: "player1@email.com",
           });

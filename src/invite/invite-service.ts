@@ -1,4 +1,6 @@
 import {
+  InviteEvents,
+  InviteServiceEventHandlers,
   InviteStatus,
   type InviteCreationDetails,
   type InviteDetails,
@@ -22,13 +24,18 @@ const lengthOfDayInMilliseconds = 1000 * 60 * 60 * 24;
 class InviteService implements InviteServiceInterface {
   #userService: UserService;
   #inviteRepository: InviteRepository;
+  #eventHandlers: InviteServiceEventHandlers;
 
   constructor(
     userService: UserService,
-    inviteRepository: InviteRepository = new InMemoryInviteRepository()
+    inviteRepository: InviteRepository = new InMemoryInviteRepository(),
+    eventHandlers: InviteServiceEventHandlers = {
+      [InviteEvents.INVITATION_CREATED]: () => Promise.resolve(),
+    }
   ) {
     this.#userService = userService;
     this.#inviteRepository = inviteRepository;
+    this.#eventHandlers = eventHandlers;
   }
 
   async getInvitesReceivedByUser(inviteeEmail: string) {
@@ -55,14 +62,10 @@ class InviteService implements InviteServiceInterface {
       status: InviteStatus.PENDING,
       ...inviteCreationDetails,
     });
+    const inviteDetails = { uuid, inviter, invitee, exp, status };
+    await this.#eventHandlers[InviteEvents.INVITATION_CREATED](inviteDetails);
 
-    return {
-      uuid,
-      inviter,
-      invitee,
-      exp,
-      status,
-    };
+    return inviteDetails;
   }
 }
 
