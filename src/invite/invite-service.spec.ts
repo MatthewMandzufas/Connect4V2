@@ -2,7 +2,7 @@ import InMemoryUserRepositoryFactory from "@/user/in-memory-user-repository";
 import UserService from "@/user/user-service";
 import InMemoryInviteRepository from "./in-memory-invite-repository";
 import InviteService, { InvalidInvitationError } from "./invite-service";
-import { InviteStatus } from "./invite-service.d";
+import { InviteEvents, InviteStatus } from "./invite-service.d";
 
 const createUserServiceWithInviterAndInvitee = async () => {
   const userRepository = new InMemoryUserRepositoryFactory();
@@ -49,6 +49,50 @@ describe("invite-service", () => {
           inviter: "player1@email.com",
           invitee: "player2@email.com",
           status: InviteStatus.PENDING,
+        });
+      });
+      describe("and the service was created with function to send messages", () => {
+        it("publishes an invite-created message", () => {
+          expect.assertions(1);
+          const mockedInvitationCreationCallback = jest.fn();
+          const userRepository = new InMemoryUserRepositoryFactory();
+          const userService = new UserService(userRepository);
+          const inviteRepository = new InMemoryInviteRepository();
+
+          const inviteService = new InviteService(
+            userService,
+            inviteRepository,
+            {
+              [InviteEvents.INVITATION_CREATED]:
+                mockedInvitationCreationCallback,
+            }
+          );
+          userRepository.create({
+            firstName: "1",
+            lastName: "name",
+            email: "player1@email.com",
+            password: "somethingGreat",
+          });
+          userRepository.create({
+            firstName: "2",
+            lastName: "name",
+            email: "player2@email.com",
+            password: "somethingGreat",
+          });
+          inviteService.create({
+            invitee: "player2@email.com",
+            inviter: "player1@email.com",
+          });
+          expect(mockedInvitationCreationCallback).toHaveBeenCalledWith(
+            "invite_created",
+            {
+              inviter: "player1@email.com",
+              invitee: "player2@email.com",
+              exp: expect.any(Number),
+              status: InviteStatus.PENDING,
+              uuid: expect.toBeUUID(),
+            }
+          );
         });
       });
       describe("and an existing invite", () => {

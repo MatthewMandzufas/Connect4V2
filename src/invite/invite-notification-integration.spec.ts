@@ -47,6 +47,10 @@ describe(`invite-notification-integration.ts`, () => {
   describe(`given a user is logged in`, () => {
     describe(`when another user sends them an invite`, () => {
       it(`they receive a new notification`, async () => {
+        let resolveInviteDetailsReceivedPromise;
+        const inviteDetailsReceivedPromise = new Promise(
+          (resolve) => (resolveInviteDetailsReceivedPromise = resolve)
+        );
         expect.assertions(1);
         const testFixture = new TestFixture(app);
 
@@ -64,16 +68,13 @@ describe(`invite-notification-integration.ts`, () => {
           },
         });
 
+        clientSocket.connect();
         clientSocket.on(
           "invite_received",
           (inviteReceivedMessage: InviteReceivedMessage) => {
-            expect(inviteReceivedMessage).toEqual({
-              inviter: "1@email.com",
-              invitee: "2@email.com",
-              exp: expect.any(Number),
-              uuid: expect.toBeUUID(),
-              status: InviteStatus.PENDING,
-            });
+            resolveInviteDetailsReceivedPromise(inviteReceivedMessage);
+            clientSocket.disconnect();
+            clientSocket.close();
           }
         );
 
@@ -81,6 +82,13 @@ describe(`invite-notification-integration.ts`, () => {
           inviter: "1@email.com",
           invitee: "2@email.com",
           authField: inviterAuthField,
+        });
+        return expect(inviteDetailsReceivedPromise).resolves.toEqual({
+          inviter: "1@email.com",
+          invitee: "2@email.com",
+          exp: expect.any(Number),
+          uuid: expect.toBeUUID(),
+          status: InviteStatus.PENDING,
         });
       });
     });
