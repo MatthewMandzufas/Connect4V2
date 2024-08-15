@@ -1,10 +1,7 @@
 import { Subject } from "rxjs";
-import { InviteDetails, InviteEvents, InviteStatus } from "./invite-service.d";
+import createInviteEventListener from "./create-invite-event-listener";
+import { InviteEvents, InviteStatus } from "./invite-service.d";
 
-type InviteCreatedEvent = {
-  type: InviteEvents.INVITATION_CREATED;
-  payload: InviteDetails;
-};
 describe(`create-invite-event-listener`, () => {
   describe(`given an event subscription`, () => {
     describe(`and a invitee notification function`, () => {
