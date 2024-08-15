@@ -3,7 +3,7 @@ import { KeyPairSet } from "@/user/user-router.d";
 import UserService from "@/user/user-service";
 import { Router } from "express";
 import { EventPublisher, Stage } from "./global";
-import createInviteEventHandlers from "./invite/create-invite-event-handler";
+import createInviteEventHandlers from "./invite/create-invite-event-handlers";
 import InMemoryInviteRepository from "./invite/in-memory-invite-repository";
 import inviteRouterFactory from "./invite/invite-router-factory";
 import InviteService from "./invite/invite-service";

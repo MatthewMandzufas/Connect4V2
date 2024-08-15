@@ -1,6 +1,6 @@
 import InMemoryUserRepositoryFactory from "@/user/in-memory-user-repository";
 import UserService from "@/user/user-service";
-import createInviteEventHandlers from "./create-invite-event-handler";
+import createInviteEventHandlers from "./create-invite-event-handlers";
 import InMemoryInviteRepository from "./in-memory-invite-repository";
 import InviteService, { InvalidInvitationError } from "./invite-service";
 import {

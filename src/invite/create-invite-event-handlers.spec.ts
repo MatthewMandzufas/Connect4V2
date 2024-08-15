@@ -1,4 +1,4 @@
-import createInviteEventHandlers from "./create-invite-event-handler";
+import createInviteEventHandlers from "./create-invite-event-handlers";
 import { InviteEvents } from "./invite-service.d";
 
 describe("create-invite-event-handler", () => {
