@@ -24,16 +24,16 @@ const lengthOfDayInMilliseconds = 1000 * 60 * 60 * 24;
 class InviteService implements InviteServiceInterface {
   #userService: UserService;
   #inviteRepository: InviteRepository;
-  #eventHandlers: InviteServiceEventHandlers;
+  #eventPublishers: InviteServiceEventHandlers;
 
   constructor(
     userService: UserService,
     inviteRepository: InviteRepository = new InMemoryInviteRepository(),
-    eventHandlers: InviteServiceEventHandlers
+    eventPublishers: InviteServiceEventHandlers
   ) {
     this.#userService = userService;
     this.#inviteRepository = inviteRepository;
-    this.#eventHandlers = eventHandlers;
+    this.#eventPublishers = eventPublishers;
   }
 
   async getInvitesReceivedByUser(inviteeEmail: string) {
@@ -61,7 +61,7 @@ class InviteService implements InviteServiceInterface {
       ...inviteCreationDetails,
     });
     const inviteDetails = { uuid, inviter, invitee, exp, status };
-    await this.#eventHandlers[InviteEvents.INVITATION_CREATED](inviteDetails);
+    await this.#eventPublishers[InviteEvents.INVITATION_CREATED](inviteDetails);
 
     return inviteDetails;
   }

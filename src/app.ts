@@ -38,6 +38,7 @@ export const appFactory = (
     publishEvent: (queue, payload) => Promise.resolve(),
   }
 ) => {
+  // createInviteEventListener(subscription, notificationFn);
   const routers = resolveRouters({
     stage,
     keys,

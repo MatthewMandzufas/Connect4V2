@@ -1,5 +1,7 @@
 import { Subject } from "rxjs";
-import createInviteEventListener from "./create-invite-event-listener";
+import createInviteEventListener, {
+  InviteCreatedEvent,
+} from "./create-invite-event-listener";
 import { InviteEvents, InviteStatus } from "./invite-service.d";
 
 describe(`create-invite-event-listener`, () => {
