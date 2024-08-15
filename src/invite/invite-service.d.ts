@@ -3,15 +3,6 @@ export type InviteCreationDetails = {
   invitee: string;
 };
 
-export type InviteServiceEventHandler = <T extends InviteDetails>(
-  message: InviteDetails
-) => Promise<void>;
-
-export type InviteServiceEventHandlers = Record<
-  InviteEvents,
-  InviteServiceEventHandler
->;
-
 export enum InviteEvents {
   INVITATION_CREATED = "INVITATION_CREATED",
 }
@@ -27,3 +18,12 @@ export type InviteDetails = {
   exp: number;
   status: InviteStatus;
 };
+
+export type InviteServiceEventHandler = <T extends InviteDetails>(
+  message: T
+) => Promise<unknown>;
+
+export type InviteServiceEventHandlers = Record<
+  InviteEvents,
+  InviteServiceEventHandler
+>;

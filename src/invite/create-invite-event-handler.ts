@@ -5,7 +5,7 @@ import {
 } from "./invite-service.d";
 
 const createInviteEventHandlers = (
-  eventPublisher: (queue: string, payload: any) => Promise<void>
+  eventPublisher: (queue: string, payload: unknown) => Promise<unknown>
 ): InviteServiceEventHandlers => {
   return {
     [InviteEvents.INVITATION_CREATED]: (inviteDetails: InviteDetails) =>

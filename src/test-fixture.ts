@@ -1,3 +1,4 @@
+import { Channel } from "amqplib";
 import { Express } from "express";
 import { generateKeyPair } from "jose";
 import request, { Response } from "supertest";
@@ -41,12 +42,14 @@ export default class TestFixture implements Fixture {
     this.app = app ?? this.#generateNewApp();
   }
 
+  channel: Channel;
   async #generateNewApp() {
     return appFactory({
       stage: "test",
       keys: {
         jwtKeyPair: await generateKeyPair("RS256"),
       },
+      publishEvent: (queue, payload) => Promise.resolve(),
     });
   }
 

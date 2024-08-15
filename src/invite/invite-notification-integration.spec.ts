@@ -24,11 +24,8 @@ describe(`invite-notification-integration.ts`, () => {
   let channel: Channel;
   let fixture: TestFixture;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     const jwtKeyPair = generateKeyPair("RS256");
-    rabbitMQContainer = await new RabbitMQContainer().start();
-    connection = await amqp.connect(rabbitMQContainer.getAmqpUrl());
-    channel = await connection.createChannel();
     app = appFactory({
       stage: "test",
       keys: { jwtKeyPair: await jwtKeyPair },
@@ -40,6 +37,12 @@ describe(`invite-notification-integration.ts`, () => {
           )
         ),
     });
+  });
+
+  beforeAll(async () => {
+    rabbitMQContainer = await new RabbitMQContainer().start();
+    connection = await amqp.connect(rabbitMQContainer.getAmqpUrl());
+    channel = await connection.createChannel();
     const q = await channel.assertQueue("invite_created", { durable: false });
     fixture = new TestFixture(app);
     httpServer = http.createServer(app);

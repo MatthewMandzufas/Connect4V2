@@ -176,6 +176,7 @@ describe(`test-fixture.js`, () => {
         keys: {
           jwtKeyPair: await generateKeyPair("RS256"),
         },
+        publishEvent: (queue, payload) => Promise.resolve(),
       });
       const testFixture = new TestFixture(app);
       await testFixture.signUpAndLoginEmail("anotherUser@email.com");

@@ -2,7 +2,8 @@ import userRouterFactory from "@/user/user-router";
 import { KeyPairSet } from "@/user/user-router.d";
 import UserService from "@/user/user-service";
 import { Router } from "express";
-import { Stage } from "./global";
+import { EventPublisher, Stage } from "./global";
+import createInviteEventHandlers from "./invite/create-invite-event-handler";
 import InMemoryInviteRepository from "./invite/in-memory-invite-repository";
 import inviteRouterFactory from "./invite/invite-router-factory";
 import InviteService from "./invite/invite-service";
@@ -13,11 +14,17 @@ export enum RouterType {
   "inviteRouter",
 }
 
-const resolveRouters = (
-  env: Stage,
-  keys: KeyPairSet,
-  publishEvent
-): Record<RouterType, Router> => {
+type ResolveRouterParameters = {
+  stage: Stage;
+  keys: KeyPairSet;
+  publishEvent: EventPublisher<unknown, unknown>;
+};
+
+const resolveRouters = ({
+  stage: env,
+  keys,
+  publishEvent,
+}: ResolveRouterParameters): Record<RouterType, Router> => {
   const userRepository =
     env !== "production"
       ? new InMemoryUserRepositoryFactory()
@@ -30,7 +37,7 @@ const resolveRouters = (
   const inviteService = new InviteService(
     userService,
     inviteRepository,
-    publishEvent
+    createInviteEventHandlers(publishEvent)
   );
   return {
     [RouterType.userRouter]: userRouterFactory(userService, keys),
