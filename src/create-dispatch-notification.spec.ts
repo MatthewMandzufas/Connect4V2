@@ -1,8 +1,9 @@
 import { Express } from "express";
 import http from "http";
-import { generateKeyPair } from "jose";
+import { generateKeyPair, jwtDecrypt } from "jose";
 import { AddressInfo } from "net";
-import { Server, Socket as ServerSocket } from "socket.io";
+import { last, pipe, split } from "ramda";
+import { Server } from "socket.io";
 import { io as ioc, Socket } from "socket.io-client";
 import { appFactory } from "./app";
 import createDispatchNotification from "./create-dispatch-notification";
@@ -13,8 +14,7 @@ let server: Server;
 let app: Express;
 let connectionAddress: string;
 let testFixture: TestFixture;
-let serverSocket: Promise<ServerSocket>;
-let resolveServerSocket: (socket: ServerSocket) => void;
+let resolvePromiseWhenUserJoinsRoom = (value: unknown) => {};
 
 beforeEach(async () => {
   const jwtKeyPair = generateKeyPair("RS256");
@@ -25,37 +25,53 @@ beforeEach(async () => {
   });
 
   testFixture = new TestFixture(app);
-
   httpServer = http.createServer(app);
   server = new Server(httpServer);
-  serverSocket = new Promise((resolve) => {
-    resolveServerSocket = resolve;
-  });
+
   httpServer.listen(() => {
     const port = (httpServer.address() as AddressInfo).port;
     connectionAddress = `http://localhost:${port}`;
   });
-  server.on("connection", resolveServerSocket);
+  server.on("connection", async (socket) => {
+    const token = socket.handshake.auth.token;
+
+    const { privateKey } = await jwtKeyPair;
+    const {
+      payload: { userName },
+    } = await jwtDecrypt(token, privateKey);
+    resolvePromiseWhenUserJoinsRoom("dummyValue");
+    socket.join(userName as string);
+  });
 });
 
 afterEach(() => {
-  httpServer.close();
   httpServer.removeAllListeners();
+  httpServer.close();
+  server.removeAllListeners();
   server.close();
 });
 
 describe(`create-dispatch-notification`, () => {
   describe(`given a user connected to a socket`, () => {
     describe(`when a message is dispatched to the user`, () => {
+      let recipientSocket: Socket;
+      afterEach(() => {
+        recipientSocket.removeAllListeners();
+        recipientSocket.disconnect();
+      });
       it(`the user receives the message`, async () => {
+        const singleUserPromise = new Promise((resolve) => {
+          resolvePromiseWhenUserJoinsRoom = resolve;
+        });
         let resolveUserPromise: (value: unknown) => void;
         const inviteeAuth = await testFixture.signUpAndLoginEmail(
           "poorguy@email.com"
         );
+        const token = pipe(split(" "), last)(inviteeAuth);
 
-        const recipientSocket = ioc(connectionAddress, {
-          extraHeaders: {
-            Authorization: inviteeAuth,
+        recipientSocket = ioc(connectionAddress, {
+          auth: {
+            token,
           },
         });
 
@@ -69,20 +85,19 @@ describe(`create-dispatch-notification`, () => {
           recipientSocket.disconnect();
         });
 
-        const dispatchNotification = createDispatchNotification(
-          await serverSocket
-        );
+        await singleUserPromise;
+        const dispatchNotification = createDispatchNotification(server);
 
         dispatchNotification({
           recipient: "poorguy@email.com",
           type: "example_event",
           payload: {
-            exampleData: "Hello!",
+            exampleData: "FirstTest!",
           },
         });
 
         return expect(userPromise).resolves.toEqual({
-          exampleData: "Hello!",
+          exampleData: "FirstTest!",
         });
       });
     });
@@ -91,32 +106,44 @@ describe(`create-dispatch-notification`, () => {
       let thirdPartySocket: Socket;
 
       afterEach(() => {
-        inviteeSocket.disconnect();
+        thirdPartySocket.removeAllListeners();
         thirdPartySocket.disconnect();
+        inviteeSocket.removeAllListeners();
+        inviteeSocket.disconnect();
       });
       it("only sends the message to the intended recipient", async () => {
-        let resolveUserPromise: (value: unknown) => void;
+        const firstUserConnectionPromise = new Promise((resolve) => {
+          resolvePromiseWhenUserJoinsRoom = resolve;
+        });
 
+        let resolveInviteeEventPromise: (value: unknown) => void;
+
+        const promiseToResolveWhenInviteeReceivesEvent = new Promise(
+          (resolve) => {
+            resolveInviteeEventPromise = resolve;
+          }
+        );
         const inviteeAuth = await testFixture.signUpAndLoginEmail(
           "invitee@email.com"
         );
-        const ThirdPartyAuth = await testFixture.signUpAndLoginEmail(
-          "random@email.com"
+        const thirdPartyAuth = await testFixture.signUpAndLoginEmail(
+          "thirdParty@email.com"
         );
+        const thirdPartyToken = pipe(split(" "), last)(thirdPartyAuth);
+        const inviteeToken = pipe(split(" "), last)(inviteeAuth);
 
         thirdPartySocket = ioc(connectionAddress, {
-          extraHeaders: {
-            Authorization: ThirdPartyAuth,
+          auth: {
+            token: thirdPartyToken,
           },
         });
 
+        await firstUserConnectionPromise;
+
         inviteeSocket = ioc(connectionAddress, {
-          extraHeaders: {
-            Authorization: inviteeAuth,
+          auth: {
+            token: inviteeToken,
           },
-        });
-        const userPromise = new Promise((resolve) => {
-          resolveUserPromise = resolve;
         });
 
         thirdPartySocket.connect();
@@ -124,26 +151,30 @@ describe(`create-dispatch-notification`, () => {
           expect(true).toBeFalsy();
         });
 
+        const secondUserConnectionPromise = new Promise((resolve) => {
+          resolvePromiseWhenUserJoinsRoom = resolve;
+        });
         inviteeSocket.connect();
         inviteeSocket.on("example_event", (details) => {
-          resolveUserPromise(details);
+          resolveInviteeEventPromise(details);
         });
+        await secondUserConnectionPromise;
 
-        const dispatchNotification = createDispatchNotification(
-          await serverSocket
-        );
-
+        const dispatchNotification = createDispatchNotification(server);
         dispatchNotification({
           recipient: "invitee@email.com",
           type: "example_event",
           payload: {
-            exampleData: "Hello!",
+            exampleData: "SecondTest!",
           },
         });
-
-        await expect(userPromise).resolves.toEqual({
-          exampleData: "Hello!",
-        });
+        await expect(promiseToResolveWhenInviteeReceivesEvent).resolves.toEqual(
+          {
+            exampleData: "SecondTest!",
+          }
+        );
+        Promise.resolve(firstUserConnectionPromise);
+        Promise.resolve(secondUserConnectionPromise);
       });
     });
   });
