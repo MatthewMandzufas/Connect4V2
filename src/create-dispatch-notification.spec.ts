@@ -3,7 +3,7 @@ import http from "http";
 import { generateKeyPair } from "jose";
 import { AddressInfo } from "net";
 import { Server, Socket as ServerSocket } from "socket.io";
-import { io as ioc } from "socket.io-client";
+import { io as ioc, Socket } from "socket.io-client";
 import { appFactory } from "./app";
 import createDispatchNotification from "./create-dispatch-notification";
 import TestFixture from "./test-fixture";
@@ -25,9 +25,7 @@ beforeEach(async () => {
   });
 
   testFixture = new TestFixture(app);
-});
 
-beforeAll(async () => {
   httpServer = http.createServer(app);
   server = new Server(httpServer);
   serverSocket = new Promise((resolve) => {
@@ -38,6 +36,12 @@ beforeAll(async () => {
     connectionAddress = `http://localhost:${port}`;
   });
   server.on("connection", resolveServerSocket);
+});
+
+afterEach(() => {
+  httpServer.close();
+  httpServer.removeAllListeners();
+  server.close();
 });
 
 describe(`create-dispatch-notification`, () => {
@@ -78,6 +82,66 @@ describe(`create-dispatch-notification`, () => {
         });
 
         return expect(userPromise).resolves.toEqual({
+          exampleData: "Hello!",
+        });
+      });
+    });
+    describe(`when a message is dispatched to another user`, () => {
+      let inviteeSocket: Socket;
+      let thirdPartySocket: Socket;
+
+      afterEach(() => {
+        inviteeSocket.disconnect();
+        thirdPartySocket.disconnect();
+      });
+      it("only sends the message to the intended recipient", async () => {
+        let resolveUserPromise: (value: unknown) => void;
+
+        const inviteeAuth = await testFixture.signUpAndLoginEmail(
+          "invitee@email.com"
+        );
+        const ThirdPartyAuth = await testFixture.signUpAndLoginEmail(
+          "random@email.com"
+        );
+
+        thirdPartySocket = ioc(connectionAddress, {
+          extraHeaders: {
+            Authorization: ThirdPartyAuth,
+          },
+        });
+
+        inviteeSocket = ioc(connectionAddress, {
+          extraHeaders: {
+            Authorization: inviteeAuth,
+          },
+        });
+        const userPromise = new Promise((resolve) => {
+          resolveUserPromise = resolve;
+        });
+
+        thirdPartySocket.connect();
+        thirdPartySocket.on("example_event", (details) => {
+          expect(true).toBeFalsy();
+        });
+
+        inviteeSocket.connect();
+        inviteeSocket.on("example_event", (details) => {
+          resolveUserPromise(details);
+        });
+
+        const dispatchNotification = createDispatchNotification(
+          await serverSocket
+        );
+
+        dispatchNotification({
+          recipient: "invitee@email.com",
+          type: "example_event",
+          payload: {
+            exampleData: "Hello!",
+          },
+        });
+
+        await expect(userPromise).resolves.toEqual({
           exampleData: "Hello!",
         });
       });

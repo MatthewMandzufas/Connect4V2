@@ -145,7 +145,7 @@ describe(`invite-notification-integration.ts`, () => {
           Promise.race([
             thirdPartyPromise,
             new Promise((ignore, reject) =>
-              setTimeout(() => reject(new Error("Timeout")), 500)
+              setTimeout(() => reject(new Error("Timeout")), 500).unref()
             ),
           ])
         ).rejects.toThrow("Timeout");

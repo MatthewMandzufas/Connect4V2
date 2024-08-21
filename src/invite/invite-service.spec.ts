@@ -59,6 +59,7 @@ describe("invite-service", () => {
           invitee: "player2@email.com",
           status: InviteStatus.PENDING,
         });
+        jest.useRealTimers();
       });
       describe("and the service was created with an invitation created callback", () => {
         it("calls the callback with the details of the created invitation", async () => {
@@ -124,6 +125,7 @@ describe("invite-service", () => {
               status: InviteStatus.PENDING,
             },
           ]);
+          jest.useRealTimers();
         });
       });
     });
