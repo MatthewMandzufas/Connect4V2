@@ -137,7 +137,7 @@ describe("user-integration", () => {
             "notification@email.com"
           );
           expect(response.body.notification).toEqual({
-            url: `/notification`,
+            uri: `/notification`,
           });
         });
       });

@@ -31,14 +31,12 @@ const signupRequestHandlerFactory =
         password,
       })
       .then((user) => {
-        res
-          .status(201)
-          .send({
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email,
-            uuid: user.uuid,
-          });
+        res.status(201).send({
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          uuid: user.uuid,
+        });
       })
       .catch((err: Error) => {
         res.status(403).send({ errors: [err.message] });
@@ -69,7 +67,7 @@ const loginRequestHandlerFactory =
           res
             .status(200)
             .setHeader("Authorization", `Bearer: ${jwtContent}`)
-            .send()
+            .send({ notification: { uri: "/notification" } })
         );
     } catch (err) {
       if (err instanceof AuthenticationFailedError)
