@@ -245,67 +245,96 @@ describe(`create-dispatch-notification`, () => {
         });
       });
       describe(`when a message is dispatched to each user`, () => {
-        it.skip(`each user receives a message`, async () => {
+        let firstUserSocket: Socket;
+        let secondUserSocket: Socket;
+
+        afterEach(() => {
+          firstUserSocket.removeAllListeners();
+          secondUserSocket.removeAllListeners();
+          firstUserSocket.disconnect();
+          secondUserSocket.disconnect();
+        });
+        it(`each user receives a message`, async () => {
           const firstUserConnectionPromise = new Promise((resolve) => {
             resolvePromiseWhenUserJoinsRoom = resolve;
           });
 
-          let resolveInviteeEventPromise: (value: unknown) => void;
+          let resolveFirstUserEventPromise: (value: unknown) => void;
+          let resolveSecondUserEventPromise: (value: unknown) => void;
 
-          const promiseToResolveWhenInviteeReceivesEvent = new Promise(
+          const promiseToResolveWhenFirstUserReceivesEvent = new Promise(
             (resolve) => {
-              resolveInviteeEventPromise = resolve;
+              resolveFirstUserEventPromise = resolve;
             }
           );
-          const inviteeAuth = await testFixture.signUpAndLoginEmail(
-            "invitee@email.com"
-          );
-          const thirdPartyAuth = await testFixture.signUpAndLoginEmail(
-            "thirdParty@email.com"
-          );
-          const thirdPartyToken = pipe(split(" "), last)(thirdPartyAuth);
-          const inviteeToken = pipe(split(" "), last)(inviteeAuth);
 
-          thirdPartySocket = ioc(connectionAddress, {
+          const promiseToResolveWhenSecondUserReceivesEvent = new Promise(
+            (resolve) => {
+              resolveSecondUserEventPromise = resolve;
+            }
+          );
+          const firstUserAuth = await testFixture.signUpAndLoginEmail(
+            "firstUser@email.com"
+          );
+          const secondUserAuth = await testFixture.signUpAndLoginEmail(
+            "secondUser@email.com"
+          );
+          const firstUserToken = pipe(split(" "), last)(firstUserAuth);
+          const secondUserToken = pipe(split(" "), last)(secondUserAuth);
+
+          firstUserSocket = ioc(connectionAddress, {
             auth: {
-              token: thirdPartyToken,
+              token: firstUserToken,
             },
           });
 
+          secondUserSocket = ioc(connectionAddress, {
+            auth: {
+              token: secondUserToken,
+            },
+          });
           await firstUserConnectionPromise;
 
-          inviteeSocket = ioc(connectionAddress, {
-            auth: {
-              token: inviteeToken,
-            },
-          });
-
-          thirdPartySocket.on("example_event", (details) => {
-            expect(true).toBeFalsy();
+          secondUserSocket.on("example_event", (details) => {
+            resolveSecondUserEventPromise(details);
           });
 
           const secondUserConnectionPromise = new Promise((resolve) => {
             resolvePromiseWhenUserJoinsRoom = resolve;
           });
 
-          inviteeSocket.on("example_event", (details) => {
-            resolveInviteeEventPromise(details);
-          });
           await secondUserConnectionPromise;
+          firstUserSocket.on("example_event", (details) => {
+            resolveFirstUserEventPromise(details);
+          });
 
           const dispatchNotification = createDispatchNotification(server);
           dispatchNotification({
-            recipient: "invitee@email.com",
+            recipient: "firstUser@email.com",
             type: "example_event",
             payload: {
-              exampleData: "SecondTest!",
+              exampleData: "firstUser!",
+            },
+          });
+
+          dispatchNotification({
+            recipient: "secondUser@email.com",
+            type: "example_event",
+            payload: {
+              exampleData: "secondUser!",
             },
           });
 
           await expect(
-            promiseToResolveWhenInviteeReceivesEvent
+            promiseToResolveWhenFirstUserReceivesEvent
           ).resolves.toEqual({
-            exampleData: "SecondTest!",
+            exampleData: "firstUser!",
+          });
+
+          await expect(
+            promiseToResolveWhenSecondUserReceivesEvent
+          ).resolves.toEqual({
+            exampleData: "secondUser!",
           });
         });
       });
