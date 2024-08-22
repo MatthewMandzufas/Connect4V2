@@ -339,5 +339,57 @@ describe(`create-dispatch-notification`, () => {
         });
       });
     });
+    describe(`and a message is dispatched to a non-existent recipient`, () => {
+      describe(`when a message is dispatched to the user`, () => {
+        it(`only the user receives a message`, async () => {
+          const singleUserPromise = new Promise((resolve) => {
+            resolvePromiseWhenUserJoinsRoom = resolve;
+          });
+          let resolveUserPromise: (value: unknown) => void;
+          const inviteeAuth = await testFixture.signUpAndLoginEmail(
+            "poorguy@email.com"
+          );
+          const token = pipe(split(" "), last)(inviteeAuth);
+
+          const recipientSocket = ioc(connectionAddress, {
+            auth: {
+              token,
+            },
+          });
+
+          const userPromise = new Promise((resolve) => {
+            resolveUserPromise = resolve;
+          });
+
+          recipientSocket.on("example_event", (details) => {
+            resolveUserPromise(details);
+            recipientSocket.disconnect();
+          });
+
+          await singleUserPromise;
+          const dispatchNotification = createDispatchNotification(server);
+
+          dispatchNotification({
+            recipient: "nonExistingUser@email.com",
+            type: "example_event",
+            payload: {
+              exampleData: "shouldNotSeeThis!",
+            },
+          });
+
+          dispatchNotification({
+            recipient: "poorguy@email.com",
+            type: "example_event",
+            payload: {
+              message: "Great Success!",
+            },
+          });
+
+          await expect(userPromise).resolves.toEqual({
+            message: "Great Success!",
+          });
+        });
+      });
+    });
   });
 });
