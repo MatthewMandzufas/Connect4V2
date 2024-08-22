@@ -5,9 +5,9 @@ import { AddressInfo } from "net";
 import { last, pipe, split } from "ramda";
 import { Server } from "socket.io";
 import { io as ioc, Socket } from "socket.io-client";
-import { appFactory } from "./app";
+import { appFactory } from "../app";
+import TestFixture from "../test-fixture";
 import createDispatchNotification from "./create-dispatch-notification";
-import TestFixture from "./test-fixture";
 
 let httpServer: http.Server;
 let server: Server;
