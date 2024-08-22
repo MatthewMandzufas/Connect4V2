@@ -77,6 +77,15 @@ export default class TestFixture implements Fixture {
     return response;
   }
 
+  async signUpAndLoginEmailResponse(userEmail: string) {
+    await this.signUpUserWithEmail(userEmail);
+    const response = await this.loginUser({
+      userName: userEmail,
+      password: "GenericPassword",
+    });
+    return response;
+  }
+
   async loginUser(userCredentials: UserCredentials) {
     const response = await request(await this.app)
       .post("/user/login")

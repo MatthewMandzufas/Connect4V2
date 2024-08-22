@@ -8,6 +8,7 @@ import {
 } from "jose";
 import { last, path, pipe, split } from "ramda";
 import request, { Response } from "supertest";
+import TestFixture from "./test-fixture";
 
 const user1Details = {
   firstName: "John",
@@ -31,6 +32,7 @@ describe("user-integration", () => {
           privateKey: jwtKeyPair.privateKey,
         },
       },
+      publishEvent: (queue, payload) => Promise.resolve(),
     });
   });
 
@@ -128,6 +130,15 @@ describe("user-integration", () => {
             roles: [],
           });
           jest.useRealTimers();
+        });
+        it("receives the relative path to the notifications endpoint", async () => {
+          const testFixture = new TestFixture(app);
+          const response = await testFixture.signUpAndLoginEmailResponse(
+            "notification@email.com"
+          );
+          expect(response.body.notification).toEqual({
+            url: `/notification`,
+          });
         });
       });
       describe("and they provide incorrect credentials", () => {
