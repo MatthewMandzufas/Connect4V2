@@ -3,12 +3,14 @@ import { KeyPairSet } from "@/user/user-router.d";
 import validateUserSignupRequest from "@/user/validate-user-signup-request";
 import express, { RequestHandler } from "express";
 import { jwtDecrypt, KeyLike } from "jose";
+import { createServerSideWebSocket } from "./create-server-side-web-socket";
 import { EventPublisher, Stage } from "./global";
 
 type AppFactoryParameters = {
   stage: Stage;
   keys: KeyPairSet;
   publishEvent: EventPublisher<unknown, unknown>;
+  port?: number;
 };
 
 const createAuthenticationMiddleware =
@@ -32,21 +34,31 @@ const createAuthenticationMiddleware =
   };
 
 export const appFactory = (
-  { keys, stage, publishEvent }: AppFactoryParameters = {
+  { keys, stage, publishEvent, port }: AppFactoryParameters = {
     stage: "production",
     keys: {},
     publishEvent: (queue, payload) => Promise.resolve(),
   }
 ) => {
+  const app = express();
+
+  const options = {
+    path: "/notification",
+    port,
+  };
+  const serverSideWebSocketPath = createServerSideWebSocket(app, options);
+
   const routers = resolveRouters({
     stage,
     keys,
     publishEvent,
+    serverSideWebSocketPath,
   });
-  const app = express()
-    .use(express.json())
-    .use(createAuthenticationMiddleware(keys.jwtKeyPair.privateKey))
-    .use("/user", validateUserSignupRequest, routers[RouterType.userRouter])
-    .use("/invite", routers[RouterType.inviteRouter]);
+
+  app.use(express.json());
+  app.use(createAuthenticationMiddleware(keys.jwtKeyPair.privateKey));
+  app.use("/user", validateUserSignupRequest, routers[RouterType.userRouter]);
+  app.use("/invite", routers[RouterType.inviteRouter]);
+
   return app;
 };

@@ -18,12 +18,14 @@ type ResolveRouterParameters = {
   stage: Stage;
   keys: KeyPairSet;
   publishEvent: EventPublisher<unknown, unknown>;
+  serverSideWebSocketPath: string;
 };
 
 const resolveRouters = ({
   stage: env,
   keys,
   publishEvent,
+  serverSideWebSocketPath,
 }: ResolveRouterParameters): Record<RouterType, Router> => {
   const userRepository =
     env !== "production"
@@ -40,7 +42,11 @@ const resolveRouters = ({
     createInviteEventHandlers(publishEvent)
   );
   return {
-    [RouterType.userRouter]: userRouterFactory(userService, keys),
+    [RouterType.userRouter]: userRouterFactory(
+      userService,
+      keys,
+      serverSideWebSocketPath
+    ),
     [RouterType.inviteRouter]: inviteRouterFactory(inviteService),
   };
 };

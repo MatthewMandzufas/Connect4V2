@@ -132,12 +132,20 @@ describe("user-integration", () => {
           jest.useRealTimers();
         });
         it("receives the relative path to the notifications endpoint", async () => {
+          const jwtKeyPair = await generateKeyPair("RS256");
+          const app = appFactory({
+            stage: "test",
+            keys: { jwtKeyPair: jwtKeyPair },
+            publishEvent: () => Promise.resolve(),
+            port: 3015,
+          });
+
           const testFixture = new TestFixture(app);
           const response = await testFixture.signUpAndLoginEmailResponse(
             "notification@email.com"
           );
           expect(response.body.notification).toEqual({
-            uri: `/notification`,
+            uri: `ws://localhost:3015/notification`,
           });
         });
       });
