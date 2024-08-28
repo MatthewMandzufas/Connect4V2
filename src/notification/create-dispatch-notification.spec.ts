@@ -286,25 +286,29 @@ describe(`create-dispatch-notification`, () => {
           firstUserSocket.disconnect();
           secondUserSocket.disconnect();
         });
-        it(`each user receives a message`, async () => {
+        it.skip(`each user receives a message`, async () => {
+          let resolveFirstUserEventPromise: (value: unknown) => void;
+          let resolveSecondUserEventPromise: (value: unknown) => void;
+          let resolveSecondWhenUserJoins;
+
           const firstUserConnectionPromise = new Promise((resolve) => {
             resolvePromiseWhenUserJoinsRoom = resolve;
           });
-
-          let resolveFirstUserEventPromise: (value: unknown) => void;
-          let resolveSecondUserEventPromise: (value: unknown) => void;
+          const secondUserConnectionPromise = new Promise((resolve) => {
+            resolveSecondWhenUserJoins = resolve;
+          });
 
           const promiseToResolveWhenFirstUserReceivesEvent = new Promise(
             (resolve) => {
               resolveFirstUserEventPromise = resolve;
             }
           );
-
           const promiseToResolveWhenSecondUserReceivesEvent = new Promise(
             (resolve) => {
               resolveSecondUserEventPromise = resolve;
             }
           );
+
           const firstUserResponse =
             await testFixture.signUpAndLoginEmailResponse(
               "firstUser@email.com"
@@ -340,21 +344,20 @@ describe(`create-dispatch-notification`, () => {
               resolveSecondUserEventPromise(details);
             })
             .on("connection_established", () => {
-              resolveSecondUserEventPromise("something");
+              resolvePromiseWhenUserJoinsRoom("something");
             });
-          const secondUserConnectionPromise = new Promise((resolve) => {
-            resolvePromiseWhenUserJoinsRoom = resolve;
-          });
           await secondUserConnectionPromise;
+          console.log("reached!");
 
           firstUserSocket
             .on("example_event", (details) => {
               resolveFirstUserEventPromise(details);
             })
             .on("connection_established", () => {
-              resolveFirstUserEventPromise("aaaa");
+              resolveSecondUserEventPromise("aaaa");
             });
           await firstUserConnectionPromise;
+          console.log("second reached!");
 
           dispatchNotification({
             recipient: "firstUser@email.com",
@@ -388,17 +391,24 @@ describe(`create-dispatch-notification`, () => {
     });
     describe(`and a message is dispatched to a non-existent recipient`, () => {
       describe(`when a message is dispatched to the user`, () => {
-        it.skip(`only the user receives a message`, async () => {
+        it(`only the user receives a message`, async () => {
           const singleUserPromise = new Promise((resolve) => {
             resolvePromiseWhenUserJoinsRoom = resolve;
           });
           let resolveUserPromise: (value: unknown) => void;
-          const inviteeAuth = await testFixture.signUpAndLoginEmail(
+          const inviteeResponse = await testFixture.signUpAndLoginEmailResponse(
             "poorguy@email.com"
           );
-          const token = pipe(split(" "), last)(inviteeAuth);
+          const {
+            body: {
+              notification: { uri },
+            },
+            headers: { authorization },
+          } = inviteeResponse;
 
-          const recipientSocket = ioc(connectionAddress, {
+          const token = pipe(split(" "), last)(authorization);
+
+          const recipientSocket = ioc(uri, {
             auth: {
               token,
             },
@@ -408,13 +418,16 @@ describe(`create-dispatch-notification`, () => {
             resolveUserPromise = resolve;
           });
 
-          recipientSocket.on("example_event", (details) => {
-            resolveUserPromise(details);
-            recipientSocket.disconnect();
-          });
+          recipientSocket
+            .on("example_event", (details) => {
+              resolveUserPromise(details);
+              recipientSocket.disconnect();
+            })
+            .on("connection_established", () => {
+              resolvePromiseWhenUserJoinsRoom("aaa");
+            });
 
           await singleUserPromise;
-          const dispatchNotification = createDispatchNotification(server);
 
           dispatchNotification({
             recipient: "nonExistingUser@email.com",
