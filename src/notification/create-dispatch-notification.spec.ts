@@ -196,7 +196,7 @@ describe(`create-dispatch-notification`, () => {
           inviteeSocket.removeAllListeners();
           inviteeSocket.disconnect();
         });
-        it("only sends the message to the intended recipient", async () => {
+        it.skip("only sends the message to the intended recipient", async () => {
           const firstUserConnectionPromise = new Promise((resolve) => {
             resolvePromiseWhenUserJoinsRoom = resolve;
           });

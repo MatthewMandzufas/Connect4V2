@@ -6,33 +6,41 @@ import http from "http";
 import { generateKeyPair } from "jose";
 import { AddressInfo } from "net";
 import { last, pipe, split } from "ramda";
-import { io as ioc, Socket } from "socket.io-client";
+import { io as ioc } from "socket.io-client";
 import createDispatchNotification from "./create-dispatch-notification";
 
 describe(`notification-integration`, () => {
+  let clientSocket;
+  let dispatchNotification;
+  let app: Express;
+  let testFixture: TestFixture;
+  beforeEach(async () => {
+    const httpServer = http.createServer().listen();
+    const port = (httpServer.address() as AddressInfo).port;
+    const authority = `localhost:${port}`;
+    const jwtKeyPair = await generateKeyPair("RS256");
+    app = appFactory({
+      stage: "test",
+      keys: { jwtKeyPair: jwtKeyPair },
+      publishEvent: () => Promise.resolve(),
+      authority,
+    });
+    httpServer.close();
+    const { io } = createSocketServer(app, {
+      port,
+      path: "/notification",
+      privateKey: jwtKeyPair.privateKey,
+    });
+    dispatchNotification = createDispatchNotification(io);
+    testFixture = new TestFixture(app);
+  });
+  afterEach(() => {
+    clientSocket.disconnect();
+    clientSocket.removeAllListeners();
+  });
   describe(`given a user exists`, () => {
     describe(`and they are logged in`, () => {
       describe(`when they connect to the notification endpoint`, () => {
-        let app: Express;
-        beforeEach(async () => {
-          const httpServer = http.createServer().listen();
-          const port = (httpServer.address() as AddressInfo).port;
-          const authority = `localhost:${port}`;
-          const jwtKeyPair = await generateKeyPair("RS256");
-          app = appFactory({
-            stage: "test",
-            keys: { jwtKeyPair: jwtKeyPair },
-            publishEvent: () => Promise.resolve(),
-            authority,
-          });
-          httpServer.close();
-          const { io } = createSocketServer(app, {
-            port,
-            path: "/notification",
-            privateKey: jwtKeyPair.privateKey,
-          });
-        });
-        let clientSocket: Socket;
         afterEach(() => {
           clientSocket.disconnect();
           clientSocket.close();
@@ -78,28 +86,6 @@ describe(`notification-integration`, () => {
         });
       });
       describe(`and they are connected to the notification endpoint`, () => {
-        let clientSocket;
-        let dispatchNotification;
-        let app: Express;
-        beforeEach(async () => {
-          const httpServer = http.createServer().listen();
-          const port = (httpServer.address() as AddressInfo).port;
-          const authority = `localhost:${port}`;
-          const jwtKeyPair = await generateKeyPair("RS256");
-          app = appFactory({
-            stage: "test",
-            keys: { jwtKeyPair: jwtKeyPair },
-            publishEvent: () => Promise.resolve(),
-            authority,
-          });
-          httpServer.close();
-          const { io } = createSocketServer(app, {
-            port,
-            path: "/notification",
-            privateKey: jwtKeyPair.privateKey,
-          });
-          dispatchNotification = createDispatchNotification(io);
-        });
         afterEach(() => {
           clientSocket.disconnect();
           clientSocket.close();
@@ -162,6 +148,97 @@ describe(`notification-integration`, () => {
               promiseToBeResolvedWhenSocketReceivesEvent
             ).resolves.toEqual({
               someData: "Good Job",
+            });
+          });
+        });
+        describe(`when a notification is dispatched to another user`, () => {
+          it(`only the designated recipient is notified`, async () => {
+            let resolveUserReceiveEventPromise = (value: unknown) => {};
+            let resolveUserConnectedPromise;
+            let resolveThirdConnection;
+
+            const promiseToResolveWhenFirstUserReceivesEvent = new Promise(
+              (resolve) => {
+                resolveUserReceiveEventPromise = resolve;
+              }
+            );
+
+            const promiseToResolveWhenThirdPartyUserConnects = new Promise(
+              (resolve) => {
+                resolveThirdConnection = resolve;
+              }
+            );
+
+            const promiseToResolveWhenUserConnects = new Promise((resolve) => {
+              resolveUserConnectedPromise = resolve;
+            });
+
+            const inviteeResponse =
+              await testFixture.signUpAndLoginEmailResponse(
+                "myFavUser@email.com"
+              );
+            const thirdPartyAuth = await testFixture.signUpAndLoginEmail(
+              "third@email.com"
+            );
+
+            const {
+              body: {
+                notification: { uri },
+              },
+              headers: { authorization },
+            } = inviteeResponse;
+
+            const token = pipe(split(" "), last)(authorization);
+            const thirdPartyToken = pipe(split(" "), last)(thirdPartyAuth);
+
+            const thirdPartySocket = ioc(uri, {
+              auth: {
+                token: thirdPartyToken,
+              },
+            });
+
+            clientSocket = ioc(uri, {
+              auth: {
+                token,
+              },
+            });
+
+            const shouldNotBeCalled = jest.fn();
+
+            thirdPartySocket
+              .on("example_event", (data) => {
+                shouldNotBeCalled("noCall");
+              })
+              .on("connection_established", () => {
+                resolveThirdConnection();
+              });
+
+            await promiseToResolveWhenThirdPartyUserConnects;
+
+            clientSocket
+              .on("example_event", (data) => {
+                resolveUserReceiveEventPromise(data);
+              })
+              .on("connection_established", () => {
+                resolveUserConnectedPromise();
+              });
+
+            await promiseToResolveWhenUserConnects;
+
+            dispatchNotification({
+              type: "example_event",
+              recipient: "myFavUser@email.com",
+              payload: {
+                data: "success!",
+              },
+            });
+
+            expect(shouldNotBeCalled).not.toHaveBeenCalled();
+
+            await expect(
+              promiseToResolveWhenFirstUserReceivesEvent
+            ).resolves.toEqual({
+              data: "success!",
             });
           });
         });
