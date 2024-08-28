@@ -3,14 +3,13 @@ import { KeyPairSet } from "@/user/user-router.d";
 import validateUserSignupRequest from "@/user/validate-user-signup-request";
 import express, { RequestHandler } from "express";
 import { jwtDecrypt, KeyLike } from "jose";
-import { createServerSideWebSocket } from "./create-server-side-web-socket";
 import { EventPublisher, Stage } from "./global";
 
 type AppFactoryParameters = {
   stage: Stage;
   keys: KeyPairSet;
   publishEvent: EventPublisher<unknown, unknown>;
-  port?: number;
+  authority?: string;
 };
 
 const createAuthenticationMiddleware =
@@ -34,25 +33,25 @@ const createAuthenticationMiddleware =
   };
 
 export const appFactory = (
-  { keys, stage, publishEvent, port }: AppFactoryParameters = {
+  {
+    keys,
+    stage,
+    publishEvent,
+    authority = "localhost:80",
+  }: AppFactoryParameters = {
     stage: "production",
     keys: {},
     publishEvent: (queue, payload) => Promise.resolve(),
+    authority: "localhost:80",
   }
 ) => {
   const app = express();
-
-  const options = {
-    path: "/notification",
-    port,
-  };
-  const serverSideWebSocketPath = createServerSideWebSocket(app, options);
 
   const routers = resolveRouters({
     stage,
     keys,
     publishEvent,
-    serverSideWebSocketPath,
+    authority,
   });
 
   app.use(express.json());

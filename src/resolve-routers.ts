@@ -18,14 +18,14 @@ type ResolveRouterParameters = {
   stage: Stage;
   keys: KeyPairSet;
   publishEvent: EventPublisher<unknown, unknown>;
-  serverSideWebSocketPath: string;
+  authority: string;
 };
 
 const resolveRouters = ({
   stage: env,
   keys,
   publishEvent,
-  serverSideWebSocketPath,
+  authority: serverSideWebSocketPath,
 }: ResolveRouterParameters): Record<RouterType, Router> => {
   const userRepository =
     env !== "production"

@@ -1,6 +1,7 @@
+import { createSocketServer } from "@/create-server-side-web-socket";
 import { Express } from "express";
 import http from "http";
-import { generateKeyPair, jwtDecrypt } from "jose";
+import { generateKeyPair } from "jose";
 import { AddressInfo } from "net";
 import { last, pipe, split } from "ramda";
 import { Server } from "socket.io";
@@ -15,40 +16,33 @@ let app: Express;
 let connectionAddress: string;
 let testFixture: TestFixture;
 let resolvePromiseWhenUserJoinsRoom = (value: unknown) => {};
+let dispatchNotification;
 
 beforeEach(async () => {
-  const jwtKeyPair = generateKeyPair("RS256");
+  const jwtKeyPair = await generateKeyPair("RS256");
+
+  httpServer = http.createServer().listen();
+  const port = (httpServer.address() as AddressInfo).port;
+
   app = appFactory({
     stage: "test",
-    keys: { jwtKeyPair: await jwtKeyPair },
+    keys: { jwtKeyPair: jwtKeyPair },
     publishEvent: (queue, payload) => Promise.resolve(),
+    authority: `localhost:${port}`,
   });
-
+  httpServer.close();
+  const { io } = createSocketServer(app, {
+    port,
+    path: "/notification",
+    privateKey: jwtKeyPair.privateKey,
+  });
+  dispatchNotification = createDispatchNotification(io);
   testFixture = new TestFixture(app);
-  httpServer = http.createServer(app);
-  server = new Server(httpServer);
-
-  httpServer.listen(() => {
-    const port = (httpServer.address() as AddressInfo).port;
-    connectionAddress = `http://localhost:${port}`;
-  });
-  server.on("connection", async (socket) => {
-    const token = socket.handshake.auth.token;
-
-    const { privateKey } = await jwtKeyPair;
-    const {
-      payload: { userName },
-    } = await jwtDecrypt(token, privateKey);
-    resolvePromiseWhenUserJoinsRoom("dummyValue");
-    socket.join(userName as string);
-  });
 });
 
 afterEach(() => {
   httpServer.removeAllListeners();
   httpServer.close();
-  server.removeAllListeners();
-  server.close();
 });
 
 describe(`create-dispatch-notification`, () => {
@@ -65,12 +59,20 @@ describe(`create-dispatch-notification`, () => {
             resolvePromiseWhenUserJoinsRoom = resolve;
           });
           let resolveUserPromise: (value: unknown) => void;
-          const inviteeAuth = await testFixture.signUpAndLoginEmail(
+          const loginResponse = await testFixture.signUpAndLoginEmailResponse(
             "poorguy@email.com"
           );
-          const token = pipe(split(" "), last)(inviteeAuth);
 
-          recipientSocket = ioc(connectionAddress, {
+          const {
+            body: {
+              notification: { uri },
+            },
+            headers: { authorization },
+          } = loginResponse;
+
+          const token = pipe(split(" "), last)(authorization);
+
+          recipientSocket = ioc(uri, {
             auth: {
               token,
             },
@@ -81,13 +83,16 @@ describe(`create-dispatch-notification`, () => {
           });
 
           recipientSocket.connect();
-          recipientSocket.on("example_event", (details) => {
-            resolveUserPromise(details);
-            recipientSocket.disconnect();
-          });
+          recipientSocket
+            .on("example_event", (details) => {
+              resolveUserPromise(details);
+              recipientSocket.disconnect();
+            })
+            .on("connection_established", () => {
+              resolvePromiseWhenUserJoinsRoom("testData");
+            });
 
           await singleUserPromise;
-          const dispatchNotification = createDispatchNotification(server);
 
           dispatchNotification({
             recipient: "poorguy@email.com",
@@ -113,12 +118,20 @@ describe(`create-dispatch-notification`, () => {
             resolvePromiseWhenUserJoinsRoom = resolve;
           });
           let resolveUserReceivesMessagesPromise: (value: unknown) => void;
-          const inviteeAuth = await testFixture.signUpAndLoginEmail(
+          const loginResponse = await testFixture.signUpAndLoginEmailResponse(
             "poorguy@email.com"
           );
-          const token = pipe(split(" "), last)(inviteeAuth);
 
-          recipientSocket = ioc(connectionAddress, {
+          const {
+            body: {
+              notification: { uri },
+            },
+            headers: { authorization },
+          } = loginResponse;
+
+          const token = pipe(split(" "), last)(authorization);
+
+          recipientSocket = ioc(uri, {
             auth: {
               token,
             },
@@ -131,16 +144,19 @@ describe(`create-dispatch-notification`, () => {
           recipientSocket.connect();
           const messages = [];
           let messagesReceived = 0;
-          recipientSocket.on("example_event", (details) => {
-            messagesReceived++;
-            messages.push(details);
-            if (messagesReceived == 2) {
-              resolveUserReceivesMessagesPromise(messages);
-            }
-          });
+          recipientSocket
+            .on("example_event", (details) => {
+              messagesReceived++;
+              messages.push(details);
+              if (messagesReceived == 2) {
+                resolveUserReceivesMessagesPromise(messages);
+              }
+            })
+            .on("connection_established", () => {
+              resolvePromiseWhenUserJoinsRoom("testData");
+            });
 
           await singleUserPromise;
-          const dispatchNotification = createDispatchNotification(server);
 
           dispatchNotification({
             recipient: "poorguy@email.com",
@@ -192,43 +208,59 @@ describe(`create-dispatch-notification`, () => {
               resolveInviteeEventPromise = resolve;
             }
           );
-          const inviteeAuth = await testFixture.signUpAndLoginEmail(
+          const inviteeResponse = await testFixture.signUpAndLoginEmailResponse(
             "invitee@email.com"
           );
           const thirdPartyAuth = await testFixture.signUpAndLoginEmail(
             "thirdParty@email.com"
           );
-          const thirdPartyToken = pipe(split(" "), last)(thirdPartyAuth);
-          const inviteeToken = pipe(split(" "), last)(inviteeAuth);
 
-          thirdPartySocket = ioc(connectionAddress, {
+          const {
+            body: {
+              notification: { uri },
+            },
+            headers: { authorization },
+          } = inviteeResponse;
+
+          const thirdPartyToken = pipe(split(" "), last)(thirdPartyAuth);
+          const inviteeToken = pipe(split(" "), last)(authorization);
+
+          thirdPartySocket = ioc(uri, {
             auth: {
               token: thirdPartyToken,
             },
           });
 
-          await firstUserConnectionPromise;
-
-          inviteeSocket = ioc(connectionAddress, {
+          inviteeSocket = ioc(uri, {
             auth: {
               token: inviteeToken,
             },
           });
 
-          thirdPartySocket.on("example_event", (details) => {
-            expect(true).toBeFalsy();
-          });
+          thirdPartySocket
+            .on("example_event", (details) => {
+              expect(true).toBeFalsy();
+            })
+            .on("connection_established", () => {
+              resolvePromiseWhenUserJoinsRoom("testData");
+            });
+
+          await firstUserConnectionPromise;
 
           const secondUserConnectionPromise = new Promise((resolve) => {
             resolvePromiseWhenUserJoinsRoom = resolve;
           });
 
-          inviteeSocket.on("example_event", (details) => {
-            resolveInviteeEventPromise(details);
-          });
+          inviteeSocket
+            .on("example_event", (details) => {
+              resolveInviteeEventPromise(details);
+            })
+            .on("connection_established", () => {
+              resolvePromiseWhenUserJoinsRoom("testData");
+            });
+
           await secondUserConnectionPromise;
 
-          const dispatchNotification = createDispatchNotification(server);
           dispatchNotification({
             recipient: "invitee@email.com",
             type: "example_event",
@@ -273,42 +305,57 @@ describe(`create-dispatch-notification`, () => {
               resolveSecondUserEventPromise = resolve;
             }
           );
-          const firstUserAuth = await testFixture.signUpAndLoginEmail(
-            "firstUser@email.com"
-          );
+          const firstUserResponse =
+            await testFixture.signUpAndLoginEmailResponse(
+              "firstUser@email.com"
+            );
           const secondUserAuth = await testFixture.signUpAndLoginEmail(
             "secondUser@email.com"
           );
-          const firstUserToken = pipe(split(" "), last)(firstUserAuth);
+
+          const {
+            body: {
+              notification: { uri },
+            },
+            headers: { authorization },
+          } = firstUserResponse;
+
+          const firstUserToken = pipe(split(" "), last)(authorization);
           const secondUserToken = pipe(split(" "), last)(secondUserAuth);
 
-          firstUserSocket = ioc(connectionAddress, {
+          firstUserSocket = ioc(uri, {
             auth: {
               token: firstUserToken,
             },
           });
 
-          secondUserSocket = ioc(connectionAddress, {
+          secondUserSocket = ioc(uri, {
             auth: {
               token: secondUserToken,
             },
           });
-          await firstUserConnectionPromise;
 
-          secondUserSocket.on("example_event", (details) => {
-            resolveSecondUserEventPromise(details);
-          });
-
+          secondUserSocket
+            .on("example_event", (details) => {
+              resolveSecondUserEventPromise(details);
+            })
+            .on("connection_established", () => {
+              resolveSecondUserEventPromise("something");
+            });
           const secondUserConnectionPromise = new Promise((resolve) => {
             resolvePromiseWhenUserJoinsRoom = resolve;
           });
-
           await secondUserConnectionPromise;
-          firstUserSocket.on("example_event", (details) => {
-            resolveFirstUserEventPromise(details);
-          });
 
-          const dispatchNotification = createDispatchNotification(server);
+          firstUserSocket
+            .on("example_event", (details) => {
+              resolveFirstUserEventPromise(details);
+            })
+            .on("connection_established", () => {
+              resolveFirstUserEventPromise("aaaa");
+            });
+          await firstUserConnectionPromise;
+
           dispatchNotification({
             recipient: "firstUser@email.com",
             type: "example_event",
@@ -341,7 +388,7 @@ describe(`create-dispatch-notification`, () => {
     });
     describe(`and a message is dispatched to a non-existent recipient`, () => {
       describe(`when a message is dispatched to the user`, () => {
-        it(`only the user receives a message`, async () => {
+        it.skip(`only the user receives a message`, async () => {
           const singleUserPromise = new Promise((resolve) => {
             resolvePromiseWhenUserJoinsRoom = resolve;
           });

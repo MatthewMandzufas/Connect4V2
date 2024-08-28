@@ -137,7 +137,6 @@ describe("user-integration", () => {
             stage: "test",
             keys: { jwtKeyPair: jwtKeyPair },
             publishEvent: () => Promise.resolve(),
-            port: 3015,
           });
 
           const testFixture = new TestFixture(app);
@@ -145,7 +144,7 @@ describe("user-integration", () => {
             "notification@email.com"
           );
           expect(response.body.notification).toEqual({
-            uri: `ws://localhost:3015/notification`,
+            uri: `ws://localhost:80/notification`,
           });
         });
       });

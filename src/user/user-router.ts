@@ -48,7 +48,7 @@ const loginRequestHandlerFactory =
   (
     userService: UserService,
     jwtPublicKey: KeyLike,
-    webSocketURI: string
+    authority: string
   ): RequestHandler =>
   async (req, res, next) => {
     jwtPublicKey ??= (await generateKeyPair("RS256")).publicKey;
@@ -71,7 +71,7 @@ const loginRequestHandlerFactory =
           res
             .status(200)
             .setHeader("Authorization", `Bearer: ${jwtContent}`)
-            .send({ notification: { uri: webSocketURI } })
+            .send({ notification: { uri: `ws://${authority}/notification` } })
         );
     } catch (err) {
       if (err instanceof AuthenticationFailedError)
@@ -84,7 +84,7 @@ const loginRequestHandlerFactory =
 const userRouterFactory = (
   userService: UserService,
   keys: KeyPairSet,
-  serverSideWebSocketPath: string
+  authority: string
 ) => {
   const userRouter = express.Router();
   userRouter.get(
@@ -97,7 +97,7 @@ const userRouterFactory = (
     loginRequestHandlerFactory(
       userService,
       keys.jwtKeyPair.publicKey,
-      serverSideWebSocketPath
+      authority
     )
   );
   return userRouter;
