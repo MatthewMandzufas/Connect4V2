@@ -23,7 +23,7 @@ export type InviteServiceEventHandler = <T extends InviteDetails>(
   message: T
 ) => Promise<unknown>;
 
-export type InviteServiceEventHandlers = Record<
+export type InviteServiceEventPublishers = Record<
   InviteEvents,
   InviteServiceEventHandler
 >;

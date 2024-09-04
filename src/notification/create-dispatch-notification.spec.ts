@@ -1,19 +1,15 @@
-import { createSocketServer } from "@/create-server-side-web-socket";
 import { Express } from "express";
 import http from "http";
 import { generateKeyPair } from "jose";
 import { AddressInfo } from "net";
 import { last, pipe, split } from "ramda";
-import { Server } from "socket.io";
 import { io as ioc, Socket } from "socket.io-client";
 import { appFactory } from "../app";
 import TestFixture from "../test-fixture";
 import createDispatchNotification from "./create-dispatch-notification";
 
 let httpServer: http.Server;
-let server: Server;
 let app: Express;
-let connectionAddress: string;
 let testFixture: TestFixture;
 let resolvePromiseWhenUserJoinsRoom = (value: unknown) => {};
 let dispatchNotification;
@@ -27,16 +23,11 @@ beforeEach(async () => {
   app = appFactory({
     stage: "test",
     keys: { jwtKeyPair: jwtKeyPair },
-    publishEvent: (queue, payload) => Promise.resolve(),
+    publishInternalEvent: (queue, payload) => Promise.resolve(),
     authority: `localhost:${port}`,
   });
-  httpServer.close();
-  const { io } = createSocketServer(app, {
-    port,
-    path: "/notification",
-    privateKey: jwtKeyPair.privateKey,
-  });
-  dispatchNotification = createDispatchNotification(io);
+
+  dispatchNotification = createDispatchNotification(app.server);
   testFixture = new TestFixture(app);
 });
 
@@ -196,7 +187,7 @@ describe(`create-dispatch-notification`, () => {
           inviteeSocket.removeAllListeners();
           inviteeSocket.disconnect();
         });
-        it.skip("only sends the message to the intended recipient", async () => {
+        it("only sends the message to the intended recipient", async () => {
           const firstUserConnectionPromise = new Promise((resolve) => {
             resolvePromiseWhenUserJoinsRoom = resolve;
           });
@@ -286,13 +277,14 @@ describe(`create-dispatch-notification`, () => {
           firstUserSocket.disconnect();
           secondUserSocket.disconnect();
         });
-        it.skip(`each user receives a message`, async () => {
+        it(`each user receives a message`, async () => {
           let resolveFirstUserEventPromise: (value: unknown) => void;
           let resolveSecondUserEventPromise: (value: unknown) => void;
           let resolveSecondWhenUserJoins;
+          let resolveFirstWhenUserJoins;
 
           const firstUserConnectionPromise = new Promise((resolve) => {
-            resolvePromiseWhenUserJoinsRoom = resolve;
+            resolveFirstWhenUserJoins = resolve;
           });
           const secondUserConnectionPromise = new Promise((resolve) => {
             resolveSecondWhenUserJoins = resolve;
@@ -339,25 +331,23 @@ describe(`create-dispatch-notification`, () => {
             },
           });
 
-          secondUserSocket
-            .on("example_event", (details) => {
-              resolveSecondUserEventPromise(details);
-            })
-            .on("connection_established", () => {
-              resolvePromiseWhenUserJoinsRoom("something");
-            });
-          await secondUserConnectionPromise;
-          console.log("reached!");
-
           firstUserSocket
             .on("example_event", (details) => {
               resolveFirstUserEventPromise(details);
             })
             .on("connection_established", () => {
-              resolveSecondUserEventPromise("aaaa");
+              resolveFirstWhenUserJoins();
             });
           await firstUserConnectionPromise;
-          console.log("second reached!");
+
+          secondUserSocket
+            .on("example_event", (details) => {
+              resolveSecondUserEventPromise(details);
+            })
+            .on("connection_established", () => {
+              resolveSecondWhenUserJoins();
+            });
+          await secondUserConnectionPromise;
 
           dispatchNotification({
             recipient: "firstUser@email.com",

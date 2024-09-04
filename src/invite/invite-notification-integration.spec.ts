@@ -1,130 +1,144 @@
 import { appFactory } from "@/app";
+import { InternalEventPublisher } from "@/global";
 import TestFixture from "@/test-fixture";
-import {
-  RabbitMQContainer,
-  StartedRabbitMQContainer,
-} from "@testcontainers/rabbitmq";
-import amqp, { Channel, Connection } from "amqplib";
 import { Express } from "express";
 import http from "http";
 import { generateKeyPair } from "jose";
 import { AddressInfo } from "net";
-import { Server } from "socket.io";
-import { io as ioc } from "socket.io-client";
-import { InviteReceivedMessage } from "./invite-notification-integration.d";
-import { InviteDetails, InviteStatus } from "./invite-service.d";
+import { last, pipe, split } from "ramda";
+import { Subject } from "rxjs";
+import { io as ioc, Socket } from "socket.io-client";
+import { InviteCreatedEvent } from "./create-invite-event-listener";
+import { InviteReceivedMessage } from "./invite-notification-integration";
+import { InviteStatus } from "./invite-service.d";
 
 describe(`invite-notification-integration.ts`, () => {
   let app: Express;
-  let httpServer: http.Server;
-  let server: Server;
-  let connectionAddress: string;
-  let rabbitMQContainer: StartedRabbitMQContainer;
-  let connection: Connection;
-  let channel: Channel;
-  let fixture: TestFixture;
+
+  let testFixture: TestFixture;
+  let publishInternalEvent: InternalEventPublisher<any, any>;
 
   beforeAll(async () => {
-    rabbitMQContainer = await new RabbitMQContainer().start();
-    connection = await amqp.connect(rabbitMQContainer.getAmqpUrl());
-    channel = await connection.createChannel();
-    const q = await channel.assertQueue("invite_created", { durable: false });
-    fixture = new TestFixture(app);
-    httpServer = http.createServer(app);
-    server = new Server(httpServer);
-    httpServer.listen(() => {
-      const port = (httpServer.address() as AddressInfo).port;
-      connectionAddress = `http://localhost:${port}`;
+    const httpServer = http.createServer().listen();
+    const port = (httpServer.address() as AddressInfo).port;
+    const authority = `localhost:${port}`;
+    const jwtKeyPair = await generateKeyPair("RS256");
+    publishInternalEvent = jest.fn((eventDetails: InviteCreatedEvent) => {
+      return Promise.resolve(messageSubject.next(eventDetails));
     });
-  }, 1000000);
-
-  beforeEach(async () => {
-    const jwtKeyPair = generateKeyPair("RS256");
+    const messageSubject = new Subject<InviteCreatedEvent>();
     app = appFactory({
       stage: "test",
-      keys: { jwtKeyPair: await jwtKeyPair },
-      publishEvent: (queue, content: InviteDetails) =>
-        Promise.resolve(
-          channel.sendToQueue(
-            queue,
-            Buffer.from(JSON.stringify(content, null, 2))
-          )
-        ),
+      keys: { jwtKeyPair: jwtKeyPair },
+      publishInternalEvent,
+      authority,
+      internalEventSubscriber: messageSubject,
     });
-  });
-
-  afterAll(async () => {
-    server.close();
-    httpServer.close();
-    await channel
-      .close()
-      .then(() => connection.close())
-      .then(() => rabbitMQContainer.stop());
+    testFixture = new TestFixture(app);
   });
 
   describe(`given a user is logged in`, () => {
-    describe(`when another user sends them an invite`, () => {
-      it.skip(`they receive a new notification`, async () => {
-        let resolveInviteDetailsReceivedPromise;
-        const inviteDetailsReceivedPromise = new Promise(
-          (resolve) => (resolveInviteDetailsReceivedPromise = resolve)
-        );
-        expect.assertions(1);
-        const testFixture = new TestFixture(app);
+    describe(`and subscribed to notifications`, () => {
+      let clientSocket: Socket;
+      beforeEach(async () => {
+        let resolveUserConnectedPromise: (value: unknown) => void;
 
-        const inviteeAuthField = await testFixture.signUpAndLoginEmail(
+        const userConnectedPromise = new Promise(
+          (resolve) => (resolveUserConnectedPromise = resolve)
+        );
+
+        const inviteeResponse = await testFixture.signUpAndLoginEmailResponse(
           "2@email.com"
         );
-        const inviterAuthField = await testFixture.signUpAndLoginEmail(
-          "1@email.com"
-        );
 
-        const clientSocket = ioc(connectionAddress, {
-          extraHeaders: {
-            Authorization: inviteeAuthField,
+        const {
+          body: {
+            notification: { uri },
+          },
+          headers: { authorization },
+        } = inviteeResponse;
+
+        const inviteeToken = pipe(split(" "), last)(authorization);
+
+        clientSocket = ioc(uri, {
+          auth: {
+            token: inviteeToken,
           },
         });
 
-        clientSocket.connect();
-        clientSocket.on(
-          "invite_received",
-          (inviteReceivedMessage: InviteReceivedMessage) => {
-            resolveInviteDetailsReceivedPromise(inviteReceivedMessage);
-            clientSocket.disconnect();
-            clientSocket.close();
-          }
-        );
-
-        testFixture.sendInvite({
-          inviter: "1@email.com",
-          invitee: "2@email.com",
-          authField: inviterAuthField,
+        clientSocket.on("connection_established", () => {
+          resolveUserConnectedPromise("foo");
         });
-        return expect(inviteDetailsReceivedPromise).resolves.toEqual({
-          inviter: "1@email.com",
-          invitee: "2@email.com",
-          exp: expect.any(Number),
-          uuid: expect.toBeUUID(),
-          status: InviteStatus.PENDING,
+
+        await userConnectedPromise;
+      });
+      describe(`when another user sends them an invite`, () => {
+        it(`they receive the invite notification`, async () => {
+          expect.assertions(2);
+
+          let resolveInviteDetailsReceivedPromise: (value: unknown) => void;
+
+          const inviteDetailsReceivedPromise = new Promise(
+            (resolve) => (resolveInviteDetailsReceivedPromise = resolve)
+          );
+
+          const inviterAuthField = await testFixture.signUpAndLoginEmail(
+            "1@email.com"
+          );
+
+          clientSocket.on(
+            "invite_received",
+            (inviteReceivedMessage: InviteReceivedMessage) => {
+              resolveInviteDetailsReceivedPromise(inviteReceivedMessage);
+              clientSocket.disconnect();
+              clientSocket.close();
+            }
+          );
+
+          await testFixture.sendInvite({
+            inviter: "1@email.com",
+            invitee: "2@email.com",
+            authField: inviterAuthField,
+          });
+
+          expect(publishInternalEvent).toHaveBeenCalledWith({
+            payload: {
+              exp: expect.any(Number),
+              invitee: "2@email.com",
+              inviter: "1@email.com",
+              status: "PENDING",
+              uuid: expect.toBeUUID(),
+            },
+            type: "INVITATION_CREATED",
+          });
+
+          return expect(inviteDetailsReceivedPromise).resolves.toEqual({
+            inviter: "1@email.com",
+            invitee: "2@email.com",
+            exp: expect.any(Number),
+            uuid: expect.toBeUUID(),
+            status: InviteStatus.PENDING,
+          });
         });
       });
     });
     describe("when an inviter sends an invite to an invitee who is not the user", () => {
       it.skip("the user does not receive a notification", async () => {
         let resolveThirdPartyPromise: (value: unknown) => void;
-        const inviterAuth = await fixture.signUpAndLoginEmail(
+        const inviterAuth = await testFixture.signUpAndLoginEmail(
           "inviter@email.com"
         );
-        await fixture.signUpAndLoginEmail("invitee@email.com");
-        const thirdPartyAuth = await fixture.signUpAndLoginEmail(
+        await testFixture.signUpAndLoginEmail("invitee@email.com");
+        const thirdPartyAuth = await testFixture.signUpAndLoginEmail(
           "thirdParty@email.com"
         );
 
-        const thirdPartySocket = ioc(connectionAddress, {
-          extraHeaders: {
-            Authorization: thirdPartyAuth,
-          },
-        });
+        // const thirdPartySocket = ioc(connectionAddress, {
+        let thirdPartySocket;
+        //   extraHeaders: {
+        //     Authorization: thirdPartyAuth,
+        //   },
+        // });
         const thirdPartyPromise = new Promise((resolve) => {
           resolveThirdPartyPromise = resolve;
         });
@@ -135,7 +149,7 @@ describe(`invite-notification-integration.ts`, () => {
           thirdPartySocket.disconnect();
         });
 
-        await fixture.sendInvite({
+        await testFixture.sendInvite({
           inviter: "inviter@email.com",
           invitee: "invitee@email.com",
           authField: inviterAuth,

@@ -2,8 +2,8 @@ import userRouterFactory from "@/user/user-router";
 import { KeyPairSet } from "@/user/user-router.d";
 import UserService from "@/user/user-service";
 import { Router } from "express";
-import { EventPublisher, Stage } from "./global";
-import createInviteEventHandlers from "./invite/create-invite-event-handlers";
+import { InternalEventPublisher, Stage } from "./global";
+import createInviteEventPublishers from "./invite/create-invite-event-publishers";
 import InMemoryInviteRepository from "./invite/in-memory-invite-repository";
 import inviteRouterFactory from "./invite/invite-router-factory";
 import InviteService from "./invite/invite-service";
@@ -17,14 +17,14 @@ export enum RouterType {
 type ResolveRouterParameters = {
   stage: Stage;
   keys: KeyPairSet;
-  publishEvent: EventPublisher<unknown, unknown>;
+  publishInternalEvent: InternalEventPublisher<any, any>;
   authority: string;
 };
 
 const resolveRouters = ({
   stage: env,
   keys,
-  publishEvent,
+  publishInternalEvent = () => Promise.resolve(),
   authority: serverSideWebSocketPath,
 }: ResolveRouterParameters): Record<RouterType, Router> => {
   const userRepository =
@@ -39,7 +39,7 @@ const resolveRouters = ({
   const inviteService = new InviteService(
     userService,
     inviteRepository,
-    createInviteEventHandlers(publishEvent)
+    createInviteEventPublishers(publishInternalEvent)
   );
   return {
     [RouterType.userRouter]: userRouterFactory(

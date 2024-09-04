@@ -1,6 +1,6 @@
 import {
   InviteEvents,
-  InviteServiceEventHandlers,
+  InviteServiceEventPublishers,
   InviteStatus,
   type InviteCreationDetails,
   type InviteDetails,
@@ -24,12 +24,12 @@ const lengthOfDayInMilliseconds = 1000 * 60 * 60 * 24;
 class InviteService implements InviteServiceInterface {
   #userService: UserService;
   #inviteRepository: InviteRepository;
-  #eventPublishers: InviteServiceEventHandlers;
+  #eventPublishers: InviteServiceEventPublishers;
 
   constructor(
     userService: UserService,
     inviteRepository: InviteRepository = new InMemoryInviteRepository(),
-    eventPublishers: InviteServiceEventHandlers
+    eventPublishers: InviteServiceEventPublishers
   ) {
     this.#userService = userService;
     this.#inviteRepository = inviteRepository;

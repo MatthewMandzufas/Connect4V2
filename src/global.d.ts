@@ -10,7 +10,7 @@ type Stage = "production" | "test";
 
 type ServiceEvent = InviteEvents;
 
-type EventPublisher<P, R> = (queue: string, payload: P) => Promise<R>;
+export type InternalEventPublisher<P, R> = (eventDetails: P) => Promise<R>;
 
 export type ServiceEventHandler = InviteServiceEventHandler;
 

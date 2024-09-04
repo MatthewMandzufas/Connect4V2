@@ -1,19 +1,26 @@
 import { Express } from "express";
 import http from "http";
 import { jwtDecrypt, KeyLike } from "jose";
+import { AddressInfo } from "net";
 import { Server } from "socket.io";
 
 type ServerSideWebSocketOptions = {
   path?: string;
-  port?: number;
   privateKey: KeyLike;
 };
 
+export type ExpressWithPortAndSocket = Express & {
+  port?: number;
+  server?: Server;
+};
+
 export const createSocketServer = (
-  app: Express,
-  { path, port, privateKey }: ServerSideWebSocketOptions
+  app: ExpressWithPortAndSocket,
+  { path, privateKey }: ServerSideWebSocketOptions
 ) => {
-  const httpServer = http.createServer(app).unref();
+  const httpServer = http.createServer(app).listen();
+
+  const port = (httpServer.address() as AddressInfo).port;
 
   const io = new Server(httpServer);
 
@@ -26,14 +33,8 @@ export const createSocketServer = (
 
     socket.join(userName as string);
     socket.emit("connection_established");
-
-    // console.log(`Socket with ${socket.id} has been connected!`);
   });
 
-  httpServer.listen(port, () => {});
-  const fullPath = `ws://localhost:${port}${path}`;
-  return {
-    fullPath,
-    io,
-  };
+  app.server = io;
+  app.port = port;
 };

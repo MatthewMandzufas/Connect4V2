@@ -32,7 +32,7 @@ describe("user-integration", () => {
           privateKey: jwtKeyPair.privateKey,
         },
       },
-      publishEvent: (queue, payload) => Promise.resolve(),
+      publishInternalEvent: (queue, payload) => Promise.resolve(),
     });
   });
 
@@ -136,7 +136,7 @@ describe("user-integration", () => {
           const app = appFactory({
             stage: "test",
             keys: { jwtKeyPair: jwtKeyPair },
-            publishEvent: () => Promise.resolve(),
+            publishInternalEvent: () => Promise.resolve(),
           });
 
           const testFixture = new TestFixture(app);
@@ -144,7 +144,7 @@ describe("user-integration", () => {
             "notification@email.com"
           );
           expect(response.body.notification).toEqual({
-            uri: `ws://localhost:80/notification`,
+            uri: expect.any(String),
           });
         });
       });

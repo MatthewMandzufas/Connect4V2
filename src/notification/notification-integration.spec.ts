@@ -1,5 +1,4 @@
 import { appFactory } from "@/app";
-import { createSocketServer } from "@/create-server-side-web-socket";
 import TestFixture from "@/test-fixture";
 import { Express } from "express";
 import http from "http";
@@ -22,16 +21,11 @@ describe(`notification-integration`, () => {
     app = appFactory({
       stage: "test",
       keys: { jwtKeyPair: jwtKeyPair },
-      publishEvent: () => Promise.resolve(),
+      publishInternalEvent: () => Promise.resolve(),
       authority,
     });
-    httpServer.close();
-    const { io } = createSocketServer(app, {
-      port,
-      path: "/notification",
-      privateKey: jwtKeyPair.privateKey,
-    });
-    dispatchNotification = createDispatchNotification(io);
+
+    dispatchNotification = createDispatchNotification(app.server);
     testFixture = new TestFixture(app);
   });
   afterEach(() => {
@@ -94,7 +88,7 @@ describe(`notification-integration`, () => {
           it(`they receive the notification`, async () => {
             expect.assertions(1);
 
-            const testFixture = new TestFixture(app);
+            // const testFixture = new TestFixture(app);
             const loginResponse = await testFixture.signUpAndLoginEmailResponse(
               "myFav!@email.com"
             );

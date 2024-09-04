@@ -33,6 +33,7 @@ describe(`create-invite-event-listener`, () => {
               uuid: expect.toBeUUID(),
               status: InviteStatus.PENDING,
             },
+            type: "invite_received",
           });
         });
       });

@@ -3,13 +3,23 @@ import { KeyPairSet } from "@/user/user-router.d";
 import validateUserSignupRequest from "@/user/validate-user-signup-request";
 import express, { RequestHandler } from "express";
 import { jwtDecrypt, KeyLike } from "jose";
-import { EventPublisher, Stage } from "./global";
+import { Subject } from "rxjs";
+import {
+  createSocketServer,
+  ExpressWithPortAndSocket,
+} from "./create-server-side-web-socket";
+import { InternalEventPublisher, Stage } from "./global";
+import createInviteEventListener, {
+  InviteCreatedEvent,
+} from "./invite/create-invite-event-listener";
+import createDispatchNotification from "./notification/create-dispatch-notification";
 
 type AppFactoryParameters = {
   stage: Stage;
   keys: KeyPairSet;
-  publishEvent: EventPublisher<unknown, unknown>;
+  publishInternalEvent?: InternalEventPublisher<unknown, unknown>;
   authority?: string;
+  internalEventSubscriber?: Subject<InviteCreatedEvent>;
 };
 
 const createAuthenticationMiddleware =
@@ -32,26 +42,56 @@ const createAuthenticationMiddleware =
     next();
   };
 
+// const createExternalEventPublisher = (serverSocket: Server) => {
+//   const dispatchNotification = createDispatchNotification(serverSocket);
+
+//   return (eventDetails) => {
+//     let type = eventDetails.type;
+//     if (type === InviteEvents.INVITATION_CREATED) {
+//       type = "invite_received";
+//     }
+
+//     dispatchNotification({
+//       ...eventDetails,
+//       type,
+//     });
+
+//     return Promise.resolve();
+//   };
+// };
+
 export const appFactory = (
   {
     keys,
     stage,
-    publishEvent,
+    publishInternalEvent,
     authority = "localhost:80",
+    internalEventSubscriber = new Subject(),
   }: AppFactoryParameters = {
     stage: "production",
     keys: {},
-    publishEvent: (queue, payload) => Promise.resolve(),
+    publishInternalEvent: () => Promise.resolve(),
     authority: "localhost:80",
+    internalEventSubscriber: new Subject(),
   }
 ) => {
-  const app = express();
+  const app = express() as ExpressWithPortAndSocket;
+
+  createSocketServer(app, {
+    path: "/notification",
+    privateKey: keys.jwtKeyPair.privateKey,
+  });
+
+  createInviteEventListener(
+    internalEventSubscriber,
+    createDispatchNotification(app.server)
+  );
 
   const routers = resolveRouters({
     stage,
     keys,
-    publishEvent,
-    authority,
+    publishInternalEvent,
+    authority: `localhost:${app.port}`,
   });
 
   app.use(express.json());
