@@ -2,29 +2,35 @@ import InMemorySessionRepository from "./in-memory-session-repository";
 import SessionService from "./session-service";
 
 describe("session-service", () => {
-  describe("creatin a session service", () => {
+  let sessionRepository: InMemorySessionRepository;
+  let sessionService: SessionService;
+  beforeEach(() => {
+    sessionRepository = new InMemorySessionRepository();
+    sessionService = new SessionService(sessionRepository);
+  });
+
+  describe("creating a session service", () => {
     describe("given a session repository", () => {
       it("creates a session service", () => {
-        const sessionRepository = new InMemorySessionRepository();
-        const sessionService = new SessionService(sessionRepository);
         expect(sessionService).toBeInstanceOf(SessionService);
       });
     });
   });
-  describe.skip("creating a session", () => {
+  describe("creating a session", () => {
     describe("given the identities of two players", () => {
-      it("creates a session", () => {
-        const sessionId = sessionService.createSession({
-          inviterUuid: "bob",
-          inviteeUuid: "alice",
+      it("creates a session", async () => {
+        const sessionDetails = await sessionService.createSession({
+          inviterUuid: "004be48d-d024-40b7-9b9e-e692adbd45ea",
+          inviteeUuid: "53d13d08-6d6f-4d62-8753-52a91cc7b52e",
         });
-        expect(sessionService.getSession(sessionId)).toEqual(
+        expect(sessionDetails).resolves.toEqual(
           expect.objectContaining({
+            uuid: expect.toBeUUID(),
             inviter: expect.objectContaining({
-              uuid: "bob",
+              uuid: "004be48d-d024-40b7-9b9e-e692adbd45ea",
             }),
             invitee: expect.objectContaining({
-              uuid: "alice",
+              uuid: "53d13d08-6d6f-4d62-8753-52a91cc7b52e",
             }),
           })
         );
