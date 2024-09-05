@@ -1,3 +1,4 @@
+import Game from "./game";
 import InMemoryGameRepository from "./in-memory-game-repository";
 
 describe("game-service", () => {
@@ -6,7 +7,7 @@ describe("game-service", () => {
       describe("and a game factory", () => {
         it("creates a game service", () => {
           const gameRepository = new InMemoryGameRepository();
-          const gameService = new GameService(gameRepository, createGame);
+          const gameService = new GameService(gameRepository, Game);
           expect(gameService).toBeInstanceOf(GameService);
         });
       });
