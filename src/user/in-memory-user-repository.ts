@@ -1,3 +1,4 @@
+import { Uuid } from "@/global";
 import { UserRepository } from "./user-repository";
 
 export type PersistedUser = {

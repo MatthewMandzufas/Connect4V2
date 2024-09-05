@@ -19,7 +19,7 @@ describe("invite-integration", () => {
           privateKey: jwtKeyPair.privateKey,
         },
       },
-      publishInternalEvent: (queue, payload) => Promise.resolve(),
+      publishInternalEvent: (eventDetails) => Promise.resolve(),
     });
   });
 
