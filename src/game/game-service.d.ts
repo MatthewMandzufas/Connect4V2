@@ -39,3 +39,11 @@ export type PlayerColorsType = {
   playerOneColor: string;
   playerTwoColor: string;
 };
+
+export interface GameInterface {
+  getBoard: () => Board;
+}
+export type BoardDimensions = {
+  rows: number;
+  columns: number;
+};
