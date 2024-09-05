@@ -32,7 +32,7 @@ describe("user-integration", () => {
           privateKey: jwtKeyPair.privateKey,
         },
       },
-      publishInternalEvent: (queue, payload) => Promise.resolve(),
+      publishInternalEvent: (details) => Promise.resolve(),
     });
   });
 

@@ -1,7 +1,8 @@
 import { KeyPairSet } from "@/user/user-router.d";
-import UserService, { AuthenticationFailedError } from "@/user/user-service";
+import UserService from "@/user/user-service";
 import express, { RequestHandler } from "express";
 import { EncryptJWT, generateKeyPair, KeyLike } from "jose";
+import { AuthenticationFailedError } from "./errors";
 
 const userDetailsRequestHandlerFactory =
   (userService: UserService, jwtPrivateKey: KeyLike): RequestHandler =>

@@ -1,5 +1,6 @@
 interface CustomMatchers<R = jest.CustomMatcherResult> {
   toBeUUID(): R;
+  toBeDeeplyUnequal(value: any): R;
 }
 
 declare global {
