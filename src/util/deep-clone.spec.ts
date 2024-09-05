@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, it, expect } from "vitest";
-import deepClone from "@/connect-4-domain/deep-clone";
+import deepClone from "./deep-clone";
 
 describe("deepClone", () => {
   it("should return a primitive value as is ", () => {
@@ -17,7 +16,7 @@ describe("deepClone", () => {
     expect(clonedArray[0]).not.toBe(originalArray[0]);
     expect(clonedArray[0].a).toStrictEqual(originalArray[0].a);
     expect(Object.keys(clonedArray[0]).length).toEqual(1);
-    expect(Object.hasOwn(clonedArray[0], "a")).toBeTruthy;
+    // expect(Object.hasOwn(clonedArray[0], "a")).toBeTruthy;
     expect(clonedArray[1]).toStrictEqual(originalArray[1]);
     expect(clonedArray[1]).toBe(originalArray[1]);
     expect(clonedArray[2]).not.toBe(originalArray[2]);

@@ -1,4 +1,5 @@
 import { Uuid } from "@/global";
+import Game from "./game";
 
 export interface GameRepository {
   saveGame: (game: GameDetails) => Promise<PersistedGameDetails>;
@@ -47,3 +48,5 @@ export type BoardDimensions = {
   rows: number;
   columns: number;
 };
+
+export type GameFactory = (...args: ConstructorParameters<typeof Game>) => Game;
