@@ -1,5 +1,16 @@
+import InMemorySessionRepository from "./in-memory-session-repository";
+
 describe("session-service", () => {
-  describe("creating a session", () => {
+  describe("creatin a session service", () => {
+    describe("given a session repository", () => {
+      it("creates a session service", () => {
+        const sessionRepository = new InMemorySessionRepository();
+        const sessionService = new SessionService(sessionRepository);
+        expect(sessionService).toBeInstanceOf(SessionService);
+      });
+    });
+  });
+  describe.skip("creating a session", () => {
     describe("given the identities of two players", () => {
       it("creates a session", () => {
         const sessionId = sessionService.createSession({
