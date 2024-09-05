@@ -2,6 +2,7 @@ import { Uuid } from "@/global";
 
 export interface GameRepository {
   saveGame: (game: GameDetails) => Promise<PersistedGameDetails>;
+  loadGame: (gameUuid: Uuid) => Promise<PersistedGameDetails>;
 }
 
 export type GameDetails = {

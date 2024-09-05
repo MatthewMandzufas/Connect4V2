@@ -62,9 +62,13 @@ describe("in-memory-game-repository", () => {
     describe("given a game has been saved", () => {
       describe("when given the uuid", () => {
         it("returns the game", async () => {
-          const { uuid } = await gameRepository.saveGame(gameDetails);
+          const game = await gameRepository.saveGame(gameDetails);
+          const uuid = game.uuid;
 
-          expect(gameRepository.loadGame(uuid)).resolves.toEqual({});
+          expect(gameRepository.loadGame(uuid)).resolves.toEqual({
+            uuid,
+            ...gameDetails,
+          });
         });
       });
     });

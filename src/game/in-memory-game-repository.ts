@@ -17,4 +17,9 @@ export default class InMemoryGameRepository implements GameRepository {
     this.#games.set(gameUuid, persistedGameDetails);
     return Promise.resolve(persistedGameDetails);
   }
+
+  loadGame(gameUuid: Uuid) {
+    const persistedGameDetails = this.#games.get(gameUuid);
+    return Promise.resolve(persistedGameDetails);
+  }
 }
