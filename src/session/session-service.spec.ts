@@ -1,5 +1,6 @@
+import { Uuid } from "@/global";
 import InMemorySessionRepository from "./in-memory-session-repository";
-import SessionService from "./session-service";
+import SessionService, { NoSuchSessionError } from "./session-service";
 
 describe("session-service", () => {
   let sessionRepository: InMemorySessionRepository;
@@ -59,6 +60,14 @@ describe("session-service", () => {
             })
           );
         });
+      });
+    });
+    describe("when provided with the uuid of a non-existent session", () => {
+      it("throws a 'no such session' error", () => {
+        const sessionUuid = "fakeNews" as Uuid;
+        expect(() => sessionService.getSession(sessionUuid)).toThrow(
+          new NoSuchSessionError()
+        );
       });
     });
   });
