@@ -6,10 +6,10 @@ import {
 } from "./session-service.d";
 
 export default class InMemorySessionRepository implements SessionRepository {
-  #session: Map<Uuid, SessionDetails>;
+  #sessions: Map<Uuid, SessionDetails>;
 
   constructor() {
-    this.#session = new Map();
+    this.#sessions = new Map();
   }
 
   create({ inviterUuid, inviteeUuid }: SessionCreationDetails) {
@@ -23,11 +23,11 @@ export default class InMemorySessionRepository implements SessionRepository {
         uuid: inviteeUuid,
       },
     };
-    this.#session.set(sessionUuid, sessionDetails);
-    return sessionDetails;
+    this.#sessions.set(sessionUuid, sessionDetails);
+    return Promise.resolve(sessionDetails);
   }
 
   getSession(sessionUuid: Uuid) {
-    return this.#session.get(sessionUuid);
+    return Promise.resolve(this.#sessions.get(sessionUuid));
   }
 }

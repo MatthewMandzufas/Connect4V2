@@ -16,6 +16,8 @@ export type SessionDetails = {
 };
 
 export interface SessionRepository {
-  create: (sessionCreationDetails: SessionCreationDetails) => SessionDetails;
-  getSession: (sessionUuid: Uuid) => SessionDetails;
+  create: (
+    sessionCreationDetails: SessionCreationDetails
+  ) => Promise<SessionDetails>;
+  getSession: (sessionUuid: Uuid) => Promise<SessionDetails>;
 }

@@ -1,4 +1,5 @@
 import InMemorySessionRepository from "./in-memory-session-repository";
+import SessionService from "./session-service";
 
 describe("session-service", () => {
   describe("creatin a session service", () => {
