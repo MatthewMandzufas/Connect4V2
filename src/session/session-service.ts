@@ -2,6 +2,7 @@ import {
   SessionCreationDetails,
   SessionInterface,
   SessionRepository,
+  Uuid,
 } from "./session-service.d";
 
 export default class SessionService implements SessionInterface {
@@ -13,5 +14,9 @@ export default class SessionService implements SessionInterface {
 
   createSession(sessionDetails: SessionCreationDetails) {
     return this.#sessionRepository.create(sessionDetails);
+  }
+
+  getSession(sessionId: Uuid) {
+    return this.#sessionRepository.getSession(sessionId);
   }
 }

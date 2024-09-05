@@ -47,7 +47,7 @@ describe("session-service", () => {
           });
 
           const sessionId = sessionDetails.uuid;
-          expect(sessionService.getSession(sessionId)).toEqual(
+          expect(sessionService.getSession(sessionId)).resolves.toEqual(
             expect.objectContaining({
               uuid: expect.toBeUUID(),
               inviter: {

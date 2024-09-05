@@ -19,6 +19,7 @@ export interface SessionInterface {
   createSession: (
     sessionDetails: SessionCreationDetails
   ) => Promise<SessionDetails>;
+  getSession: (sessionId: Uuid) => Promise<SessionDetails>;
 }
 
 export interface SessionRepository {
