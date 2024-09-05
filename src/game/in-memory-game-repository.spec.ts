@@ -1,8 +1,12 @@
-describe("in-memory-repository", () => {
-  describe("given defaults", () => {
-    it("creates an in memory repository", () => {
-      const repository = new InMemoryGameRepository();
-      expect(repository).toBeInstanceOf(InMemoryGameRepository);
+import InMemoryGameRepository from "./in-memory-game-repository";
+
+describe("in-memory-game-repository", () => {
+  describe("creating a game repository", () => {
+    describe("given no arguments", () => {
+      it("creates an in memory game repository", () => {
+        const repository = new InMemoryGameRepository();
+        expect(repository).toBeInstanceOf(InMemoryGameRepository);
+      });
     });
   });
 });
