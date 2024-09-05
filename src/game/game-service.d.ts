@@ -1,4 +1,8 @@
-export interface GameRepository {}
+import { Uuid } from "@/global";
+
+export interface GameRepository {
+  saveGame: (game: GameDetails) => Promise<PersistedGameDetails>;
+}
 
 export type GameDetails = {
   board: Board;
@@ -7,6 +11,8 @@ export type GameDetails = {
   status: GameStatus;
   playerColors: PlayerColorsType;
 };
+
+export type PersistedGameDetails = GameDetails & { uuid: Uuid };
 
 export type Board = Array<Array<BoardCell>>;
 

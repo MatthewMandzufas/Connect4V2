@@ -1,4 +1,4 @@
-import { GameStatus } from "./game-service.d";
+import { GameDetails, GameStatus } from "./game-service.d";
 import InMemoryGameRepository from "./in-memory-game-repository";
 
 describe("in-memory-game-repository", () => {
@@ -16,7 +16,7 @@ describe("in-memory-game-repository", () => {
     describe("given a gam to save", () => {
       it("saves the game", () => {
         const game = {
-          board: [[1]],
+          board: [[{ occupyingPlayer: 1 }]],
           activePlayer: 1,
           players: {
             1: {
@@ -33,7 +33,7 @@ describe("in-memory-game-repository", () => {
             playerOneColor: "red",
             playerTwoColor: "yellow",
           },
-        };
+        } satisfies GameDetails;
         expect(gameRepository.saveGame(game)).resolves.toEqual(
           expect.objectContaining({
             uuid: expect.toBeUUID(),
