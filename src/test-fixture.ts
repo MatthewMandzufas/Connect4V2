@@ -49,7 +49,7 @@ export default class TestFixture implements Fixture {
       keys: {
         jwtKeyPair: await generateKeyPair("RS256"),
       },
-      publishInternalEvent: (queue, payload) => Promise.resolve(),
+      publishInternalEvent: (details) => Promise.resolve(),
     });
   }
 
