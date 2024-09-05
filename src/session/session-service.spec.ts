@@ -23,7 +23,7 @@ describe("session-service", () => {
           inviterUuid: "004be48d-d024-40b7-9b9e-e692adbd45ea",
           inviteeUuid: "53d13d08-6d6f-4d62-8753-52a91cc7b52e",
         });
-        expect(sessionDetails).resolves.toEqual(
+        expect(sessionDetails).toEqual(
           expect.objectContaining({
             uuid: expect.toBeUUID(),
             inviter: expect.objectContaining({

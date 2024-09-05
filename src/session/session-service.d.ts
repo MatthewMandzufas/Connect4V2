@@ -15,6 +15,12 @@ export type SessionDetails = {
   };
 };
 
+export interface SessionInterface {
+  createSession: (
+    sessionDetails: SessionCreationDetails
+  ) => Promise<SessionDetails>;
+}
+
 export interface SessionRepository {
   create: (
     sessionCreationDetails: SessionCreationDetails
