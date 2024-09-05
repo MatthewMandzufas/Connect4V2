@@ -6,6 +6,7 @@ export type SessionCreationDetails = {
 };
 
 export type SessionDetails = {
+  uuid: Uuid;
   invitee: {
     uuid: Uuid;
   };
@@ -16,4 +17,5 @@ export type SessionDetails = {
 
 export interface SessionRepository {
   create: (sessionCreationDetails: SessionCreationDetails) => SessionDetails;
+  getSession: (sessionUuid: Uuid) => SessionDetails;
 }

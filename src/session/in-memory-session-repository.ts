@@ -13,7 +13,9 @@ export default class InMemorySessionRepository implements SessionRepository {
   }
 
   create({ inviterUuid, inviteeUuid }: SessionCreationDetails) {
+    const sessionUuid = crypto.randomUUID();
     const sessionDetails = {
+      uuid: sessionUuid,
       inviter: {
         uuid: inviterUuid,
       },
@@ -21,8 +23,11 @@ export default class InMemorySessionRepository implements SessionRepository {
         uuid: inviteeUuid,
       },
     };
-    const sessionUuid = crypto.randomUUID();
     this.#session.set(sessionUuid, sessionDetails);
     return sessionDetails;
+  }
+
+  getSession(sessionUuid: Uuid) {
+    return this.#session.get(sessionUuid);
   }
 }
