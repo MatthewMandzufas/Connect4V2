@@ -37,10 +37,28 @@ describe("session-service", () => {
       });
     });
   });
-  describe.skip("retrieving a session", () => {
+  describe("retrieving a session", () => {
     describe("given a session has been created", () => {
       describe("when provided with the id", () => {
-        it("retrieves details about the session", () => {});
+        it("retrieves details about the session", async () => {
+          const sessionDetails = await sessionService.createSession({
+            inviterUuid: "6e07e2aa-f375-4020-838e-c3d7de8b79a6",
+            inviteeUuid: "900821b2-fcec-414a-b1a6-02abbad7d35f",
+          });
+
+          const sessionId = sessionDetails.uuid;
+          expect(sessionService.getSession(sessionId)).toEqual(
+            expect.objectContaining({
+              uuid: expect.toBeUUID(),
+              inviter: {
+                uuid: "6e07e2aa-f375-4020-838e-c3d7de8b79a6",
+              },
+              invitee: {
+                uuid: "900821b2-fcec-414a-b1a6-02abbad7d35f",
+              },
+            })
+          );
+        });
       });
     });
   });
