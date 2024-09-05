@@ -1,3 +1,5 @@
+import Game from "./game";
+
 describe("game", () => {
   describe("creating a game", () => {
     describe("given no arguments", () => {
