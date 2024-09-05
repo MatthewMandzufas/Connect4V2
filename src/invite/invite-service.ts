@@ -6,6 +6,7 @@ import {
   type InviteDetails,
 } from "@/invite/invite-service.d";
 import UserService from "@/user/user-service";
+import { InvalidInvitationError } from "./errors";
 import InMemoryInviteRepository from "./in-memory-invite-repository";
 import { InviteRepository } from "./invite-repository";
 interface InviteServiceInterface {
@@ -16,8 +17,6 @@ interface InviteServiceInterface {
     inviterEmail: string
   ) => Promise<Array<InviteDetails>>;
 }
-
-export class InvalidInvitationError extends Error {}
 
 const lengthOfDayInMilliseconds = 1000 * 60 * 60 * 24;
 

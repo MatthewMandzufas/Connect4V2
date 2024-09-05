@@ -1,3 +1,4 @@
+import { NoSuchSessionError } from "./errors";
 import {
   SessionCreationDetails,
   SessionInterface,
@@ -16,7 +17,12 @@ export default class SessionService implements SessionInterface {
     return this.#sessionRepository.create(sessionDetails);
   }
 
-  getSession(sessionId: Uuid) {
-    return this.#sessionRepository.getSession(sessionId);
+  async getSession(sessionId: Uuid) {
+    const sessionDetails = await this.#sessionRepository.getSession(sessionId);
+    if (sessionDetails === undefined) {
+      throw new NoSuchSessionError();
+    }
+
+    return sessionDetails;
   }
 }

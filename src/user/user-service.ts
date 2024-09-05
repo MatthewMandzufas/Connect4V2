@@ -1,3 +1,4 @@
+import { Uuid } from "@/global";
 import type {
   UserCredentials,
   UserDetails,
@@ -6,9 +7,11 @@ import type {
 } from "@/user/user-repository.d";
 import argon2, { hash } from "argon2";
 import { isEmpty } from "ramda";
-export class UserAlreadyExistsError extends Error {}
-export class AuthenticationFailedError extends Error {}
-export class NoSuchUserError extends Error {}
+import {
+  AuthenticationFailedError,
+  NoSuchUserError,
+  UserAlreadyExistsError,
+} from "./errors";
 
 interface UserServiceInterface {
   create: (

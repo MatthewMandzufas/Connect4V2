@@ -1,10 +1,11 @@
 import InMemoryUserRepository from "@/user/in-memory-user-repository";
-import UserService, {
+import UserService from "@/user/user-service";
+import argon2 from "argon2";
+import {
   AuthenticationFailedError,
   NoSuchUserError,
   UserAlreadyExistsError,
-} from "@/user/user-service";
-import argon2 from "argon2";
+} from "./errors";
 
 const user1Details = {
   firstName: "John",
