@@ -1,6 +1,6 @@
 import _toAsciiTable from "@/util/to-ascii-table";
 import Game from "./game";
-import { BoardCell } from "./game-service";
+import { BoardCell } from "./types";
 
 function toAsciiTable(board: Array<Array<BoardCell>>): string {
   const cellResolver = (cell: BoardCell) =>
@@ -35,6 +35,32 @@ describe("game", () => {
 |--|--|--|--|--|--|--|"
 `);
       });
+    });
+  });
+
+  describe("retrieving game details", () => {
+    it("returns the games details", async () => {
+      const game = new Game();
+      expect(game.getDetails()).toEqual(
+        expect.objectContaining({
+          activePlayer: 1,
+          playerColors: {
+            playerOneColor: "FF5773",
+            playerTwoColor: "fdfd96",
+          },
+          players: {
+            1: {
+              discsLeft: 21,
+              player: 1,
+            },
+            2: {
+              discsLeft: 21,
+              player: 2,
+            },
+          },
+          status: "IN_PROGRESS",
+        })
+      );
     });
   });
 });
