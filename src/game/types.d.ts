@@ -7,7 +7,7 @@ export interface GameRepository {
 }
 
 export type GameDetails = {
-  board: Board;
+  board?: Board;
   activePlayer: PlayerNumber;
   players: Record<PlayerNumber, PlayerStats>;
   status: GameStatus;
@@ -41,8 +41,14 @@ export type PlayerColorsType = {
   playerTwoColor: string;
 };
 
+export interface GameServiceInterface {
+  createGame: () => Promise<Uuid>;
+  getGameDetails: (gameUuid: Uuid) => Promise<GameDetails>;
+}
+
 export interface GameInterface {
   getBoard: () => Board;
+  getDetails: () => GameDetails;
 }
 export type BoardDimensions = {
   rows: number;

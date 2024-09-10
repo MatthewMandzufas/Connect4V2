@@ -1,5 +1,5 @@
-import { GameDetails, GameStatus } from "./game-service.d";
 import InMemoryGameRepository from "./in-memory-game-repository";
+import { GameDetails, GameStatus } from "./types.d";
 
 describe("in-memory-game-repository", () => {
   let gameRepository: InMemoryGameRepository;

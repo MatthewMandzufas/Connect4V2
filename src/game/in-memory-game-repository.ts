@@ -1,9 +1,5 @@
 import { Uuid } from "@/global.d";
-import {
-  GameDetails,
-  GameRepository,
-  PersistedGameDetails,
-} from "./game-service.d";
+import { GameDetails, GameRepository, PersistedGameDetails } from "./types.d";
 
 export default class InMemoryGameRepository implements GameRepository {
   #games: Map<Uuid, PersistedGameDetails>;
