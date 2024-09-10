@@ -37,4 +37,5 @@ export interface SessionRepository {
     sessionCreationDetails: SessionCreationDetails
   ) => Promise<SessionDetails>;
   getSession: (sessionUuid: Uuid) => Promise<SessionDetails>;
+  addGame: (sessionUuid: Uuid, gameUuid: Uuid) => Promise<SessionDetails>;
 }

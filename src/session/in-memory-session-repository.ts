@@ -31,7 +31,13 @@ export default class InMemorySessionRepository implements SessionRepository {
     return Promise.resolve(sessionDetails);
   }
 
-  getSession(sessionUuid: Uuid) {
-    return Promise.resolve(this.#sessions.get(sessionUuid));
+  async getSession(sessionUuid: Uuid) {
+    return this.#sessions.get(sessionUuid);
+  }
+
+  async addGame(sessionUuid: Uuid, gameUuid: Uuid) {
+    const sessionDetails = await this.getSession(sessionUuid);
+    sessionDetails.gameUuids.push(gameUuid);
+    return sessionDetails;
   }
 }
