@@ -79,11 +79,11 @@ describe("in-memory-session-repository", () => {
             inviteeUuid: "a1dfad7b-8baa-4cef-af83-bacd4297eb31",
             inviterUuid: "5305e259-570c-4228-80dc-d3c8be07e3ce",
           });
-          await inMemorySessionRepository.addGame(sessionUuid, gameUuid);
+          await inMemorySessionRepository.setActiveGame(sessionUuid, gameUuid);
           const sessionDetails = await inMemorySessionRepository.getSession(
             sessionUuid
           );
-          expect(sessionDetails.activeGameUuid).toEqual([gameUuid]);
+          expect(sessionDetails.activeGameUuid).toEqual(gameUuid);
         });
       });
     });

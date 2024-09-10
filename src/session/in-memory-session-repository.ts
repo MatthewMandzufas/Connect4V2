@@ -40,4 +40,10 @@ export default class InMemorySessionRepository implements SessionRepository {
     sessionDetails.gameUuids.push(gameUuid);
     return sessionDetails;
   }
+
+  async setActiveGame(sessionUuid: Uuid, gameUuid: Uuid) {
+    const sessionDetails = await this.getSession(sessionUuid);
+    sessionDetails.activeGameUuid = gameUuid;
+    return sessionDetails;
+  }
 }
