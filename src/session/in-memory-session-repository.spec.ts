@@ -58,7 +58,7 @@ describe("in-memory-session-repository", () => {
   });
   describe("updating session details", () => {
     describe("given the id of an existing session", () => {
-      describe("and the uuids of a game", () => {
+      describe("and the uuid of a game", () => {
         it("adds the game to the session details", async () => {
           const gameUuid = "6c5c6e3f-8a15-4199-8f46-4b929e6b6dfa";
           const { uuid: sessionUuid } = await inMemorySessionRepository.create({
@@ -70,6 +70,20 @@ describe("in-memory-session-repository", () => {
             sessionUuid
           );
           expect(sessionDetails.gameUuids).toEqual([gameUuid]);
+        });
+      });
+      describe("and the uuid of a game to set as active game", () => {
+        it("sets the sessions active game", async () => {
+          const gameUuid = "2133a74b-5c32-4c03-9742-cb5064e4d5cf";
+          const { uuid: sessionUuid } = await inMemorySessionRepository.create({
+            inviteeUuid: "a1dfad7b-8baa-4cef-af83-bacd4297eb31",
+            inviterUuid: "5305e259-570c-4228-80dc-d3c8be07e3ce",
+          });
+          await inMemorySessionRepository.addGame(sessionUuid, gameUuid);
+          const sessionDetails = await inMemorySessionRepository.getSession(
+            sessionUuid
+          );
+          expect(sessionDetails.activeGameUuid).toEqual([gameUuid]);
         });
       });
     });
