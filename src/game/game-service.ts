@@ -1,3 +1,4 @@
+import { Uuid } from "@/global";
 import Game from "./game";
 import InMemoryGameRepository from "./in-memory-game-repository";
 import { GameFactory, GameRepository, GameServiceInterface } from "./types.d";
@@ -16,14 +17,13 @@ export default class GameService implements GameServiceInterface {
 
   async createGame() {
     const game = this.#gameFactory();
-    const { uuid: gameUuid } = await this.#gameRepository.saveGame(game);
+    const { uuid: gameUuid } = await this.#gameRepository.saveGame(
+      game.getDetails()
+    );
     return gameUuid;
   }
 
-  async getGameDetails() {
-    return {
-      row: 1,
-      column: 2,
-    };
+  async getGameDetails(gameUuid: Uuid) {
+    return this.#gameRepository.loadGame(gameUuid);
   }
 }

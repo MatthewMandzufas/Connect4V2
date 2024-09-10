@@ -1,3 +1,6 @@
+import Game from "@/game/game";
+import GameService from "@/game/game-service";
+import InMemoryGameRepository from "@/game/in-memory-game-repository";
 import { Uuid } from "@/global";
 import { NoSuchSessionError } from "./errors";
 import InMemorySessionRepository from "./in-memory-session-repository";
@@ -9,7 +12,12 @@ describe("session-service", () => {
   let sessionService: SessionService;
   beforeEach(() => {
     sessionRepository = new InMemorySessionRepository();
-    sessionService = new SessionService(sessionRepository);
+    const gameRepository = new InMemoryGameRepository();
+    const gameService = new GameService(
+      gameRepository,
+      (...args: ConstructorParameters<typeof Game>) => new Game(...args)
+    );
+    sessionService = new SessionService(sessionRepository, gameService);
   });
 
   describe("creating a session service", () => {
@@ -78,7 +86,7 @@ describe("session-service", () => {
   describe("adding games", () => {
     describe("given an in-progress session", () => {
       describe("with no games", () => {
-        it.skip("adds a new game to the session", async () => {
+        it("adds a new game to the session", async () => {
           const { uuid: sessionUuid } = await sessionService.createSession({
             inviterUuid: "70b9b52d-b993-4108-8719-8490878a3e35",
             inviteeUuid: "e5fef403-214c-46de-89be-655b90b9a79f",
@@ -88,7 +96,7 @@ describe("session-service", () => {
           expect(
             sessionService.getActiveGameUuid(sessionUuid)
           ).resolves.toBeUndefined();
-          expect(sessionService.addNewGame(sessionUuid)).resolves.toBeUUID();
+          expect(await sessionService.addNewGame(sessionUuid)).toBeUUID();
           const activeGameId = await sessionService.getActiveGameUuid(
             sessionUuid
           );

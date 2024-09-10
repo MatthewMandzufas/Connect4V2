@@ -33,11 +33,29 @@ describe("game-service", () => {
       it("creates a game with a 6x7 board", async () => {
         const gameUuid = await gameService.createGame();
         expect(gameUuid).toBeUUID();
-        const gameDetails = await gameService.getGameDetails();
-        expect(gameDetails).toEqual({
-          rows: 6,
-          columns: 7,
-        });
+        const gameDetails = await gameService.getGameDetails(gameUuid);
+        expect(gameDetails).toEqual(
+          expect.objectContaining({
+            activePlayer: 1,
+            board: expect.anything(),
+            playerColors: {
+              playerOneColor: "FF5773",
+              playerTwoColor: "fdfd96",
+            },
+            players: {
+              1: {
+                discsLeft: 21,
+                player: 1,
+              },
+              2: {
+                discsLeft: 21,
+                player: 2,
+              },
+            },
+            status: "IN_PROGRESS",
+            uuid: expect.toBeUUID(),
+          })
+        );
       });
     });
   });
