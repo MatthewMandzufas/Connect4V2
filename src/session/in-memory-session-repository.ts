@@ -24,6 +24,8 @@ export default class InMemorySessionRepository implements SessionRepository {
         uuid: inviteeUuid,
       },
       status: SessionStatus.IN_PROGRESS,
+      gameUuids: [],
+      activeGame: "",
     };
     this.#sessions.set(sessionUuid, sessionDetails);
     return Promise.resolve(sessionDetails);

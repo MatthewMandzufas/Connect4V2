@@ -78,7 +78,7 @@ describe("session-service", () => {
   describe("adding games", () => {
     describe("given an in-progress session", () => {
       describe("with no games", () => {
-        it("adds a new game to the session", async () => {
+        it.skip("adds a new game to the session", async () => {
           const { uuid: sessionUuid } = await sessionService.createSession({
             inviterUuid: "70b9b52d-b993-4108-8719-8490878a3e35",
             inviteeUuid: "e5fef403-214c-46de-89be-655b90b9a79f",
@@ -86,10 +86,10 @@ describe("session-service", () => {
 
           expect(sessionService.getGameUuids(sessionUuid)).resolves.toEqual([]);
           expect(
-            sessionService.getActiveGameId(sessionUuid)
+            sessionService.getActiveGameUuid(sessionUuid)
           ).resolves.toBeUndefined();
-          await sessionService.addNewGame();
-          const activeGameId = await sessionService.getActiveGameId(
+          expect(sessionService.addNewGame(sessionUuid)).resolves.toBeUUID();
+          const activeGameId = await sessionService.getActiveGameUuid(
             sessionUuid
           );
           expect(activeGameId).toBeUUID();

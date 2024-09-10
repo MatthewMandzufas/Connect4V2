@@ -1,3 +1,4 @@
+import GameService from "@/game/game-service";
 import { NoSuchSessionError } from "./errors";
 import {
   SessionCreationDetails,
@@ -8,9 +9,11 @@ import {
 
 export default class SessionService implements SessionInterface {
   #sessionRepository: SessionRepository;
+  #gameService: GameService;
 
-  constructor(sessionRepository: SessionRepository) {
+  constructor(sessionRepository: SessionRepository, gameService: GameService) {
     this.#sessionRepository = sessionRepository;
+    this.#gameService = gameService;
   }
 
   createSession(sessionDetails: SessionCreationDetails) {
@@ -24,5 +27,22 @@ export default class SessionService implements SessionInterface {
     }
 
     return sessionDetails;
+  }
+
+  async getGameUuids(sessionUuid: Uuid) {
+    const sessionDetails = await this.getSession(sessionUuid);
+    return sessionDetails.gameUuids;
+  }
+
+  async getActiveGameUuid(sessionUuid: Uuid) {
+    const sessionDetails = await this.getSession(sessionUuid);
+    return sessionDetails.activeGameUuid;
+  }
+
+  async addNewGame(sessionUuid: Uuid) {
+    const newGameUuid = await this.#gameService.createGame();
+    await this.#sessionRepository.addGame(newGameUuid);
+    await this.#sessionRepository.updateActiveGame(newGameUuid);
+    return newGameUuid;
   }
 }
