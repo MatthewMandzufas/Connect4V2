@@ -41,8 +41,8 @@ export default class SessionService implements SessionInterface {
 
   async addNewGame(sessionUuid: Uuid) {
     const newGameUuid = await this.#gameService.createGame();
-    await this.#sessionRepository.addGame(newGameUuid);
-    await this.#sessionRepository.updateActiveGame(newGameUuid);
+    await this.#sessionRepository.addGame(sessionUuid, newGameUuid);
+    await this.#sessionRepository.setActiveGame(sessionUuid, newGameUuid);
     return newGameUuid;
   }
 }

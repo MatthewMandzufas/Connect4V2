@@ -17,4 +17,28 @@ describe("game-service", () => {
       });
     });
   });
+
+  describe("creating a game", () => {
+    let gameService: GameService;
+
+    beforeEach(() => {
+      const gameRepository = new InMemoryGameRepository();
+      gameService = new GameService(
+        gameRepository,
+        (...args: ConstructorParameters<typeof Game>) => new Game(...args)
+      );
+    });
+
+    describe("given no arguments", () => {
+      it("creates a game with a 6x7 board", async () => {
+        const gameUuid = await gameService.createGame();
+        expect(gameUuid).toBeUUID();
+        const gameDetails = await gameService.getGameDetails();
+        expect(gameDetails).toEqual({
+          rows: 6,
+          columns: 7,
+        });
+      });
+    });
+  });
 });
