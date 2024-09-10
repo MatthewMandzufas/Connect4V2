@@ -2,6 +2,7 @@ import { Uuid } from "@/global";
 import { NoSuchSessionError } from "./errors";
 import InMemorySessionRepository from "./in-memory-session-repository";
 import SessionService from "./session-service";
+import { SessionStatus } from "./types.d";
 
 describe("session-service", () => {
   let sessionRepository: InMemorySessionRepository;
@@ -20,7 +21,7 @@ describe("session-service", () => {
   });
   describe("creating a session", () => {
     describe("given the identities of two players", () => {
-      it("creates a session", async () => {
+      it("creates an in-progress session", async () => {
         const sessionDetails = await sessionService.createSession({
           inviterUuid: "004be48d-d024-40b7-9b9e-e692adbd45ea",
           inviteeUuid: "53d13d08-6d6f-4d62-8753-52a91cc7b52e",
@@ -34,6 +35,7 @@ describe("session-service", () => {
             invitee: expect.objectContaining({
               uuid: "53d13d08-6d6f-4d62-8753-52a91cc7b52e",
             }),
+            status: "IN_PROGRESS",
           })
         );
       });
@@ -58,6 +60,7 @@ describe("session-service", () => {
               invitee: {
                 uuid: "900821b2-fcec-414a-b1a6-02abbad7d35f",
               },
+              status: SessionStatus.IN_PROGRESS,
             })
           );
         });

@@ -4,7 +4,7 @@ import {
   SessionInterface,
   SessionRepository,
   Uuid,
-} from "./session-service.d";
+} from "./types";
 
 export default class SessionService implements SessionInterface {
   #sessionRepository: SessionRepository;

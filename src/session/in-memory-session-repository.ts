@@ -2,8 +2,9 @@ import {
   SessionCreationDetails,
   SessionDetails,
   SessionRepository,
+  SessionStatus,
   Uuid,
-} from "./session-service.d";
+} from "./types.d";
 
 export default class InMemorySessionRepository implements SessionRepository {
   #sessions: Map<Uuid, SessionDetails>;
@@ -22,6 +23,7 @@ export default class InMemorySessionRepository implements SessionRepository {
       invitee: {
         uuid: inviteeUuid,
       },
+      status: SessionStatus.IN_PROGRESS,
     };
     this.#sessions.set(sessionUuid, sessionDetails);
     return Promise.resolve(sessionDetails);

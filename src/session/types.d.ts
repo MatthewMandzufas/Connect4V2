@@ -15,6 +15,10 @@ export type SessionDetails = {
   };
 };
 
+export enum SessionStatus {
+  IN_PROGRESS = "IN_PROGRESS",
+}
+
 export interface SessionInterface {
   createSession: (
     sessionDetails: SessionCreationDetails

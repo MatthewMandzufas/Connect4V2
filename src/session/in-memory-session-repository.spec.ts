@@ -1,5 +1,5 @@
 import InMemorySessionRepository from "./in-memory-session-repository";
-import { SessionCreationDetails } from "./session-service.d";
+import { SessionCreationDetails } from "./types";
 
 describe("in-memory-session-repository", () => {
   const inMemorySessionRepository = new InMemorySessionRepository();
@@ -22,6 +22,7 @@ describe("in-memory-session-repository", () => {
           invitee: expect.objectContaining({
             uuid: "7d9bdeb5-a159-4b61-ad42-948d73ff5574",
           }),
+          status: "IN_PROGRESS",
         })
       );
     });
@@ -50,6 +51,7 @@ describe("in-memory-session-repository", () => {
           invitee: expect.objectContaining({
             uuid: "8d7bd04e-33ff-4b5a-bb37-12ee36e77a77",
           }),
+          status: "IN_PROGRESS",
         })
       );
     });
