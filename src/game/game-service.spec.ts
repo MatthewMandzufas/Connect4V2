@@ -3,6 +3,16 @@ import GameService from "./game-service";
 import InMemoryGameRepository from "./in-memory-game-repository";
 
 describe("game-service", () => {
+  let mockedPlayerMovedEventHandler: jest.Mock;
+  let gameService: GameService;
+  beforeEach(() => {
+    mockedPlayerMovedEventHandler = jest.fn();
+    const gameRepository = new InMemoryGameRepository();
+    gameService = new GameService(
+      gameRepository,
+      (...args: ConstructorParameters<typeof Game>) => new Game(...args)
+    );
+  });
   describe("creating a game service", () => {
     describe("given a game repository", () => {
       describe("and a game constructor ", () => {
@@ -19,16 +29,6 @@ describe("game-service", () => {
   });
 
   describe("creating a game", () => {
-    let gameService: GameService;
-
-    beforeEach(() => {
-      const gameRepository = new InMemoryGameRepository();
-      gameService = new GameService(
-        gameRepository,
-        (...args: ConstructorParameters<typeof Game>) => new Game(...args)
-      );
-    });
-
     describe("given no arguments", () => {
       it("creates a game with a 6x7 board", async () => {
         const gameUuid = await gameService.createGame();
@@ -56,6 +56,36 @@ describe("game-service", () => {
             uuid: expect.toBeUUID(),
           })
         );
+      });
+    });
+  });
+  describe("making a move", () => {
+    describe("given the uuid of a game", () => {
+      describe("and a valid move", () => {
+        describe("and the service was created with a handler for playerMovedEvents", () => {
+          it("calls the handler with the details of the move", async () => {
+            const gameUuid = await gameService.createGame();
+
+            await gameService.submitMove(gameUuid, {
+              player: 1,
+              position: {
+                row: 0,
+                column: 0,
+              },
+            });
+
+            expect(mockedPlayerMovedEventHandler).toHaveBeenLastCalledWith({
+              type: "player_moved",
+              payload: {
+                player: 1,
+                position: {
+                  row: 0,
+                  column: 0,
+                },
+              },
+            });
+          });
+        });
       });
     });
   });
