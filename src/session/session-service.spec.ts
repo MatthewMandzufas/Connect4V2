@@ -116,7 +116,9 @@ describe("session-service", () => {
           await sessionService.addNewGame(sessionUuid);
 
           expect(sessionService.addNewGame(sessionUuid)).rejects.toThrow(
-            new ActiveGameInProgressError()
+            new ActiveGameInProgressError(
+              "You cannot add games whilst a game is in progress."
+            )
           );
         });
       });
