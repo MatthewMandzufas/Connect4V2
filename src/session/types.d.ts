@@ -13,7 +13,7 @@ export type SessionDetails = {
   inviter: {
     uuid: Uuid;
   };
-  status: SessionStatus.IN_PROGRESS;
+  status: SessionStatus;
   gameUuids: Array<Uuid>;
   activeGameUuid?: Uuid;
 };
@@ -40,3 +40,5 @@ export interface SessionRepository {
   addGame: (sessionUuid: Uuid, gameUuid: Uuid) => Promise<SessionDetails>;
   setActiveGame: (sessionUuid: Uuid, gameUuid: Uuid) => Promise<SessionDetails>;
 }
+
+export class ActiveGameInProgressError extends Error {}

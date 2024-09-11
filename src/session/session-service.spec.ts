@@ -5,7 +5,7 @@ import { Uuid } from "@/global";
 import { NoSuchSessionError } from "./errors";
 import InMemorySessionRepository from "./in-memory-session-repository";
 import SessionService from "./session-service";
-import { SessionStatus } from "./types.d";
+import { ActiveGameInProgressError, SessionStatus } from "./types.d";
 
 describe("session-service", () => {
   let sessionRepository: InMemorySessionRepository;
@@ -104,6 +104,20 @@ describe("session-service", () => {
           expect(sessionService.getGameUuids(sessionUuid)).resolves.toEqual([
             activeGameId,
           ]);
+        });
+      });
+      describe("with an active game", () => {
+        it("does not add a new game to the session", async () => {
+          const { uuid: sessionUuid } = await sessionService.createSession({
+            inviterUuid: "335f8389-9ff7-4027-9b16-1040c5018106",
+            inviteeUuid: "637d72af-10c6-4421-a577-dd7a7d911075",
+          });
+
+          await sessionService.addNewGame(sessionUuid);
+
+          expect(sessionService.addNewGame(sessionUuid)).rejects.toThrow(
+            new ActiveGameInProgressError()
+          );
         });
       });
     });
