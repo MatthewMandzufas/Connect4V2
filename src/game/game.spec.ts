@@ -1,12 +1,34 @@
 import _toAsciiTable from "@/util/to-ascii-table";
 import Game from "./game";
-import { BoardCell } from "./types";
+import { BoardCell, GameDetails, GameStatus } from "./types.d";
 
 function toAsciiTable(board: Array<Array<BoardCell>>): string {
   const cellResolver = (cell: BoardCell) =>
     cell.occupyingPlayer === undefined ? "" : `${cell.occupyingPlayer}`;
   return _toAsciiTable(board, cellResolver);
 }
+
+const defaultGameDetails = {
+  board: new Array(6)
+    .fill(undefined)
+    .map(() => new Array(7).fill(undefined).map(() => ({}))),
+  boardDimensions: {
+    rows: 6,
+    columns: 7,
+  },
+  activePlayer: 1,
+  status: GameStatus.IN_PROGRESS,
+  players: {
+    1: {
+      player: 1,
+      discsLeft: 21,
+    },
+    2: {
+      player: 2,
+      discsLeft: 21,
+    },
+  },
+} as GameDetails;
 
 describe("game", () => {
   describe("creating a game", () => {
@@ -34,6 +56,14 @@ describe("game", () => {
 |  |  |  |  |  |  |  |
 |--|--|--|--|--|--|--|"
 `);
+      });
+    });
+    describe("given game details", () => {
+      it("does not mutate the passed in game details", () => {
+        const originalGameDetails = defaultGameDetails;
+        const game = new Game(originalGameDetails);
+        const newGameDetails = game.getDetails();
+        expect(originalGameDetails).toBeDeeplyUnequal(newGameDetails);
       });
     });
   });

@@ -1,12 +1,24 @@
+import _toAsciiTable from "@/util/to-ascii-table";
 import Game from "./game";
 import GameService from "./game-service";
 import InMemoryGameRepository from "./in-memory-game-repository";
+import { BoardCell } from "./types.d";
+
+const toAsciiTable = (board: Array<Array<BoardCell>>): string =>
+  _toAsciiTable<BoardCell>(board, (value): string => {
+    switch (value.occupyingPlayer) {
+      case 1:
+        return "1";
+      case 2:
+        return "2";
+      default:
+        return "";
+    }
+  });
 
 describe("game-service", () => {
-  let mockedPlayerMovedEventHandler: jest.Mock;
   let gameService: GameService;
   beforeEach(() => {
-    mockedPlayerMovedEventHandler = jest.fn();
     const gameRepository = new InMemoryGameRepository();
     gameService = new GameService(
       gameRepository,
@@ -62,29 +74,35 @@ describe("game-service", () => {
   describe("making a move", () => {
     describe("given the uuid of a game", () => {
       describe("and a valid move", () => {
-        describe("and the service was created with a handler for playerMovedEvents", () => {
-          it("calls the handler with the details of the move", async () => {
-            const gameUuid = await gameService.createGame();
+        it("indicates the move was successful", async () => {
+          const gameUuid = await gameService.createGame();
 
-            await gameService.submitMove(gameUuid, {
+          expect(
+            gameService.submitMove(gameUuid, {
               player: 1,
-              position: {
+              targetCell: {
                 row: 0,
                 column: 0,
               },
-            });
-
-            expect(mockedPlayerMovedEventHandler).toHaveBeenLastCalledWith({
-              type: "player_moved",
-              payload: {
-                player: 1,
-                position: {
-                  row: 0,
-                  column: 0,
-                },
-              },
-            });
-          });
+            })
+          ).resolves.toEqual({ moveSuccessful: true });
+          const gameDetails = await gameService.getGameDetails(gameUuid);
+          expect(toAsciiTable(gameDetails.board)).toMatchInlineSnapshot(`
+"
+|---|--|--|--|--|--|--|
+| 1 |  |  |  |  |  |  |
+|---|--|--|--|--|--|--|
+|   |  |  |  |  |  |  |
+|---|--|--|--|--|--|--|
+|   |  |  |  |  |  |  |
+|---|--|--|--|--|--|--|
+|   |  |  |  |  |  |  |
+|---|--|--|--|--|--|--|
+|   |  |  |  |  |  |  |
+|---|--|--|--|--|--|--|
+|   |  |  |  |  |  |  |
+|---|--|--|--|--|--|--|"
+`);
         });
       });
     });

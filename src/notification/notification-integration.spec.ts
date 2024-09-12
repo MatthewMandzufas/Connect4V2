@@ -1,6 +1,6 @@
 import { appFactory } from "@/app";
+import { ExpressWithPortAndSocket } from "@/create-server-side-web-socket";
 import TestFixture from "@/test-fixture";
-import { Express } from "express";
 import http from "http";
 import { generateKeyPair } from "jose";
 import { AddressInfo } from "net";
@@ -11,18 +11,16 @@ import createDispatchNotification from "./create-dispatch-notification";
 describe(`notification-integration`, () => {
   let clientSocket;
   let dispatchNotification;
-  let app: Express;
+  let app: ExpressWithPortAndSocket;
   let testFixture: TestFixture;
   beforeEach(async () => {
     const httpServer = http.createServer().listen();
     const port = (httpServer.address() as AddressInfo).port;
-    const authority = `localhost:${port}`;
     const jwtKeyPair = await generateKeyPair("RS256");
     app = appFactory({
       stage: "test",
       keys: { jwtKeyPair: jwtKeyPair },
       publishInternalEvent: () => Promise.resolve(),
-      authority,
     });
 
     dispatchNotification = createDispatchNotification(app.server);

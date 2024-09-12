@@ -1,7 +1,12 @@
 import { Uuid } from "@/global";
 import Game from "./game";
 import InMemoryGameRepository from "./in-memory-game-repository";
-import { GameFactory, GameRepository, GameServiceInterface } from "./types.d";
+import {
+  GameFactory,
+  GameRepository,
+  GameServiceInterface,
+  PlayerMoveDetails,
+} from "./types.d";
 
 export default class GameService implements GameServiceInterface {
   #gameRepository: GameRepository;
@@ -25,5 +30,12 @@ export default class GameService implements GameServiceInterface {
 
   async getGameDetails(gameUuid: Uuid) {
     return this.#gameRepository.loadGame(gameUuid);
+  }
+
+  async submitMove(gameUuid: Uuid, moveDetails: PlayerMoveDetails) {
+    const gameDetails = await this.#gameRepository.loadGame(gameUuid);
+    const game = new Game(gameDetails);
+    const moveResult = game.move(moveDetails);
+    return moveResult;
   }
 }

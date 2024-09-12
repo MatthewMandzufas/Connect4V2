@@ -8,10 +8,37 @@ export interface GameRepository {
 
 export type GameDetails = {
   board?: Board;
-  activePlayer: PlayerNumber;
-  players: Record<PlayerNumber, PlayerStats>;
-  status: GameStatus;
-  playerColors: PlayerColorsType;
+  activePlayer?: PlayerNumber;
+  players?: Record<PlayerNumber, PlayerStats>;
+  status?: GameStatus;
+  playerColors?: PlayerColorsType;
+  boardDimensions?: {
+    rows: number;
+    columns: number;
+  };
+};
+
+export type PlayerMoveDetails = {
+  player: 1 | 2;
+  targetCell: {
+    row: number;
+    column: number;
+  };
+};
+
+export type PlayerMoveResult = {
+  moveSuccessful: boolean;
+  message?: string;
+};
+
+export type ValidationResult = {
+  isValid: boolean;
+  message: string;
+};
+
+export type ValidCellOnBoard = {
+  isValidRow: boolean;
+  isValidColumn: boolean;
 };
 
 export type PersistedGameDetails = GameDetails & { uuid: Uuid };
@@ -44,8 +71,24 @@ export type PlayerColorsType = {
 export interface GameServiceInterface {
   createGame: () => Promise<Uuid>;
   getGameDetails: (gameUuid: Uuid) => Promise<GameDetails>;
+  submitMove: (
+    gameUuid: Uuid,
+    moveDetails: PlayerMoveDetails
+  ) => Promise<PlayerMovedResult>;
 }
 
+export type PlayerMovedResult = {
+  moveSuccessful: boolean;
+  reason?: string;
+};
+
+export type PlayerMove = {
+  player: PlayerNumber;
+  position: {
+    row: number;
+    column: number;
+  };
+};
 export interface GameInterface {
   getBoard: () => Board;
   getDetails: () => GameDetails;

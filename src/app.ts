@@ -18,7 +18,6 @@ type AppFactoryParameters = {
   stage: Stage;
   keys: KeyPairSet;
   publishInternalEvent?: InternalEventPublisher<unknown, unknown>;
-  authority?: string;
   internalEventSubscriber?: Subject<InviteCreatedEvent>;
 };
 
@@ -65,13 +64,11 @@ export const appFactory = (
     keys,
     stage,
     publishInternalEvent,
-    authority = "localhost:80",
     internalEventSubscriber = new Subject(),
   }: AppFactoryParameters = {
     stage: "production",
     keys: {},
     publishInternalEvent: () => Promise.resolve(),
-    authority: "localhost:80",
     internalEventSubscriber: new Subject(),
   }
 ) => {

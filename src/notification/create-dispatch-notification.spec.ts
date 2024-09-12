@@ -1,7 +1,6 @@
-import { Express } from "express";
+import { ExpressWithPortAndSocket } from "@/create-server-side-web-socket";
 import http from "http";
 import { generateKeyPair } from "jose";
-import { AddressInfo } from "net";
 import { last, pipe, split } from "ramda";
 import { io as ioc, Socket } from "socket.io-client";
 import { appFactory } from "../app";
@@ -9,7 +8,7 @@ import TestFixture from "../test-fixture";
 import createDispatchNotification from "./create-dispatch-notification";
 
 let httpServer: http.Server;
-let app: Express;
+let app: ExpressWithPortAndSocket;
 let testFixture: TestFixture;
 let resolvePromiseWhenUserJoinsRoom = (value: unknown) => {};
 let dispatchNotification;
@@ -17,25 +16,15 @@ let dispatchNotification;
 beforeEach(async () => {
   const jwtKeyPair = await generateKeyPair("RS256");
 
-  httpServer = http.createServer().listen();
-  const port = (httpServer.address() as AddressInfo).port;
-
   app = appFactory({
     stage: "test",
     keys: { jwtKeyPair: jwtKeyPair },
-    publishInternalEvent: (queue, payload) => Promise.resolve(),
-    authority: `localhost:${port}`,
+    publishInternalEvent: (payload) => Promise.resolve(),
   });
 
   dispatchNotification = createDispatchNotification(app.server);
   testFixture = new TestFixture(app);
 });
-
-afterEach(() => {
-  httpServer.removeAllListeners();
-  httpServer.close();
-});
-
 describe(`create-dispatch-notification`, () => {
   describe(`given a user connected to a socket`, () => {
     describe(`and no other users are connected`, () => {
