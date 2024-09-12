@@ -52,4 +52,16 @@ export default class SessionService implements SessionInterface {
       );
     }
   }
+
+  async submitMove({ sessionUuid, playerUuid, targetCell }) {
+    const {
+      inviter: { uuid: inviterUuid },
+      activeGameUuid,
+    } = await this.getSession(sessionUuid);
+
+    return this.#gameService.submitMove(activeGameUuid, {
+      player: playerUuid === inviterUuid ? 1 : 2,
+      targetCell,
+    });
+  }
 }

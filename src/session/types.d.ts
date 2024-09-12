@@ -1,3 +1,5 @@
+import { PlayerMoveResult } from "@/game/types";
+
 type Uuid = `${string}-${string}-${string}-${string}-${string}`;
 
 export type SessionCreationDetails = {
@@ -18,6 +20,15 @@ export type SessionDetails = {
   activeGameUuid?: Uuid;
 };
 
+export type MoveDetails = {
+  sessionUuid: Uuid;
+  playerUuid: Uuid;
+  targetCell: {
+    row: number;
+    column: number;
+  };
+};
+
 export enum SessionStatus {
   IN_PROGRESS = "IN_PROGRESS",
 }
@@ -30,6 +41,7 @@ export interface SessionInterface {
   getGameUuids: (sessionUuid: Uuid) => Promise<Array<Uuid>>;
   getActiveGameUuid: (sessionUuid: Uuid) => Promise<Uuid>;
   addNewGame: (sessionUuid: Uuid) => Promise<Uuid>;
+  submitMove: (moveDetails: MoveDetails) => Promise<PlayerMoveResult>;
 }
 
 export interface SessionRepository {

@@ -134,12 +134,11 @@ describe("session-service", () => {
               inviteeUuid: "ca1747c8-fe35-4807-9508-b88c0f39a8ff",
             });
 
-            const gameUuid = await sessionService.addNewGame(sessionUuid);
+            await sessionService.addNewGame(sessionUuid);
 
             const moveResult = await sessionService.submitMove({
               sessionUuid,
               playerUuid: "73d67a64-9724-4a8a-9418-055a761e4df4",
-              player: 1,
               targetCell: {
                 row: 0,
                 column: 0,
