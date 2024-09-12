@@ -124,4 +124,31 @@ describe("session-service", () => {
       });
     });
   });
+  describe("making moves", () => {
+    describe("given a session", () => {
+      describe("with an active game", () => {
+        describe("and a valid move", () => {
+          it("makes the move on the active game", async () => {
+            const { uuid: sessionUuid } = await sessionService.createSession({
+              inviterUuid: "73d67a64-9724-4a8a-9418-055a761e4df4",
+              inviteeUuid: "ca1747c8-fe35-4807-9508-b88c0f39a8ff",
+            });
+
+            const gameUuid = await sessionService.addNewGame(sessionUuid);
+
+            const moveResult = await sessionService.submitMove({
+              sessionUuid,
+              playerUuid: "73d67a64-9724-4a8a-9418-055a761e4df4",
+              player: 1,
+              targetCell: {
+                row: 0,
+                column: 0,
+              },
+            });
+            expect(moveResult).toEqual({ moveSuccessful: true });
+          });
+        });
+      });
+    });
+  });
 });
