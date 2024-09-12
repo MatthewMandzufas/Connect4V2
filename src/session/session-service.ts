@@ -1,7 +1,9 @@
 import GameService from "@/game/game-service";
+import { PlayerNumber } from "@/game/types";
 import { NoSuchSessionError } from "./errors";
 import {
   ActiveGameInProgressError,
+  GameMetaData,
   SessionCreationDetails,
   SessionInterface,
   SessionRepository,
@@ -30,9 +32,9 @@ export default class SessionService implements SessionInterface {
     return sessionDetails;
   }
 
-  async getGameUuids(sessionUuid: Uuid) {
+  async getGameMetaData(sessionUuid: Uuid) {
     const sessionDetails = await this.getSession(sessionUuid);
-    return sessionDetails.gameUuids;
+    return sessionDetails.games;
   }
 
   async getActiveGameUuid(sessionUuid: Uuid) {
@@ -40,10 +42,19 @@ export default class SessionService implements SessionInterface {
     return sessionDetails.activeGameUuid;
   }
 
-  async addNewGame(sessionUuid: Uuid) {
+  async addNewGame(
+    sessionUuid: Uuid,
+    playerOneUuid: Uuid,
+    playerTwoUuid: Uuid
+  ) {
     if ((await this.getActiveGameUuid(sessionUuid)) === undefined) {
       const newGameUuid = await this.#gameService.createGame();
-      await this.#sessionRepository.addGame(sessionUuid, newGameUuid);
+      await this.#sessionRepository.addGame(
+        sessionUuid,
+        newGameUuid,
+        playerOneUuid,
+        playerTwoUuid
+      );
       await this.#sessionRepository.setActiveGame(sessionUuid, newGameUuid);
       return newGameUuid;
     } else {
@@ -63,5 +74,27 @@ export default class SessionService implements SessionInterface {
       player: playerUuid === inviterUuid ? 1 : 2,
       targetCell,
     });
+  }
+
+  async #mapPlayerNumberToPlayerUuid(
+    playerNumber: PlayerNumber,
+    gameMetaData: GameMetaData
+  ) {
+    return playerNumber === 1
+      ? gameMetaData.playerOneUuid
+      : gameMetaData.playerTwoUuid;
+  }
+
+  async getActivePlayer(sessionUuid: Uuid) {
+    const sessionDetails = await this.getSession(sessionUuid);
+    const activeGameUuid = sessionDetails.activeGameUuid;
+    const { activePlayer } = await this.#gameService.getGameDetails(
+      activeGameUuid
+    );
+    const gameMetaData = await this.getGameMetaData(sessionUuid);
+    return await this.#mapPlayerNumberToPlayerUuid(
+      activePlayer,
+      gameMetaData.at(-1)
+    );
   }
 }

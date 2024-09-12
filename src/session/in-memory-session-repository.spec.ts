@@ -65,11 +65,22 @@ describe("in-memory-session-repository", () => {
             inviteeUuid: "6f7923a8-8998-4625-bf1c-ddefe949e0e6",
             inviterUuid: "5de4084a-96e0-48b0-8307-7c80165e707b",
           });
-          await inMemorySessionRepository.addGame(sessionUuid, gameUuid);
+          await inMemorySessionRepository.addGame(
+            sessionUuid,
+            gameUuid,
+            "6f7923a8-8998-4625-bf1c-ddefe949e0e6",
+            "5de4084a-96e0-48b0-8307-7c80165e707b"
+          );
           const sessionDetails = await inMemorySessionRepository.getSession(
             sessionUuid
           );
-          expect(sessionDetails.gameUuids).toEqual([gameUuid]);
+          expect(sessionDetails.games).toEqual([
+            {
+              gameUuid,
+              playerOneUuid: "6f7923a8-8998-4625-bf1c-ddefe949e0e6",
+              playerTwoUuid: "5de4084a-96e0-48b0-8307-7c80165e707b",
+            },
+          ]);
         });
       });
       describe("and the uuid of a game to set as active game", () => {

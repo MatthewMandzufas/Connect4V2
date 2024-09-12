@@ -7,6 +7,12 @@ export type SessionCreationDetails = {
   inviteeUuid: Uuid;
 };
 
+export type GameMetaData = {
+  gameUuid: Uuid;
+  playerOneUuid: Uuid;
+  playerTwoUuid: Uuid;
+};
+
 export type SessionDetails = {
   uuid: Uuid;
   invitee: {
@@ -16,7 +22,7 @@ export type SessionDetails = {
     uuid: Uuid;
   };
   status: SessionStatus;
-  gameUuids: Array<Uuid>;
+  games: Array<GameMetaData>;
   activeGameUuid?: Uuid;
 };
 
@@ -38,10 +44,15 @@ export interface SessionInterface {
     sessionDetails: SessionCreationDetails
   ) => Promise<SessionDetails>;
   getSession: (sessionId: Uuid) => Promise<SessionDetails>;
-  getGameUuids: (sessionUuid: Uuid) => Promise<Array<Uuid>>;
+  getGameMetaData: (sessionUuid: Uuid) => Promise<Array<GameMetaData>>;
   getActiveGameUuid: (sessionUuid: Uuid) => Promise<Uuid>;
-  addNewGame: (sessionUuid: Uuid) => Promise<Uuid>;
+  addNewGame: (
+    sessionUuid: Uuid,
+    playerOneUuid: Uuid,
+    playerTwoUuid: Uuid
+  ) => Promise<Uuid>;
   submitMove: (moveDetails: MoveDetails) => Promise<PlayerMoveResult>;
+  getActivePlayer: (sessionUuid: Uuid) => Promise<Uuid>;
 }
 
 export interface SessionRepository {
@@ -49,7 +60,12 @@ export interface SessionRepository {
     sessionCreationDetails: SessionCreationDetails
   ) => Promise<SessionDetails>;
   getSession: (sessionUuid: Uuid) => Promise<SessionDetails>;
-  addGame: (sessionUuid: Uuid, gameUuid: Uuid) => Promise<SessionDetails>;
+  addGame: (
+    sessionUuid: Uuid,
+    gameUuid: Uuid,
+    playerOneUuid: Uuid,
+    playerTwoUuid: Uuid
+  ) => Promise<SessionDetails>;
   setActiveGame: (sessionUuid: Uuid, gameUuid: Uuid) => Promise<SessionDetails>;
 }
 

@@ -24,7 +24,7 @@ export default class InMemorySessionRepository implements SessionRepository {
         uuid: inviteeUuid,
       },
       status: SessionStatus.IN_PROGRESS,
-      gameUuids: [],
+      games: [],
     };
     this.#sessions.set(sessionUuid, sessionDetails);
     return Promise.resolve(sessionDetails);
@@ -34,9 +34,18 @@ export default class InMemorySessionRepository implements SessionRepository {
     return this.#sessions.get(sessionUuid);
   }
 
-  async addGame(sessionUuid: Uuid, gameUuid: Uuid) {
+  async addGame(
+    sessionUuid: Uuid,
+    gameUuid: Uuid,
+    playerOneUuid: Uuid,
+    playerTwoUuid: Uuid
+  ) {
     const sessionDetails = await this.getSession(sessionUuid);
-    sessionDetails.gameUuids.push(gameUuid);
+    sessionDetails.games.push({
+      gameUuid,
+      playerOneUuid,
+      playerTwoUuid,
+    });
     return sessionDetails;
   }
 
