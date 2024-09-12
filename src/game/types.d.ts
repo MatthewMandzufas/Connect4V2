@@ -4,6 +4,7 @@ import Game from "./game";
 export interface GameRepository {
   saveGame: (game: GameDetails) => Promise<PersistedGameDetails>;
   loadGame: (gameUuid: Uuid) => Promise<PersistedGameDetails>;
+  updateGame: (gameUuid: Uuid, gameDetails: GameDetails) => Promise<void>;
 }
 
 export type GameDetails = {

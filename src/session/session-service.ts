@@ -86,14 +86,11 @@ export default class SessionService implements SessionInterface {
   }
 
   async getActivePlayer(sessionUuid: Uuid) {
-    const sessionDetails = await this.getSession(sessionUuid);
-    const activeGameUuid = sessionDetails.activeGameUuid;
-    const { activePlayer } = await this.#gameService.getGameDetails(
-      activeGameUuid
-    );
+    const activeGameUuid = await this.getActiveGameUuid(sessionUuid);
+    const gameDetails = await this.#gameService.getGameDetails(activeGameUuid);
     const gameMetaData = await this.getGameMetaData(sessionUuid);
     return await this.#mapPlayerNumberToPlayerUuid(
-      activePlayer,
+      gameDetails.activePlayer,
       gameMetaData.at(-1)
     );
   }

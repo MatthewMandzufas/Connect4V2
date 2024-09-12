@@ -36,6 +36,7 @@ export default class GameService implements GameServiceInterface {
     const gameDetails = await this.#gameRepository.loadGame(gameUuid);
     const game = new Game(gameDetails);
     const moveResult = game.move(moveDetails);
+    await this.#gameRepository.updateGame(gameUuid, game.getDetails());
     return moveResult;
   }
 }
