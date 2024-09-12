@@ -174,6 +174,39 @@ describe("session-service", () => {
               },
             });
             expect(moveResult).toEqual({ moveSuccessful: true });
+            expect(await sessionService.getActivePlayer(sessionUuid)).toBe(
+              "ca1747c8-fe35-4807-9508-b88c0f39a8ff"
+            );
+          });
+        });
+        describe("and a move that is not valid for the active game", () => {
+          it("does not make the move on the active game", async () => {
+            const { uuid: sessionUuid } = await sessionService.createSession({
+              inviterUuid: "5aff0192-5494-4488-84d5-387c6f499848",
+              inviteeUuid: "bb896844-1cf8-4c87-b055-e75eb90aff39",
+            });
+
+            await sessionService.addNewGame(
+              sessionUuid,
+              "5aff0192-5494-4488-84d5-387c6f499848",
+              "bb896844-1cf8-4c87-b055-e75eb90aff39"
+            );
+
+            const moveResult = await sessionService.submitMove({
+              sessionUuid,
+              playerUuid: "bb896844-1cf8-4c87-b055-e75eb90aff39",
+              targetCell: {
+                row: 0,
+                column: 0,
+              },
+            });
+            expect(moveResult).toEqual({
+              moveSuccessful: false,
+              message: "Player 2 cannot move as player 1 is currently active",
+            });
+            expect(await sessionService.getActivePlayer(sessionUuid)).toEqual(
+              "5aff0192-5494-4488-84d5-387c6f499848"
+            );
           });
         });
       });
