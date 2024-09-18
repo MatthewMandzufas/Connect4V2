@@ -223,7 +223,7 @@ describe("invite-integration", () => {
                 password: "somethingSafe",
               });
 
-            await request(app)
+            const inviteSentResponse = await request(app)
               .post("/invite")
               .set("Authorization", inviterResponse.header.authorization)
               .send({
@@ -243,17 +243,55 @@ describe("invite-integration", () => {
               .send();
 
             expect(response.statusCode).toBe(200);
-            expect(response.body.invites).toEqual([
-              {
-                inviter: "player1@email.com",
-                invitee: "player2@email.com",
-                uuid: expect.toBeUUID(),
-                exp: currentTime + lengthOfDayInMilliseconds,
-                status: "PENDING",
-              },
-            ]);
+            const inviteUuid = inviteSentResponse.body.invite.uuid;
+            expect(response.body.invites).toEqual({
+              invites: [
+                {
+                  inviter: "player1@email.com",
+                  invitee: "player2@email.com",
+                  uuid: inviteUuid,
+                  exp: currentTime + lengthOfDayInMilliseconds,
+                  status: "PENDING",
+                  _links: {
+                    accept: {
+                      href: `/invites/${inviteUuid}/accept`,
+                      method: "POST",
+                    },
+                    decline: {
+                      href: `/invites/${inviteUuid}/decline`,
+                      method: "POST",
+                    },
+                  },
+                },
+              ],
+            });
             jest.useRealTimers();
           });
+        });
+      });
+    });
+  });
+  describe("accepting an invite", () => {
+    describe("given a user is logged in", () => {
+      describe("and they have a pending invite", () => {
+        describe("when the invite is accepted", () => {
+          // it("accepts the invite and creates a new session", async () => {
+          //   const response = await request(app)
+          //     .post(`/invite/${inviteUuid}`)
+          //     .send({});
+          //   expect(response.body).toEqual({
+          //     _links: {
+          //       self: {
+          //         href: `/invite=${inviteUuid}`,
+          //       },
+          //       related: [
+          //         {
+          //           href: `/session/${sessionUuid}`,
+          //         },
+          //       ],
+          //     },
+          //   });
+          // });
         });
       });
     });
