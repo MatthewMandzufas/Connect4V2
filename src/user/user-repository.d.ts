@@ -1,3 +1,5 @@
+import { Uuid } from "@/global";
+
 export type UserSignupDetails = {
   firstName: string;
   lastName: string;

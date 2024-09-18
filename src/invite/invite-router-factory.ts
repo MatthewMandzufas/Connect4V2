@@ -7,7 +7,7 @@ import registerInviteCreationMiddleware from "./register-invite-creation-middlew
 
 const createAuthorizationMiddleware: RequestHandler = (req, res, next) => {
   // console.log(res.locals.claims.email);
-  res.locals.claims.email
+  res.locals.claims?.email
     ? next()
     : res.status(401).send({
         errors: ["You must be logged in to send an invitation"],

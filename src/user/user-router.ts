@@ -2,6 +2,7 @@ import { KeyPairSet } from "@/user/user-router.d";
 import UserService from "@/user/user-service";
 import express, { RequestHandler } from "express";
 import { EncryptJWT, generateKeyPair, KeyLike } from "jose";
+import { omit } from "ramda";
 import { AuthenticationFailedError } from "./errors";
 
 const userDetailsRequestHandlerFactory =
@@ -11,7 +12,7 @@ const userDetailsRequestHandlerFactory =
       const userDetails = await userService.getUserDetails(
         res.locals.claims.email
       );
-      res.status(200).send(userDetails);
+      res.status(200).send(omit(["uuid"], userDetails));
     } else {
       res
         .status(401)

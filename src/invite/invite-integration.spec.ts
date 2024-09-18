@@ -278,13 +278,7 @@ describe("invite-integration", () => {
     describe("given a user is logged in", () => {
       describe("and they have a pending invite", () => {
         describe("when the invite is accepted", () => {
-          it.only("accepts the invite and creates a new session", async () => {
-            // const user2Response = await testFixture.signUpAndLoginEmailResponse(
-            //   "user2@email.com"
-            // );
-
-            // await testFixture.signUpAndLoginEmailResponse("user1@email.com");
-
+          it("accepts the invite and creates a new session", async () => {
             const inviteSentResponse = await testFixture.sendInviteEmails({
               inviter: "user4@email.com",
               invitee: "user5@email.com",
@@ -304,7 +298,6 @@ describe("invite-integration", () => {
 
             const inviteAcceptLink =
               inviteReceivedResponse.body.invites[0]._links.accept.href;
-            console.log(inviteAcceptLink);
             const response = await request(app)
               .post(inviteAcceptLink)
               .send({})

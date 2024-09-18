@@ -153,6 +153,7 @@ describe("user-service", () => {
           firstName: "Patrick",
           lastName: "Lipinski",
           email: "PL@email.com",
+          uuid: expect.toBeUUID(),
         });
       });
     });

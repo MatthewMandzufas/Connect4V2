@@ -58,7 +58,8 @@ const resolveRouters = ({
   const inviteService = new InviteService(
     userService,
     inviteRepository,
-    createInviteEventPublishers(publishInternalEvent)
+    createInviteEventPublishers(publishInternalEvent),
+    sessionService
   );
   return {
     [RouterType.userRouter]: userRouterFactory(

@@ -74,7 +74,7 @@ class UserService implements UserServiceInterface {
     if (persistedUser === undefined) {
       throw new NoSuchUserError("User does not exist");
     }
-    const { password, uuid, ...userDetails } = persistedUser;
+    const { password, ...userDetails } = persistedUser;
     return userDetails;
   }
 }

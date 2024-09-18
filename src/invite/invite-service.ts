@@ -72,10 +72,25 @@ class InviteService implements InviteServiceInterface {
   }
 
   async acceptInvite(inviteUuid: Uuid) {
-    // const invite
-    // return {
-    //   sessionUuid
-    // }
+    const inviteDetails = await this.#inviteRepository.getInviteDetails(
+      inviteUuid
+    );
+
+    const sessionCreationDetails = {
+      inviteeUuid: await this.#userService.getUserDetails(
+        inviteDetails.invitee
+      ),
+      inviterUuid: await this.#userService.getUserDetails(
+        inviteDetails.inviter
+      ),
+    };
+    const sessionDetails = await this.#sessionService.createSession(
+      sessionCreationDetails
+    );
+
+    return {
+      sessionUuid: sessionDetails.uuid,
+    };
   }
 }
 

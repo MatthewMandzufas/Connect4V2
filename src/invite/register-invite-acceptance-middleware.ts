@@ -9,7 +9,6 @@ const createAcceptInvitation =
     sessionService: SessionService
   ): RequestHandler =>
   (req, res) => {
-    console.log("params", req.params.invite_uuid);
     // InviteService.markInviteAsAccepted(req.params.invite_uuid);
     res.status(200).send(
       halson({
