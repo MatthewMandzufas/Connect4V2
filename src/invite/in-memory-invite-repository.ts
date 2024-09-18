@@ -1,3 +1,4 @@
+import { Uuid } from "@/global";
 import {
   InviteCreationDetails,
   InviteRepository,
@@ -28,5 +29,9 @@ export default class InMemoryInviteRepository implements InviteRepository {
     return Array.from(this.invites.values()).filter(
       (invite) => invite.invitee === inviteeEmail
     );
+  }
+
+  async getInviteDetails(inviteUuid: Uuid) {
+    return this.invites.get(inviteUuid);
   }
 }

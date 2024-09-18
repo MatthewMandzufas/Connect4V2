@@ -1,3 +1,4 @@
+import { Uuid } from "@/global";
 import { InviteStatus } from "./invite-service.d";
 
 type InviteCreationDetails = {
@@ -16,4 +17,5 @@ export interface InviteRepository {
     inviteCreationDetails: InviteCreationDetails
   ) => Promise<PersistedInvite>;
   loadInviteeInvites: (userEmail: string) => Promise<Array<PersistedInvite>>;
+  getInviteDetails: (inviteUuid: Uuid) => Promise<PersistedInvite>;
 }
