@@ -1,3 +1,8 @@
+import Game from "@/game/game";
+import GameService from "@/game/game-service";
+import InMemoryGameRepository from "@/game/in-memory-game-repository";
+import InMemorySessionRepository from "@/session/in-memory-session-repository";
+import SessionService from "@/session/session-service";
 import InMemoryUserRepositoryFactory from "@/user/in-memory-user-repository";
 import UserService from "@/user/user-service";
 import createInviteEventPublishers from "./create-invite-event-publishers";
@@ -30,12 +35,19 @@ const createUserServiceWithInviterAndInvitee = async () => {
   };
   await userService.create(inviterUserDetails);
   await userService.create(inviteeUserDetails);
-  // TODO: Bring in the other stuff
+  const sessionRepository = new InMemorySessionRepository();
+  const gameRepository = new InMemoryGameRepository();
+  const gameService = new GameService(
+    gameRepository,
+    (...args) => new Game(...args)
+  );
+  const sessionService = new SessionService(sessionRepository, gameService);
   const inviteRepository = new InMemoryInviteRepository();
   const inviteService = new InviteService(
     userService,
     inviteRepository,
-    createInviteEventPublishers(() => Promise.resolve())
+    createInviteEventPublishers(() => Promise.resolve()),
+    sessionService
   );
   return inviteService;
 };
@@ -167,16 +179,32 @@ describe("invite-service", () => {
   describe("accepting an invite", () => {
     describe("given the uuid of an existing invite", () => {
       it("accepts the invite", async () => {
-        const sessionUuid = await inviteService.acceptInvite(inviteUuid);
-        expect(sessionUuid).toBeUUID();
+        const inviteDetails = await inviteService.create({
+          invitee: "player1@email.com",
+          inviter: "player2@email.com",
+        });
+
         expect(
-          inviteService.getInvitesReceivedByUser("player2@email.com")
-        ).resolves.toEqual([
+          await inviteService.getInvitesReceivedByUser("player1@email.com")
+        ).toEqual([
           {
-            inviter: "player1@email.com",
-            invitee: "player2@email,com",
+            invitee: "player1@email.com",
+            inviter: "player2@email.com",
+            exp: expect.any(Number),
+            status: "PENDING",
+            uuid: expect.toBeUUID(),
           },
         ]);
+
+        const sessionUuid = await inviteService.acceptInvite(
+          inviteDetails.uuid
+        );
+
+        expect(
+          await inviteService.getInvitesReceivedByUser("player1@email.com")
+        ).toEqual([]);
+
+        expect(sessionUuid).toBeUUID();
       });
     });
   });

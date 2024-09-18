@@ -1,3 +1,5 @@
+import { Uuid } from "@/global";
+
 export type InviteCreationDetails = {
   inviter: string;
   invitee: string;
@@ -14,7 +16,7 @@ export enum InviteStatus {
 export type InviteDetails = {
   inviter: string;
   invitee: string;
-  uuid: string;
+  uuid: Uuid;
   exp: number;
   status: InviteStatus;
 };

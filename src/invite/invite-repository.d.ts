@@ -9,7 +9,7 @@ type InviteCreationDetails = {
 };
 
 type PersistedInvite = InviteCreationDetails & {
-  uuid: string;
+  uuid: Uuid;
 };
 
 export interface InviteRepository {
@@ -18,4 +18,5 @@ export interface InviteRepository {
   ) => Promise<PersistedInvite>;
   loadInviteeInvites: (userEmail: string) => Promise<Array<PersistedInvite>>;
   getInviteDetails: (inviteUuid: Uuid) => Promise<PersistedInvite>;
+  deleteInvite: (inviteUuid: Uuid) => Promise<{ isSuccess: boolean }>;
 }

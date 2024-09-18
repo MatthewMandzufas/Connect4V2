@@ -34,4 +34,11 @@ export default class InMemoryInviteRepository implements InviteRepository {
   async getInviteDetails(inviteUuid: Uuid) {
     return this.invites.get(inviteUuid);
   }
+
+  async deleteInvite(inviteUuid: Uuid) {
+    this.invites.delete(inviteUuid);
+    return {
+      isSuccess: true,
+    };
+  }
 }

@@ -18,7 +18,7 @@ interface InviteServiceInterface {
   getInvitesReceivedByUser: (
     inviterEmail: string
   ) => Promise<Array<InviteDetails>>;
-  acceptInvite: (inviteUuid: Uuid) => Promise<InviteAcceptedPromise>;
+  acceptInvite: (inviteUuid: Uuid) => Promise<Uuid>;
 }
 
 const lengthOfDayInMilliseconds = 1000 * 60 * 60 * 24;
@@ -76,21 +76,22 @@ class InviteService implements InviteServiceInterface {
       inviteUuid
     );
 
+    const inviteeUuid = await this.#userService.getUserDetails(
+      inviteDetails.invitee
+    );
+    const inviterUuid = await this.#userService.getUserDetails(
+      inviteDetails.inviter
+    );
     const sessionCreationDetails = {
-      inviteeUuid: await this.#userService.getUserDetails(
-        inviteDetails.invitee
-      ),
-      inviterUuid: await this.#userService.getUserDetails(
-        inviteDetails.inviter
-      ),
+      inviteeUuid: inviteeUuid.uuid,
+      inviterUuid: inviterUuid.uuid,
     };
     const sessionDetails = await this.#sessionService.createSession(
       sessionCreationDetails
     );
 
-    return {
-      sessionUuid: sessionDetails.uuid,
-    };
+    await this.#inviteRepository.deleteInvite(inviteUuid);
+    return sessionDetails.uuid;
   }
 }
 

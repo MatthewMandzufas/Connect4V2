@@ -306,12 +306,14 @@ describe("invite-integration", () => {
             expect(response.body).toEqual({
               _links: {
                 self: {
-                  href: `/invite/${inviteUuid}`,
+                  href: `/invite/${inviteUuid}/accept`,
                 },
                 related: [
                   {
                     href: expect.stringMatching(
-                      new RegExp(`^/session/${inviteUuid}`)
+                      new RegExp(
+                        `^/session/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}`
+                      )
                     ),
                   },
                 ],
