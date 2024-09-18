@@ -20,6 +20,9 @@ importers:
       express:
         specifier: ^4.19.2
         version: 4.19.2
+      halson:
+        specifier: ^3.1.0
+        version: 3.1.0
       joi:
         specifier: ^17.13.3
         version: 17.13.3
@@ -1748,6 +1751,9 @@ packages:
 
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
+
+  halson@3.1.0:
+    resolution: {integrity: sha512-EFZ5voHI9EvNLggeSaz1mzeYM8aMwQb57pqKk06P2qIINPcY8SjKIJiTc5/UADw3jmqi34Qp2ac1PgeXX1S4kw==}
 
   has-flag@3.0.0:
     resolution: {integrity: sha512-sKJf1+ceQBr4SMkvQnBDNDtf4TXpVhVGateu0t918bl30FnbE2m4vNLX+VWe/dpjlb+HugGYzW7uQXH98HPEYw==}
@@ -4802,6 +4808,8 @@ snapshots:
       get-intrinsic: 1.2.4
 
   graceful-fs@4.2.11: {}
+
+  halson@3.1.0: {}
 
   has-flag@3.0.0: {}
 

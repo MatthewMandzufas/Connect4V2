@@ -35,6 +35,7 @@
     "amqplib": "^0.10.4",
     "argon2": "^0.40.3",
     "express": "^4.19.2",
+    "halson": "^3.1.0",
     "joi": "^17.13.3",
     "jose": "^5.6.3",
     "rabbitmq-client": "^4.6.0",

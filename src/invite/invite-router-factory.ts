@@ -1,5 +1,5 @@
 import express, { RequestHandler } from "express";
-import { pipe } from "ramda";
+import { mergeRight, pipe } from "ramda";
 import InviteService from "./invite-service";
 import registerInviteCreationMiddleware from "./register-invite-creation-middleware";
 
@@ -17,7 +17,22 @@ const createGetInviteRequestHandler =
     await inviteService
       .getInvitesReceivedByUser(res.locals.claims.email)
       .then((invites) => {
-        res.status(200).send({ invites });
+        res.status(200).send({
+          invites: invites.map((inviteDetails) =>
+            mergeRight(inviteDetails, {
+              _links: {
+                accept: {
+                  href: `/invites/${inviteDetails.uuid}/accept`,
+                  method: "POST",
+                },
+                decline: {
+                  href: `/invites/${inviteDetails.uuid}/decline`,
+                  method: "POST",
+                },
+              },
+            })
+          ),
+        });
       });
   };
 

@@ -1,4 +1,5 @@
 import { appFactory } from "@/app";
+import TestFixture from "@/test-fixture";
 import { Express } from "express";
 import { generateKeyPair, GenerateKeyPairResult, KeyLike } from "jose";
 import request from "supertest";
@@ -6,6 +7,7 @@ import request from "supertest";
 describe("invite-integration", () => {
   let app: Express;
   let jwtKeyPair: GenerateKeyPairResult<KeyLike>;
+  let testFixture: TestFixture;
   beforeAll(async () => {
     jwtKeyPair = await generateKeyPair("RS256");
   });
@@ -21,6 +23,7 @@ describe("invite-integration", () => {
       },
       publishInternalEvent: (eventDetails) => Promise.resolve(),
     });
+    testFixture = new TestFixture(app);
   });
 
   const lengthOfDayInMilliseconds = 1000 * 60 * 60 * 24;
@@ -244,7 +247,7 @@ describe("invite-integration", () => {
 
             expect(response.statusCode).toBe(200);
             const inviteUuid = inviteSentResponse.body.invite.uuid;
-            expect(response.body.invites).toEqual({
+            expect(response.body).toEqual({
               invites: [
                 {
                   inviter: "player1@email.com",
@@ -275,23 +278,41 @@ describe("invite-integration", () => {
     describe("given a user is logged in", () => {
       describe("and they have a pending invite", () => {
         describe("when the invite is accepted", () => {
-          // it("accepts the invite and creates a new session", async () => {
-          //   const response = await request(app)
-          //     .post(`/invite/${inviteUuid}`)
-          //     .send({});
-          //   expect(response.body).toEqual({
-          //     _links: {
-          //       self: {
-          //         href: `/invite=${inviteUuid}`,
-          //       },
-          //       related: [
-          //         {
-          //           href: `/session/${sessionUuid}`,
-          //         },
-          //       ],
-          //     },
-          //   });
-          // });
+          it("accepts the invite and creates a new session", async () => {
+            await testFixture.signUpAndLoginEmail("user1@email.com");
+            const user2Response = await testFixture.signUpAndLoginEmailResponse(
+              "user2@email.com"
+            );
+            const inviteSentResponse = await testFixture.sendInviteEmails({
+              inviter: "user1@email.com",
+              invitee: "user2@email.com",
+            });
+
+            const inviteReceivedResponse = await request(app)
+              .get("/invite/inbox")
+              .set("Authorization", user2Response.header.authorization)
+              .send();
+
+            const inviteUuid = inviteSentResponse.body.invite.uuid;
+            const inviteAcceptLink =
+              inviteReceivedResponse.body.invite._links.accept;
+            const response = await request(app).post(inviteAcceptLink).send({});
+
+            expect(response.body).toEqual({
+              _links: {
+                self: {
+                  href: `/invite=${inviteUuid}`,
+                },
+                related: [
+                  {
+                    href: expect.stringMatching(
+                      new RegExp(`^/session/${inviteUuid}`)
+                    ),
+                  },
+                ],
+              },
+            });
+          });
         });
       });
     });
