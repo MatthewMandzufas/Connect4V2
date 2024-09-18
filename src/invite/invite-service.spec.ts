@@ -10,6 +10,8 @@ import {
   InviteStatus,
 } from "./invite-service.d";
 
+let inviteService: InviteService;
+
 const createUserServiceWithInviterAndInvitee = async () => {
   const userRepository = new InMemoryUserRepositoryFactory();
   const userService = new UserService(userRepository);
@@ -28,6 +30,7 @@ const createUserServiceWithInviterAndInvitee = async () => {
   };
   await userService.create(inviterUserDetails);
   await userService.create(inviteeUserDetails);
+  // TODO: Bring in the other stuff
   const inviteRepository = new InMemoryInviteRepository();
   const inviteService = new InviteService(
     userService,
@@ -36,6 +39,10 @@ const createUserServiceWithInviterAndInvitee = async () => {
   );
   return inviteService;
 };
+
+beforeEach(async () => {
+  inviteService = await createUserServiceWithInviterAndInvitee();
+});
 
 describe("invite-service", () => {
   const lengthOfDayInMilliseconds = 1000 * 60 * 60 * 24;
@@ -153,6 +160,23 @@ describe("invite-service", () => {
             inviter: "player1@email.com",
           })
         ).rejects.toThrow(new InvalidInvitationError("Invitee does not exist"));
+      });
+    });
+  });
+
+  describe("accepting an invite", () => {
+    describe("given the uuid of an existing invite", () => {
+      it("accepts the invite", async () => {
+        const sessionUuid = await inviteService.acceptInvite(inviteUuid);
+        expect(sessionUuid).toBeUUID();
+        expect(
+          inviteService.getInvitesReceivedByUser("player2@email.com")
+        ).resolves.toEqual([
+          {
+            inviter: "player1@email.com",
+            invitee: "player2@email,com",
+          },
+        ]);
       });
     });
   });

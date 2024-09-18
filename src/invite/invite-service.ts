@@ -1,3 +1,4 @@
+import { Uuid } from "@/global";
 import {
   InviteEvents,
   InviteServiceEventPublishers,
@@ -5,6 +6,7 @@ import {
   type InviteCreationDetails,
   type InviteDetails,
 } from "@/invite/invite-service.d";
+import SessionService from "@/session/session-service";
 import UserService from "@/user/user-service";
 import { InvalidInvitationError } from "./errors";
 import InMemoryInviteRepository from "./in-memory-invite-repository";
@@ -16,6 +18,7 @@ interface InviteServiceInterface {
   getInvitesReceivedByUser: (
     inviterEmail: string
   ) => Promise<Array<InviteDetails>>;
+  acceptInvite: (inviteUuid: Uuid) => Promise<InviteAcceptedPromise>;
 }
 
 const lengthOfDayInMilliseconds = 1000 * 60 * 60 * 24;
@@ -24,15 +27,18 @@ class InviteService implements InviteServiceInterface {
   #userService: UserService;
   #inviteRepository: InviteRepository;
   #eventPublishers: InviteServiceEventPublishers;
+  #sessionService: SessionService;
 
   constructor(
     userService: UserService,
     inviteRepository: InviteRepository = new InMemoryInviteRepository(),
-    eventPublishers: InviteServiceEventPublishers
+    eventPublishers: InviteServiceEventPublishers,
+    sessionService: SessionService
   ) {
     this.#userService = userService;
     this.#inviteRepository = inviteRepository;
     this.#eventPublishers = eventPublishers;
+    this.#sessionService = sessionService;
   }
 
   async getInvitesReceivedByUser(inviteeEmail: string) {
@@ -63,6 +69,13 @@ class InviteService implements InviteServiceInterface {
     await this.#eventPublishers[InviteEvents.INVITATION_CREATED](inviteDetails);
 
     return inviteDetails;
+  }
+
+  async acceptInvite(inviteUuid: Uuid) {
+    // const invite
+    // return {
+    //   sessionUuid
+    // }
   }
 }
 

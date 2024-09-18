@@ -1,10 +1,13 @@
+import SessionService from "@/session/session-service";
 import express, { RequestHandler } from "express";
 import { mergeRight, pipe } from "ramda";
 import InviteService from "./invite-service";
+import registerInviteAcceptanceMiddleware from "./register-invite-acceptance-middleware";
 import registerInviteCreationMiddleware from "./register-invite-creation-middleware";
 
 const createAuthorizationMiddleware: RequestHandler = (req, res, next) => {
-  res.locals.claims?.email
+  // console.log(res.locals.claims.email);
+  res.locals.claims.email
     ? next()
     : res.status(401).send({
         errors: ["You must be logged in to send an invitation"],
@@ -22,11 +25,11 @@ const createGetInviteRequestHandler =
             mergeRight(inviteDetails, {
               _links: {
                 accept: {
-                  href: `/invites/${inviteDetails.uuid}/accept`,
+                  href: `/invite/${inviteDetails.uuid}/accept`,
                   method: "POST",
                 },
                 decline: {
-                  href: `/invites/${inviteDetails.uuid}/decline`,
+                  href: `/invite/${inviteDetails.uuid}/decline`,
                   method: "POST",
                 },
               },
@@ -36,12 +39,17 @@ const createGetInviteRequestHandler =
       });
   };
 
-const inviteRouterFactory = (inviteService: InviteService) =>
+const inviteRouterFactory = (
+  inviteService: InviteService,
+  sessionService: SessionService
+) =>
   pipe(
     (router) => router.use(createAuthorizationMiddleware),
     (router) =>
       router.get("/inbox", createGetInviteRequestHandler(inviteService)),
-    (router) => registerInviteCreationMiddleware(router, inviteService)
+    (router) => registerInviteCreationMiddleware(router, inviteService),
+    (router) =>
+      registerInviteAcceptanceMiddleware(router, inviteService, sessionService)
   )(express.Router());
 
 export default inviteRouterFactory;

@@ -32,6 +32,7 @@ const createAuthenticationMiddleware =
           authorizationField.split(" ")[1],
           jwtPrivateKey
         );
+        // console.log(payload.userName);
         res.locals.claims = {
           email: payload.userName,
         };
@@ -40,24 +41,6 @@ const createAuthenticationMiddleware =
 
     next();
   };
-
-// const createExternalEventPublisher = (serverSocket: Server) => {
-//   const dispatchNotification = createDispatchNotification(serverSocket);
-
-//   return (eventDetails) => {
-//     let type = eventDetails.type;
-//     if (type === InviteEvents.INVITATION_CREATED) {
-//       type = "invite_received";
-//     }
-
-//     dispatchNotification({
-//       ...eventDetails,
-//       type,
-//     });
-
-//     return Promise.resolve();
-//   };
-// };
 
 export const appFactory = (
   {

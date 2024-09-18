@@ -50,4 +50,31 @@ describe("in-memory-invite-repository", () => {
       ]);
     });
   });
+
+  describe("retrieving an invite", () => {
+    describe("given an invite", () => {
+      it("returns details about the invite", async () => {
+        const inviteDetails = {
+          inviter: "player1@email.com",
+          invitee: "player2@email.com",
+          exp: 1000,
+          status: InviteStatus.PENDING,
+        } satisfies InviteCreationDetails;
+
+        const inMemoryInviteRepository = new InMemoryInviteRepository();
+        const createdInvite = await inMemoryInviteRepository.create(
+          inviteDetails
+        );
+        await expect(
+          inMemoryInviteRepository.getInviteDetails(createdInvite.uuid)
+        ).resolves.toEqual({
+          inviter: "player1@email.com",
+          invitee: "player2@email.com",
+          uuid: expect.toBeUUID(),
+          exp: 1000,
+          status: InviteStatus.PENDING,
+        });
+      });
+    });
+  });
 });

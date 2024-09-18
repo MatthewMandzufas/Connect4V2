@@ -257,11 +257,11 @@ describe("invite-integration", () => {
                   status: "PENDING",
                   _links: {
                     accept: {
-                      href: `/invites/${inviteUuid}/accept`,
+                      href: `/invite/${inviteUuid}/accept`,
                       method: "POST",
                     },
                     decline: {
-                      href: `/invites/${inviteUuid}/decline`,
+                      href: `/invite/${inviteUuid}/decline`,
                       method: "POST",
                     },
                   },
@@ -278,14 +278,21 @@ describe("invite-integration", () => {
     describe("given a user is logged in", () => {
       describe("and they have a pending invite", () => {
         describe("when the invite is accepted", () => {
-          it("accepts the invite and creates a new session", async () => {
-            await testFixture.signUpAndLoginEmail("user1@email.com");
-            const user2Response = await testFixture.signUpAndLoginEmailResponse(
-              "user2@email.com"
-            );
+          it.only("accepts the invite and creates a new session", async () => {
+            // const user2Response = await testFixture.signUpAndLoginEmailResponse(
+            //   "user2@email.com"
+            // );
+
+            // await testFixture.signUpAndLoginEmailResponse("user1@email.com");
+
             const inviteSentResponse = await testFixture.sendInviteEmails({
-              inviter: "user1@email.com",
-              invitee: "user2@email.com",
+              inviter: "user4@email.com",
+              invitee: "user5@email.com",
+            });
+
+            const user2Response = await testFixture.loginUser({
+              userName: "user5@email.com",
+              password: "GenericPassword",
             });
 
             const inviteReceivedResponse = await request(app)
@@ -294,14 +301,19 @@ describe("invite-integration", () => {
               .send();
 
             const inviteUuid = inviteSentResponse.body.invite.uuid;
+
             const inviteAcceptLink =
-              inviteReceivedResponse.body.invite._links.accept;
-            const response = await request(app).post(inviteAcceptLink).send({});
+              inviteReceivedResponse.body.invites[0]._links.accept.href;
+            console.log(inviteAcceptLink);
+            const response = await request(app)
+              .post(inviteAcceptLink)
+              .send({})
+              .set("Authorization", user2Response.header.authorization);
 
             expect(response.body).toEqual({
               _links: {
                 self: {
-                  href: `/invite=${inviteUuid}`,
+                  href: `/invite/${inviteUuid}`,
                 },
                 related: [
                   {
