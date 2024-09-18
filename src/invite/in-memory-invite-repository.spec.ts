@@ -96,6 +96,7 @@ describe("in-memory-invite-repository", () => {
           await inMemoryInviteRepository.deleteInvite(createdInvite.uuid)
         ).toEqual({ isSuccess: true });
       });
+      // TODO: Should we just mark invite as accepted rather than delete it?
     });
   });
 });
