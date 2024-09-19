@@ -58,4 +58,35 @@ describe("in-memory-user-repository", () => {
       ]);
     });
   });
+  describe("given a uuid", () => {
+    it("returns the user details", async () => {
+      const johnDoeUser = {
+        firstName: "John",
+        lastName: "Doe",
+        email: "john.doe@email.com",
+        password:
+          "$argon2id$v=19$m=65536,t=3,p=4$42OHhoG0FCA+xCPt5PppZQ$XAk4t8UkXR2WFuGdU5EDTXB7/dtdzpmlHQODWOzsa6E",
+      };
+
+      const inMemoryUserRepository = new InMemoryUserRepository();
+      await inMemoryUserRepository.create(johnDoeUser);
+      await inMemoryUserRepository.create({
+        firstName: "Jeff",
+        lastName: "Goldblum",
+        email: "jeff.goldblum@email.com",
+        password:
+          "$argon2id$v=19$m=65536,t=3,p=4$42OHhoG0FCA+xCPt5PppZQ$XAk4t8UkXR2WFuGdU5EDTXB7/dtdzpmlHQODWOzsa6E",
+      });
+
+      expect(
+        await inMemoryUserRepository.findByUuid(johnDoeUser.email)
+      ).toEqual([
+        expect.objectContaining({
+          firstName: "John",
+          lastName: "Doe",
+          email: "john.doe@email.com",
+        }),
+      ]);
+    });
+  });
 });

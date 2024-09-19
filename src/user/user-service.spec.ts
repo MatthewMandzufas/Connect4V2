@@ -135,7 +135,8 @@ describe("user-service", () => {
         );
       });
     });
-    describe("given the email for a user that does not exist", () => {
+
+    describe("given the email for a user that exist", () => {
       it("it returns the user's details", async () => {
         const userRepository = new InMemoryUserRepository();
         const userService = new UserService(userRepository);
@@ -150,6 +151,26 @@ describe("user-service", () => {
         await expect(
           userService.getUserDetails(userSignupDetails.email)
         ).resolves.toEqual({
+          firstName: "Patrick",
+          lastName: "Lipinski",
+          email: "PL@email.com",
+          uuid: expect.toBeUUID(),
+        });
+      });
+    });
+    describe("given the uuid for a user that does exist", () => {
+      it("returns the users details", async () => {
+        const userRepository = new InMemoryUserRepository();
+        const userService = new UserService(userRepository);
+        const userSignupDetails = {
+          firstName: "Patrick",
+          lastName: "Lipinski",
+          email: "PL@email.com",
+          password: "kasdlkajsdlkajsd",
+        };
+        const { uuid } = await userService.create(userSignupDetails);
+
+        await expect(userService.getUserDetailsByUuid(uuid)).resolves.toEqual({
           firstName: "Patrick",
           lastName: "Lipinski",
           email: "PL@email.com",

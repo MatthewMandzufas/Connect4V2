@@ -55,7 +55,7 @@ describe("session-integration", () => {
         const sessionUri = acceptInviteResponse.body._links.related[0].href;
 
         const response = await request(app)
-          .post(sessionUri)
+          .get(sessionUri)
           .set("Authorization", inviteeResponse.header.authorization);
 
         const uuid = pipe(split("/"), last)(sessionUri);
@@ -70,13 +70,10 @@ describe("session-integration", () => {
             self: {
               href: sessionUri,
             },
-            getCurrentGame: {
-              href: expect.stringMatching(gameRegex),
-              method: "GET",
+            startGame: {
+              href: `/session/${uuid}/startGame`,
+              method: "POST",
             },
-            getGames: [
-              { href: expect.stringMatching(gameRegex), method: "GET" },
-            ],
             leave: {
               href: `${sessionUri}/leave`,
               method: "GET",
