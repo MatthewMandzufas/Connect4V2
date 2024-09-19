@@ -19,6 +19,7 @@ interface InviteServiceInterface {
     inviterEmail: string
   ) => Promise<Array<InviteDetails>>;
   acceptInvite: (inviteUuid: Uuid) => Promise<Uuid>;
+  getInvite: (inviteUuid: Uuid) => Promise<InviteDetails>;
 }
 
 const lengthOfDayInMilliseconds = 1000 * 60 * 60 * 24;
@@ -92,6 +93,10 @@ class InviteService implements InviteServiceInterface {
 
     await this.#inviteRepository.acceptInvite(inviteUuid);
     return sessionDetails.uuid;
+  }
+
+  async getInvite(inviteUuid: Uuid) {
+    return this.#inviteRepository.getInviteDetails(inviteUuid);
   }
 }
 
