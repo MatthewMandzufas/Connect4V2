@@ -11,12 +11,14 @@ import InMemoryInviteRepository from "./invite/in-memory-invite-repository";
 import inviteRouterFactory from "./invite/invite-router-factory";
 import InviteService from "./invite/invite-service";
 import InMemorySessionRepository from "./session/in-memory-session-repository";
+import sessionRouterFactory from "./session/session-router-factory";
 import SessionService from "./session/session-service";
 import InMemoryUserRepositoryFactory from "./user/in-memory-user-repository";
 
 export enum RouterType {
   "userRouter",
   "inviteRouter",
+  "sessionRouter",
 }
 
 type ResolveRouterParameters = {
@@ -71,6 +73,7 @@ const resolveRouters = ({
       inviteService,
       sessionService
     ),
+    [RouterType.sessionRouter]: sessionRouterFactory(sessionService),
   };
 };
 

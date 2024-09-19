@@ -1,3 +1,4 @@
+import { Uuid } from "@/global";
 import SessionService from "@/session/session-service";
 import express, { RequestHandler } from "express";
 import { mergeRight, pipe } from "ramda";
@@ -42,8 +43,10 @@ const createGetInviteReceivedRequestHandler =
 const createGetInviteRequestHandler =
   (inviteService: InviteService): RequestHandler =>
   async (req, res, next) => {
-    const inviteDetails = inviteService.getInvite(req.params.inviteUuid);
-    res.send(inviteDetails);
+    const inviteDetails = await inviteService.getInvite(
+      req.params.inviteUuid as Uuid
+    );
+    res.status(200).send({ invite: inviteDetails });
   };
 
 const inviteRouterFactory = (

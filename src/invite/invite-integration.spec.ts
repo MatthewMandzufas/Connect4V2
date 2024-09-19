@@ -4,6 +4,7 @@ import { Express } from "express";
 import halson from "halson";
 import { generateKeyPair, GenerateKeyPairResult, KeyLike } from "jose";
 import request from "supertest";
+import { InviteStatus } from "./invite-service.d";
 
 describe("invite-integration", () => {
   let app: Express;
@@ -330,11 +331,11 @@ describe("invite-integration", () => {
               .send({})
               .set("Authorization", user2Response.header.authorization);
             expect(inviteResponse.body.invite).toEqual({
-              inviter: "player1@email.com",
-              invitee: "player2@email.com",
+              inviter: "user4@email.com",
+              invitee: "user5@email.com",
               uuid: inviteUuid,
               exp: expect.any(Number),
-              status: "PENDING",
+              status: InviteStatus.ACCEPTED,
             });
 
             const sessionUri = resource.getLink("related", {
@@ -344,7 +345,8 @@ describe("invite-integration", () => {
               .get(sessionUri)
               .send({})
               .set("Authorization", user2Response.header.authorization);
-            expect(sessionResponse.statusCode).toBe(201);
+
+            expect(sessionResponse.statusCode).toBe(200);
           });
         });
       });

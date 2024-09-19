@@ -150,12 +150,12 @@ describe("invite-service", () => {
         it("retrieves a single invite for that user", async () => {
           const inviteService = await createUserServiceWithInviterAndInvitee();
 
-          const inviteDetails = await inviteService.create({
+          const { uuid } = await inviteService.create({
             invitee: "player2@email.com",
             inviter: "player1@email.com",
           });
-          expect(await inviteService.getInvite(inviteDetails.uuid)).toEqual({
-            uuid: expect.toBeUUID(),
+          expect(await inviteService.getInvite(uuid)).toEqual({
+            uuid,
             inviter: "player1@email.com",
             invitee: "player2@email.com",
             exp: expect.any(Number),

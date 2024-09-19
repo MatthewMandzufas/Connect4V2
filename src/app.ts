@@ -78,6 +78,7 @@ export const appFactory = (
   app.use(createAuthenticationMiddleware(keys.jwtKeyPair.privateKey));
   app.use("/user", validateUserSignupRequest, routers[RouterType.userRouter]);
   app.use("/invite", routers[RouterType.inviteRouter]);
+  app.use("/session", routers[RouterType.sessionRouter]);
 
   return app;
 };
