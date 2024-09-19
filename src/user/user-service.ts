@@ -22,6 +22,7 @@ interface UserServiceInterface {
   ) => Promise<{ message: string }>;
   getUserDetails: (userEmail: string) => Promise<UserDetails>;
   getDoesUserExist: (userEmail: string) => Promise<boolean>;
+  getUserDetailsByUuid: (userUuid: Uuid) => Promise<UserDetails>;
 }
 
 class UserService implements UserServiceInterface {
@@ -70,6 +71,17 @@ class UserService implements UserServiceInterface {
   async getUserDetails(userEmail: string) {
     const persistedUsersWithProvidedEmail =
       await this.#userRepository.findByEmail(userEmail);
+    const persistedUser = persistedUsersWithProvidedEmail[0];
+    if (persistedUser === undefined) {
+      throw new NoSuchUserError("User does not exist");
+    }
+    const { password, ...userDetails } = persistedUser;
+    return userDetails;
+  }
+
+  async getUserDetailsByUuid(userUuid: Uuid) {
+    const persistedUsersWithProvidedEmail =
+      await this.#userRepository.findByUuid(userUuid);
     const persistedUser = persistedUsersWithProvidedEmail[0];
     if (persistedUser === undefined) {
       throw new NoSuchUserError("User does not exist");
