@@ -76,15 +76,15 @@ class InviteService implements InviteServiceInterface {
       inviteUuid
     );
 
-    const inviteeUuid = await this.#userService.getUserDetails(
+    const inviteeDetails = await this.#userService.getUserDetails(
       inviteDetails.invitee
     );
-    const inviterUuid = await this.#userService.getUserDetails(
+    const inviterDetails = await this.#userService.getUserDetails(
       inviteDetails.inviter
     );
     const sessionCreationDetails = {
-      inviteeUuid: inviteeUuid.uuid,
-      inviterUuid: inviterUuid.uuid,
+      inviteeUuid: inviteeDetails.uuid,
+      inviterUuid: inviterDetails.uuid,
     };
     const sessionDetails = await this.#sessionService.createSession(
       sessionCreationDetails

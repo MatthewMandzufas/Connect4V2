@@ -99,4 +99,25 @@ describe("in-memory-invite-repository", () => {
       // TODO: Should we just mark invite as accepted rather than delete it?
     });
   });
+  describe("accepting an invite", () => {
+    describe("given an invite", () => {
+      it("sets the invite status to accepted", async () => {
+        const inviteDetails = {
+          inviter: "player1@email.com",
+          invitee: "player2@email.com",
+          exp: 1000,
+          status: InviteStatus.PENDING,
+        } satisfies InviteCreationDetails;
+
+        const inMemoryInviteRepository = new InMemoryInviteRepository();
+        const createdInvite = await inMemoryInviteRepository.create(
+          inviteDetails
+        );
+
+        expect(
+          await inMemoryInviteRepository.acceptInvite(createdInvite.uuid)
+        ).toEqual({ isSuccess: true });
+      });
+    });
+  });
 });
