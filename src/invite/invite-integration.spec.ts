@@ -1,6 +1,7 @@
 import { appFactory } from "@/app";
 import TestFixture from "@/test-fixture";
 import { Express } from "express";
+import halson from "halson";
 import { generateKeyPair, GenerateKeyPairResult, KeyLike } from "jose";
 import request from "supertest";
 
@@ -306,7 +307,7 @@ describe("invite-integration", () => {
             expect(response.body).toEqual({
               _links: {
                 self: {
-                  href: `/invite/${inviteUuid}/accept`,
+                  href: `/invite/${inviteUuid}`,
                 },
                 related: [
                   {
@@ -319,6 +320,31 @@ describe("invite-integration", () => {
                 ],
               },
             });
+
+            const resource = halson(response.body);
+            const inviteUri = resource.getLink("self", {
+              href: "",
+            }).href;
+            const inviteResponse = await request(app)
+              .post(inviteUri)
+              .send({})
+              .set("Authorization", user2Response.header.authorization);
+            expect(inviteResponse.body.invite).toEqual({
+              inviter: "player1@email.com",
+              invitee: "player2@email.com",
+              uuid: inviteUuid,
+              exp: expect.any(Number),
+              status: "PENDING",
+            });
+
+            const sessionUri = resource.getLink("related", {
+              href: "",
+            }).href;
+            const sessionResponse = await request(app)
+              .post(sessionUri)
+              .send({})
+              .set("Authorization", user2Response.header.authorization);
+            expect(sessionResponse.statusCode).toBe(201);
           });
         });
       });

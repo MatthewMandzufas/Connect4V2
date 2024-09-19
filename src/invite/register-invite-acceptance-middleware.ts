@@ -18,7 +18,7 @@ const createAcceptInvitation =
         _links: {
           related: [{ href: `/session/${sessionUuid}` }],
         },
-      }).addLink("self", req.originalUrl)
+      }).addLink("self", `/invite/${req.params.invite_uuid}`)
     );
   };
 
