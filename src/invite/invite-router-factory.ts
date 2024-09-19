@@ -14,7 +14,7 @@ const createAuthorizationMiddleware: RequestHandler = (req, res, next) => {
       });
 };
 
-const createGetInviteRequestHandler =
+const createGetInviteReceivedRequestHandler =
   (inviteService: InviteService): RequestHandler =>
   async (req, res, next) => {
     await inviteService
@@ -39,6 +39,13 @@ const createGetInviteRequestHandler =
       });
   };
 
+const createGetInviteRequestHandler =
+  (inviteService: InviteService): RequestHandler =>
+  async (req, res, next) => {
+    const inviteDetails = inviteService.getInvite(req.params.inviteUuid);
+    res.send(inviteDetails);
+  };
+
 const inviteRouterFactory = (
   inviteService: InviteService,
   sessionService: SessionService
@@ -46,10 +53,15 @@ const inviteRouterFactory = (
   pipe(
     (router) => router.use(createAuthorizationMiddleware),
     (router) =>
-      router.get("/inbox", createGetInviteRequestHandler(inviteService)),
+      router.get(
+        "/inbox",
+        createGetInviteReceivedRequestHandler(inviteService)
+      ),
     (router) => registerInviteCreationMiddleware(router, inviteService),
     (router) =>
-      registerInviteAcceptanceMiddleware(router, inviteService, sessionService)
+      registerInviteAcceptanceMiddleware(router, inviteService, sessionService),
+    (router) =>
+      router.get("/:inviteUuid", createGetInviteRequestHandler(inviteService))
   )(express.Router());
 
 export default inviteRouterFactory;

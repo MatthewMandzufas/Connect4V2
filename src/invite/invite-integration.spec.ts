@@ -326,7 +326,7 @@ describe("invite-integration", () => {
               href: "",
             }).href;
             const inviteResponse = await request(app)
-              .post(inviteUri)
+              .get(inviteUri)
               .send({})
               .set("Authorization", user2Response.header.authorization);
             expect(inviteResponse.body.invite).toEqual({
@@ -341,7 +341,7 @@ describe("invite-integration", () => {
               href: "",
             }).href;
             const sessionResponse = await request(app)
-              .post(sessionUri)
+              .get(sessionUri)
               .send({})
               .set("Authorization", user2Response.header.authorization);
             expect(sessionResponse.statusCode).toBe(201);

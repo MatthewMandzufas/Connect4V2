@@ -123,7 +123,7 @@ describe("invite-service", () => {
         });
       });
       describe("and an existing invite", () => {
-        it("retrieves an invite", async () => {
+        it("retrieves all invite for that user", async () => {
           jest.useFakeTimers({ doNotFake: ["setImmediate"] });
           const currentTime = Date.now();
           jest.setSystemTime(currentTime);
@@ -146,6 +146,21 @@ describe("invite-service", () => {
             },
           ]);
           jest.useRealTimers();
+        });
+        it("retrieves a single invite for that user", async () => {
+          const inviteService = await createUserServiceWithInviterAndInvitee();
+
+          const inviteDetails = await inviteService.create({
+            invitee: "player2@email.com",
+            inviter: "player1@email.com",
+          });
+          expect(await inviteService.getInvite(inviteDetails.uuid)).toEqual({
+            uuid: expect.toBeUUID(),
+            inviter: "player1@email.com",
+            invitee: "player2@email.com",
+            exp: expect.any(Number),
+            status: InviteStatus.PENDING,
+          });
         });
       });
     });
