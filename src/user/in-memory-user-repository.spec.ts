@@ -69,15 +69,7 @@ describe("in-memory-user-repository", () => {
       };
 
       const inMemoryUserRepository = new InMemoryUserRepository();
-      await inMemoryUserRepository.create(johnDoeUser);
-      const { uuid } = await inMemoryUserRepository.create({
-        firstName: "Jeff",
-        lastName: "Goldblum",
-        email: "jeff.goldblum@email.com",
-        password:
-          "$argon2id$v=19$m=65536,t=3,p=4$42OHhoG0FCA+xCPt5PppZQ$XAk4t8UkXR2WFuGdU5EDTXB7/dtdzpmlHQODWOzsa6E",
-      });
-
+      const { uuid } = await inMemoryUserRepository.create(johnDoeUser);
       expect(await inMemoryUserRepository.findByUuid(uuid)).toEqual([
         expect.objectContaining({
           firstName: "John",

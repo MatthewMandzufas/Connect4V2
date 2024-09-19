@@ -34,4 +34,10 @@ export default class InMemoryUserRepositoryFactory implements UserRepository {
       Array.from(this.users.values()).filter((user) => user.email === email)
     );
   }
+
+  async findByUuid(userUuid: Uuid) {
+    return Promise.resolve(
+      Array.from(this.users.values()).filter((user) => user.uuid === userUuid)
+    );
+  }
 }
