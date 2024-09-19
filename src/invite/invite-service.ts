@@ -90,7 +90,7 @@ class InviteService implements InviteServiceInterface {
       sessionCreationDetails
     );
 
-    await this.#inviteRepository.deleteInvite(inviteUuid);
+    await this.#inviteRepository.acceptInvite(inviteUuid);
     return sessionDetails.uuid;
   }
 }

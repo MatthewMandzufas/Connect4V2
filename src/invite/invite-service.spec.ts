@@ -202,7 +202,15 @@ describe("invite-service", () => {
 
         expect(
           await inviteService.getInvitesReceivedByUser("player1@email.com")
-        ).toEqual([]);
+        ).toEqual([
+          {
+            invitee: "player1@email.com",
+            inviter: "player2@email.com",
+            exp: expect.any(Number),
+            status: InviteStatus.ACCEPTED,
+            uuid: expect.toBeUUID(),
+          },
+        ]);
 
         expect(sessionUuid).toBeUUID();
       });

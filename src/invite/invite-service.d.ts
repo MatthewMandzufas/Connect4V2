@@ -11,6 +11,7 @@ export enum InviteEvents {
 
 export enum InviteStatus {
   PENDING = "PENDING",
+  ACCEPTED = "ACCEPTED",
 }
 
 export type InviteDetails = {

@@ -4,6 +4,7 @@ import {
   InviteRepository,
   PersistedInvite,
 } from "./invite-repository";
+import { InviteStatus } from "./invite-service.d";
 
 export default class InMemoryInviteRepository implements InviteRepository {
   private invites: Map<string, PersistedInvite>;
@@ -13,8 +14,13 @@ export default class InMemoryInviteRepository implements InviteRepository {
   }
 
   async create(inviteCreationDetails: InviteCreationDetails) {
-    const { inviter, invitee, exp, status } = inviteCreationDetails;
-    const uuid = crypto.randomUUID();
+    const {
+      inviter,
+      invitee,
+      exp,
+      status,
+      uuid = crypto.randomUUID(),
+    } = inviteCreationDetails;
     this.invites.set(uuid, { inviter, invitee, exp, uuid, status });
     return Promise.resolve({
       inviter,
@@ -40,5 +46,15 @@ export default class InMemoryInviteRepository implements InviteRepository {
     return {
       isSuccess: true,
     };
+  }
+
+  async acceptInvite(inviteUuid: Uuid) {
+    const inviteDetails = await this.getInviteDetails(inviteUuid);
+    const acceptedInviteDetails = {
+      ...inviteDetails,
+      status: InviteStatus.ACCEPTED,
+    };
+    await this.create(acceptedInviteDetails);
+    return acceptedInviteDetails;
   }
 }

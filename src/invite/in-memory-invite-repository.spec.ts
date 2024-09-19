@@ -116,7 +116,23 @@ describe("in-memory-invite-repository", () => {
 
         expect(
           await inMemoryInviteRepository.acceptInvite(createdInvite.uuid)
-        ).toEqual({ isSuccess: true });
+        ).toEqual({
+          inviter: "player1@email.com",
+          invitee: "player2@email.com",
+          exp: 1000,
+          status: InviteStatus.ACCEPTED,
+          uuid: expect.toBeUUID(),
+        });
+
+        expect(
+          await inMemoryInviteRepository.getInviteDetails(createdInvite.uuid)
+        ).toEqual({
+          inviter: "player1@email.com",
+          invitee: "player2@email.com",
+          exp: 1000,
+          status: InviteStatus.ACCEPTED,
+          uuid: expect.toBeUUID(),
+        });
       });
     });
   });
