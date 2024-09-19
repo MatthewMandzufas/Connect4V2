@@ -80,9 +80,9 @@ class UserService implements UserServiceInterface {
   }
 
   async getUserDetailsByUuid(userUuid: Uuid) {
-    const persistedUsersWithProvidedEmail =
+    const persistedUsersWithProvidedUuid =
       await this.#userRepository.findByUuid(userUuid);
-    const persistedUser = persistedUsersWithProvidedEmail[0];
+    const persistedUser = persistedUsersWithProvidedUuid[0];
     if (persistedUser === undefined) {
       throw new NoSuchUserError("User does not exist");
     }
