@@ -73,7 +73,10 @@ const resolveRouters = ({
       inviteService,
       sessionService
     ),
-    [RouterType.sessionRouter]: sessionRouterFactory(sessionService),
+    [RouterType.sessionRouter]: sessionRouterFactory(
+      sessionService,
+      userService
+    ),
   };
 };
 
