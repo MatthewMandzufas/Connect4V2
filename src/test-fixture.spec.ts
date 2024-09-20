@@ -173,20 +173,33 @@ describe(`test-fixture.js`, () => {
       describe("given an email", () => {
         it("retrieves the invite", async () => {
           const testFixture = new TestFixture();
-          await testFixture.sendInviteEmails({
+          const inviteSentResponse = await testFixture.sendInviteEmails({
             invitee: "1@email.com",
             inviter: "2@email.com",
           });
+          const uuid = inviteSentResponse.body.invite.uuid;
           const response = await testFixture.getUserInvitesByEmail(
             "1@email.com"
           );
-          expect(response).toEqual({
-            invitee: "1@email.com",
-            inviter: "2@email.com",
-            exp: expect.any(Number),
-            status: InviteStatus.PENDING,
-            uuid: expect.toBeUUID(),
-          });
+          expect(response.body.invites).toEqual([
+            {
+              invitee: "1@email.com",
+              inviter: "2@email.com",
+              exp: expect.any(Number),
+              status: InviteStatus.PENDING,
+              uuid: expect.toBeUUID(),
+              _links: {
+                accept: {
+                  href: `/invite/${uuid}/accept`,
+                  method: "POST",
+                },
+                decline: {
+                  href: `/invite/${uuid}/decline`,
+                  method: "POST",
+                },
+              },
+            },
+          ]);
         });
       });
     });

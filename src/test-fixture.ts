@@ -34,7 +34,7 @@ interface Fixture {
   loginUserAuth: (userCredentials: UserCredentials) => Promise<string>;
   signUpUserWithEmail: (userEmail: string) => Promise<Response>;
   signUpAndLoginEmail: (userEmail: string) => Promise<string>;
-  getUserInvitesByEmail: (userEmail: string) => Promise<string>;
+  getUserInvitesByEmail: (userEmail: string) => Promise<Response>;
 }
 export default class TestFixture implements Fixture {
   private app: Promise<Express> | Express;
@@ -120,5 +120,19 @@ export default class TestFixture implements Fixture {
       .post("/user/signup")
       .send(userDetails);
     return response;
+  }
+
+  async getUserInvitesByEmail(userEmail: string) {
+    const response = await this.loginUserAuth({
+      userName: userEmail,
+      password: "GenericPassword",
+    });
+    const testingResponse = await request(await this.app)
+      .get("/invite/inbox")
+      .set("Authorization", response)
+      .send();
+
+    // console.log(testingResponse.body.invites);
+    return testingResponse;
   }
 }
