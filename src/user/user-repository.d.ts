@@ -25,5 +25,5 @@ type PersistedUser = UserSignupDetails & {
 export interface UserRepository {
   create: (userDetails: UserSignupDetails) => Promise<PersistedUser>;
   findByEmail: (email: string) => Promise<Array<PersistedUser>>;
-  findByUuid: (userUuid: Uuid) => Promise<Array<PersistedUser>>;
+  findByUuid: (userUuid: Uuid) => Promise<PersistedUser>;
 }

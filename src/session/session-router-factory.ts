@@ -30,10 +30,12 @@ const createGetSessionRequestHandler =
         .addLink("self", req.originalUrl)
         .addLink("startGame", {
           href: `/session/${uuid}/startGame`,
+          // @ts-ignore
           method: "POST",
         })
         .addLink("leave", {
           href: `/session/${uuid}/leave`,
+          // @ts-ignore
           method: "GET",
         })
     );

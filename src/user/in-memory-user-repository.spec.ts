@@ -70,13 +70,13 @@ describe("in-memory-user-repository", () => {
 
       const inMemoryUserRepository = new InMemoryUserRepository();
       const { uuid } = await inMemoryUserRepository.create(johnDoeUser);
-      expect(await inMemoryUserRepository.findByUuid(uuid)).toEqual([
-        expect.objectContaining({
-          firstName: "John",
-          lastName: "Doe",
-          email: "john.doe@email.com",
-        }),
-      ]);
+      expect(await inMemoryUserRepository.findByUuid(uuid)).toEqual({
+        firstName: "John",
+        lastName: "Doe",
+        email: "john.doe@email.com",
+        uuid: expect.toBeUUID(),
+        password: expect.any(String),
+      });
     });
   });
 });
