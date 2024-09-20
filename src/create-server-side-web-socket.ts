@@ -18,7 +18,7 @@ export const createSocketServer = (
   app: ExpressWithPortAndSocket,
   { path, privateKey }: ServerSideWebSocketOptions
 ) => {
-  const httpServer = http.createServer(app).listen();
+  const httpServer = http.createServer(app).listen().unref();
 
   const port = (httpServer.address() as AddressInfo).port;
 

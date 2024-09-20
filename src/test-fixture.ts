@@ -34,6 +34,7 @@ interface Fixture {
   loginUserAuth: (userCredentials: UserCredentials) => Promise<string>;
   signUpUserWithEmail: (userEmail: string) => Promise<Response>;
   signUpAndLoginEmail: (userEmail: string) => Promise<string>;
+  getUserInvitesByEmail: (userEmail: string) => Promise<string>;
 }
 export default class TestFixture implements Fixture {
   private app: Promise<Express> | Express;

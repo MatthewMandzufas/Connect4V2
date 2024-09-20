@@ -1,5 +1,6 @@
 import { generateKeyPair } from "jose";
 import { appFactory } from "./app";
+import { InviteStatus } from "./invite/invite-service.d";
 import TestFixture from "./test-fixture";
 
 describe(`test-fixture.js`, () => {
@@ -168,6 +169,27 @@ describe(`test-fixture.js`, () => {
         });
       });
     });
+    describe("retrieving an invite", () => {
+      describe("given an email", () => {
+        it("retrieves the invite", async () => {
+          const testFixture = new TestFixture();
+          await testFixture.sendInviteEmails({
+            invitee: "1@email.com",
+            inviter: "2@email.com",
+          });
+          const response = await testFixture.getUserInvitesByEmail(
+            "1@email.com"
+          );
+          expect(response).toEqual({
+            invitee: "1@email.com",
+            inviter: "2@email.com",
+            exp: expect.any(Number),
+            status: InviteStatus.PENDING,
+            uuid: expect.toBeUUID(),
+          });
+        });
+      });
+    });
   });
   describe(`Given an app`, () => {
     it(`returns a working test fixture `, async () => {
@@ -176,7 +198,7 @@ describe(`test-fixture.js`, () => {
         keys: {
           jwtKeyPair: await generateKeyPair("RS256"),
         },
-        publishInternalEvent: (queue, payload) => Promise.resolve(),
+        publishInternalEvent: (eventDetails) => Promise.resolve(),
       });
       const testFixture = new TestFixture(app);
       await testFixture.signUpAndLoginEmail("anotherUser@email.com");

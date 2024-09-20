@@ -13,8 +13,9 @@ describe(`notification-integration`, () => {
   let dispatchNotification;
   let app: ExpressWithPortAndSocket;
   let testFixture: TestFixture;
+  let httpServer;
   beforeEach(async () => {
-    const httpServer = http.createServer().listen();
+    httpServer = http.createServer().listen().unref();
     const port = (httpServer.address() as AddressInfo).port;
     const jwtKeyPair = await generateKeyPair("RS256");
     app = appFactory({
@@ -27,6 +28,7 @@ describe(`notification-integration`, () => {
     testFixture = new TestFixture(app);
   });
   afterEach(() => {
+    httpServer.removeAllListeners();
     clientSocket.disconnect();
     clientSocket.removeAllListeners();
   });
