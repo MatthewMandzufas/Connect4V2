@@ -1,5 +1,5 @@
 import InMemorySessionRepository from "./in-memory-session-repository";
-import { SessionCreationDetails } from "./types";
+import { SessionCreationDetails } from "./types.d";
 
 describe("in-memory-session-repository", () => {
   const inMemorySessionRepository = new InMemorySessionRepository();

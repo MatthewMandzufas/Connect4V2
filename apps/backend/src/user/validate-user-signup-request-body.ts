@@ -10,7 +10,7 @@ const validSchema = Joi.object({
   password: Joi.string().min(8).required(),
 });
 export default function validateUserSignupRequestBody(
-  userSignUpRequestBody: UserSignupRequestBody
+  userSignUpRequestBody: UserSignupRequestBody,
 ): ValidationResult {
   const validationResult = validSchema.validate(userSignUpRequestBody, {
     abortEarly: false,
@@ -20,6 +20,7 @@ export default function validateUserSignupRequestBody(
   if (!isValid) {
     return {
       isValid,
+      // @ts-ignore
       errors: pipe<
         [Joi.ValidationResult],
         ValidationErrorItem[],
@@ -30,8 +31,8 @@ export default function validateUserSignupRequestBody(
           applySpec({
             message: prop("message"),
             path: pipe(prop("path"), join(".")),
-          })
-        )
+          }),
+        ),
       )(validationResult),
     };
   }

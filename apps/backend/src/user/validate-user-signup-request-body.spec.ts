@@ -24,7 +24,7 @@ describe("validate-user-signup-request-body", () => {
         email: "nigel.thornberry@email.com",
       };
       const validationResult = validateUserSignupRequestBody(
-        userRequestBody as UserSignupRequestBody
+        userRequestBody as UserSignupRequestBody,
       );
       expect(validationResult).toEqual({
         isValid: false,
@@ -43,7 +43,7 @@ describe("validate-user-signup-request-body", () => {
         firstName: "Nigel",
       };
       const validationResult = validateUserSignupRequestBody(
-        userRequestBody as UserSignupRequestBody
+        userRequestBody as UserSignupRequestBody,
       );
       expect(validationResult).toEqual({
         isValid: false,

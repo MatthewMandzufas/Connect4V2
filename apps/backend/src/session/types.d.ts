@@ -1,4 +1,4 @@
-import { PlayerMoveResult } from "@/game/types";
+import { PlayerMoveResult } from "@/game/types.d";
 
 type Uuid = `${string}-${string}-${string}-${string}-${string}`;
 

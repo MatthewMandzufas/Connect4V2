@@ -132,7 +132,6 @@ export default class TestFixture implements Fixture {
       .set("Authorization", response)
       .send();
 
-    // console.log(testingResponse.body.invites);
     return testingResponse;
   }
 }

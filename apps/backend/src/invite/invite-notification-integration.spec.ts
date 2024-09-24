@@ -37,12 +37,11 @@ describe(`invite-notification-integration.ts`, () => {
         let resolveUserConnectedPromise: (value: unknown) => void;
 
         const userConnectedPromise = new Promise(
-          (resolve) => (resolveUserConnectedPromise = resolve)
+          (resolve) => (resolveUserConnectedPromise = resolve),
         );
 
-        const inviteeResponse = await testFixture.signUpAndLoginEmailResponse(
-          "2@email.com"
-        );
+        const inviteeResponse =
+          await testFixture.signUpAndLoginEmailResponse("2@email.com");
 
         const {
           body: {
@@ -72,12 +71,11 @@ describe(`invite-notification-integration.ts`, () => {
           let resolveInviteDetailsReceivedPromise: (value: unknown) => void;
 
           const inviteDetailsReceivedPromise = new Promise(
-            (resolve) => (resolveInviteDetailsReceivedPromise = resolve)
+            (resolve) => (resolveInviteDetailsReceivedPromise = resolve),
           );
 
-          const inviterAuthField = await testFixture.signUpAndLoginEmail(
-            "1@email.com"
-          );
+          const inviterAuthField =
+            await testFixture.signUpAndLoginEmail("1@email.com");
 
           clientSocket.on(
             "invite_received",
@@ -85,7 +83,7 @@ describe(`invite-notification-integration.ts`, () => {
               resolveInviteDetailsReceivedPromise(inviteReceivedMessage);
               clientSocket.disconnect();
               clientSocket.close();
-            }
+            },
           );
 
           await testFixture.sendInvite({

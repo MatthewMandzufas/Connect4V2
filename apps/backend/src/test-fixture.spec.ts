@@ -14,9 +14,8 @@ describe(`test-fixture.js`, () => {
         describe(`given a users emails`, () => {
           it(`signs up the user`, async () => {
             const testFixture = new TestFixture();
-            const response = await testFixture.signUpUserWithEmail(
-              "user1@email.com"
-            );
+            const response =
+              await testFixture.signUpUserWithEmail("user1@email.com");
             expect(response.statusCode).toBe(201);
             expect(response.body).toEqual({
               firstName: "GenericFirstName",
@@ -35,9 +34,8 @@ describe(`test-fixture.js`, () => {
               email: "joe.blogs@email.com",
               password: "somethingSafe",
             };
-            const response = await testFixture.signUpUserWithDetails(
-              userDetails
-            );
+            const response =
+              await testFixture.signUpUserWithDetails(userDetails);
             expect(response.statusCode).toBe(201);
             expect(response.body).toEqual({
               firstName: "joe",
@@ -64,12 +62,10 @@ describe(`test-fixture.js`, () => {
               email: "joe1.blogs@email.com",
               password: "somethingSafe",
             };
-            const firstResponse = await testFixture.signUpUserWithDetails(
-              user1Details
-            );
-            const secondResponse = await testFixture.signUpUserWithDetails(
-              user2Details
-            );
+            const firstResponse =
+              await testFixture.signUpUserWithDetails(user1Details);
+            const secondResponse =
+              await testFixture.signUpUserWithDetails(user2Details);
             expect(firstResponse.statusCode).toBe(201);
             expect(secondResponse.statusCode).toBe(201);
             expect(firstResponse.body).toEqual({
@@ -123,9 +119,8 @@ describe(`test-fixture.js`, () => {
       describe(`given a valid email`, () => {
         it(`signs up and logs in a user`, async () => {
           const testFixture = new TestFixture();
-          const authField = await testFixture.signUpAndLoginEmail(
-            "myUser@email.com"
-          );
+          const authField =
+            await testFixture.signUpAndLoginEmail("myUser@email.com");
           expect(authField).toEqual(expect.any(String));
         });
       });
@@ -135,9 +130,8 @@ describe(`test-fixture.js`, () => {
         it(`creates an invite`, async () => {
           const testFixture = new TestFixture();
           await testFixture.signUpAndLoginEmail("anotherUser@email.com");
-          const authField = await testFixture.signUpAndLoginEmail(
-            "someUser@email.com"
-          );
+          const authField =
+            await testFixture.signUpAndLoginEmail("someUser@email.com");
           const response = await testFixture.sendInvite({
             inviter: "someUser@email.com",
             invitee: "anotherUser@email.com",
@@ -178,9 +172,8 @@ describe(`test-fixture.js`, () => {
             inviter: "2@email.com",
           });
           const uuid = inviteSentResponse.body.invite.uuid;
-          const response = await testFixture.getUserInvitesByEmail(
-            "1@email.com"
-          );
+          const response =
+            await testFixture.getUserInvitesByEmail("1@email.com");
           expect(response.body.invites).toEqual([
             {
               invitee: "1@email.com",
@@ -215,9 +208,8 @@ describe(`test-fixture.js`, () => {
       });
       const testFixture = new TestFixture(app);
       await testFixture.signUpAndLoginEmail("anotherUser@email.com");
-      const authField = await testFixture.signUpAndLoginEmail(
-        "someUser@email.com"
-      );
+      const authField =
+        await testFixture.signUpAndLoginEmail("someUser@email.com");
       const response = await testFixture.sendInvite({
         inviter: "someUser@email.com",
         invitee: "anotherUser@email.com",

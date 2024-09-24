@@ -1,5 +1,5 @@
 import GameService from "@/game/game-service";
-import { PlayerNumber } from "@/game/types";
+import { PlayerNumber } from "@/game/types.d";
 import { NoSuchSessionError } from "./errors";
 import {
   ActiveGameInProgressError,

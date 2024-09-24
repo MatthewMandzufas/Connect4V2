@@ -39,7 +39,7 @@ const createUserServiceWithInviterAndInvitee = async () => {
   const gameRepository = new InMemoryGameRepository();
   const gameService = new GameService(
     gameRepository,
-    (...args) => new Game(...args)
+    (...args) => new Game(...args),
   );
   const sessionService = new SessionService(sessionRepository, gameService);
   const inviteRepository = new InMemoryInviteRepository();
@@ -47,7 +47,7 @@ const createUserServiceWithInviterAndInvitee = async () => {
     userService,
     inviteRepository,
     createInviteEventPublishers(() => Promise.resolve()),
-    sessionService
+    sessionService,
   );
   return inviteService;
 };
@@ -88,6 +88,16 @@ describe("invite-service", () => {
           const userRepository = new InMemoryUserRepositoryFactory();
           const userService = new UserService(userRepository);
           const inviteRepository = new InMemoryInviteRepository();
+          const sessionRepository = new InMemorySessionRepository();
+          const gameRepository = new InMemoryGameRepository();
+          const gameService = new GameService(
+            gameRepository,
+            (...args) => new Game(...args),
+          );
+          const sessionService = new SessionService(
+            sessionRepository,
+            gameService,
+          );
 
           const inviteService = new InviteService(
             userService,
@@ -95,7 +105,8 @@ describe("invite-service", () => {
             {
               [InviteEvents.INVITATION_CREATED]:
                 mockedInvitationCreationCallback as InviteServiceEventHandler,
-            }
+            },
+            sessionService,
           );
           await userRepository.create({
             firstName: "1",
@@ -135,7 +146,7 @@ describe("invite-service", () => {
             inviter: "player1@email.com",
           });
           await expect(
-            inviteService.getInvitesReceivedByUser("player2@email.com")
+            inviteService.getInvitesReceivedByUser("player2@email.com"),
           ).resolves.toEqual([
             {
               uuid: expect.toBeUUID(),
@@ -171,9 +182,9 @@ describe("invite-service", () => {
           inviteService.create({
             invitee: "player1@email.com",
             inviter: "player1@email.com",
-          })
+          }),
         ).rejects.toThrow(
-          new InvalidInvitationError("Users cannot send invites to themselves")
+          new InvalidInvitationError("Users cannot send invites to themselves"),
         );
       });
     });
@@ -185,7 +196,7 @@ describe("invite-service", () => {
           inviteService.create({
             invitee: "player9@email.com",
             inviter: "player1@email.com",
-          })
+          }),
         ).rejects.toThrow(new InvalidInvitationError("Invitee does not exist"));
       });
     });
@@ -200,7 +211,7 @@ describe("invite-service", () => {
         });
 
         expect(
-          await inviteService.getInvitesReceivedByUser("player1@email.com")
+          await inviteService.getInvitesReceivedByUser("player1@email.com"),
         ).toEqual([
           {
             invitee: "player1@email.com",
@@ -212,11 +223,11 @@ describe("invite-service", () => {
         ]);
 
         const sessionUuid = await inviteService.acceptInvite(
-          inviteDetails.uuid
+          inviteDetails.uuid,
         );
 
         expect(
-          await inviteService.getInvitesReceivedByUser("player1@email.com")
+          await inviteService.getInvitesReceivedByUser("player1@email.com"),
         ).toEqual([
           {
             invitee: "player1@email.com",

@@ -39,9 +39,8 @@ describe(`create-dispatch-notification`, () => {
             resolvePromiseWhenUserJoinsRoom = resolve;
           });
           let resolveUserPromise: (value: unknown) => void;
-          const loginResponse = await testFixture.signUpAndLoginEmailResponse(
-            "poorguy@email.com"
-          );
+          const loginResponse =
+            await testFixture.signUpAndLoginEmailResponse("poorguy@email.com");
 
           const {
             body: {
@@ -98,9 +97,8 @@ describe(`create-dispatch-notification`, () => {
             resolvePromiseWhenUserJoinsRoom = resolve;
           });
           let resolveUserReceivesMessagesPromise: (value: unknown) => void;
-          const loginResponse = await testFixture.signUpAndLoginEmailResponse(
-            "poorguy@email.com"
-          );
+          const loginResponse =
+            await testFixture.signUpAndLoginEmailResponse("poorguy@email.com");
 
           const {
             body: {
@@ -186,13 +184,12 @@ describe(`create-dispatch-notification`, () => {
           const promiseToResolveWhenInviteeReceivesEvent = new Promise(
             (resolve) => {
               resolveInviteeEventPromise = resolve;
-            }
+            },
           );
-          const inviteeResponse = await testFixture.signUpAndLoginEmailResponse(
-            "invitee@email.com"
-          );
+          const inviteeResponse =
+            await testFixture.signUpAndLoginEmailResponse("invitee@email.com");
           const thirdPartyAuth = await testFixture.signUpAndLoginEmail(
-            "thirdParty@email.com"
+            "thirdParty@email.com",
           );
 
           const {
@@ -250,7 +247,7 @@ describe(`create-dispatch-notification`, () => {
           });
 
           await expect(
-            promiseToResolveWhenInviteeReceivesEvent
+            promiseToResolveWhenInviteeReceivesEvent,
           ).resolves.toEqual({
             exampleData: "SecondTest!",
           });
@@ -282,20 +279,20 @@ describe(`create-dispatch-notification`, () => {
           const promiseToResolveWhenFirstUserReceivesEvent = new Promise(
             (resolve) => {
               resolveFirstUserEventPromise = resolve;
-            }
+            },
           );
           const promiseToResolveWhenSecondUserReceivesEvent = new Promise(
             (resolve) => {
               resolveSecondUserEventPromise = resolve;
-            }
+            },
           );
 
           const firstUserResponse =
             await testFixture.signUpAndLoginEmailResponse(
-              "firstUser@email.com"
+              "firstUser@email.com",
             );
           const secondUserAuth = await testFixture.signUpAndLoginEmail(
-            "secondUser@email.com"
+            "secondUser@email.com",
           );
 
           const {
@@ -355,13 +352,13 @@ describe(`create-dispatch-notification`, () => {
           });
 
           await expect(
-            promiseToResolveWhenFirstUserReceivesEvent
+            promiseToResolveWhenFirstUserReceivesEvent,
           ).resolves.toEqual({
             exampleData: "firstUser!",
           });
 
           await expect(
-            promiseToResolveWhenSecondUserReceivesEvent
+            promiseToResolveWhenSecondUserReceivesEvent,
           ).resolves.toEqual({
             exampleData: "secondUser!",
           });
@@ -375,9 +372,8 @@ describe(`create-dispatch-notification`, () => {
             resolvePromiseWhenUserJoinsRoom = resolve;
           });
           let resolveUserPromise: (value: unknown) => void;
-          const inviteeResponse = await testFixture.signUpAndLoginEmailResponse(
-            "poorguy@email.com"
-          );
+          const inviteeResponse =
+            await testFixture.signUpAndLoginEmailResponse("poorguy@email.com");
           const {
             body: {
               notification: { uri },
