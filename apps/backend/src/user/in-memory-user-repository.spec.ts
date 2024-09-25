@@ -23,7 +23,7 @@ describe("in-memory-user-repository", () => {
           lastName: "Doe",
           email: "john.doe@email.com",
           uuid: expect.toBeUUID(),
-        })
+        }),
       );
     });
   });
@@ -48,7 +48,7 @@ describe("in-memory-user-repository", () => {
       });
 
       expect(
-        await inMemoryUserRepository.findByEmail(johnDoeUser.email)
+        await inMemoryUserRepository.findByEmail(johnDoeUser.email),
       ).toEqual([
         expect.objectContaining({
           firstName: "John",

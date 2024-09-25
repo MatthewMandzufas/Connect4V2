@@ -30,7 +30,7 @@ const createAuthenticationMiddleware =
       try {
         const { payload } = await jwtDecrypt(
           authorizationField.split(" ")[1],
-          jwtPrivateKey
+          jwtPrivateKey,
         );
         // console.log(payload.userName);
         res.locals.claims = {
@@ -53,9 +53,11 @@ export const appFactory = (
     keys: {},
     publishInternalEvent: () => Promise.resolve(),
     internalEventSubscriber: new Subject(),
-  }
+  },
 ) => {
   const app = express() as ExpressWithPortAndSocket;
+
+  // const keys = convertToKey(jwkKeys)
 
   createSocketServer(app, {
     path: "/notification",
@@ -64,7 +66,7 @@ export const appFactory = (
 
   createInviteEventListener(
     internalEventSubscriber,
-    createDispatchNotification(app.server)
+    createDispatchNotification(app.server),
   );
 
   const routers = resolveRouters({

@@ -1,9 +1,9 @@
+import { Uuid } from "@/global";
 import {
   SessionCreationDetails,
   SessionDetails,
   SessionRepository,
   SessionStatus,
-  Uuid,
 } from "./types.d";
 
 export default class InMemorySessionRepository implements SessionRepository {
@@ -38,7 +38,7 @@ export default class InMemorySessionRepository implements SessionRepository {
     sessionUuid: Uuid,
     gameUuid: Uuid,
     playerOneUuid: Uuid,
-    playerTwoUuid: Uuid
+    playerTwoUuid: Uuid,
   ) {
     const sessionDetails = await this.getSession(sessionUuid);
     sessionDetails.games.push({

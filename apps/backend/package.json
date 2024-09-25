@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
@@ -33,6 +34,7 @@
   },
   "dependencies": {
     "@types/amqplib": "^0.10.5",
+    "@types/node": "^22.6.1",
     "amqplib": "^0.10.4",
     "argon2": "^0.40.3",
     "express": "^4.19.2",

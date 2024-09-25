@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
-    "module": "NodeNext",
+    "module": "ESNext",
     "types": ["jest"],
     "esModuleInterop": true,
     "target": "ES2022",
-    "moduleResolution": "NodeNext",
+    "moduleResolution": "Node",
     "outDir": "dist",
     "isolatedModules": true,
     "paths": {

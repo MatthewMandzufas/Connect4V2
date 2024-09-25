@@ -5,9 +5,9 @@ const UUID_REGEX =
 
 const toBeUUID: jest.CustomMatcher = function (
   this: jest.MatcherContext,
-  received: string
+  received: string,
 ) {
-  const isNot = this?.isNot ?? false;
+  const isNot = this.isNot || false;
   const pass = UUID_REGEX.test(received);
 
   return {
