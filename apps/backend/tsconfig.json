@@ -1,16 +1,35 @@
+// {
+//   "compilerOptions": {
+//     // "module": "ESNext",
+//     "module": "CommonJS",
+//     "types": ["jest"],
+//     "esModuleInterop": true,
+//     // "target": "ES2022",
+//     "target": "ESNext",
+//     "moduleResolution": "Node",
+//     "outDir": "dist",
+//     "isolatedModules": true,
+//     "baseUrl": "./",
+//     "paths": {
+//       "@*": ["./src/*"]
+//     }
+//   },
+//   // "lib": ["es2015"],
+//   "include": ["src", "src/**/*", "src/global.d.ts", "src/jest.d.ts"]
+// }
+
 {
   "compilerOptions": {
-    "module": "ESNext",
-    "types": ["jest"],
-    "esModuleInterop": true,
-    "target": "ES2022",
-    "moduleResolution": "Node",
-    "outDir": "dist",
-    "isolatedModules": true,
+    "baseUrl": "./",
     "paths": {
-      "@/*": ["./src/*"]
-    }
+      "@/*": ["src/*"]
+    },
+    "outDir": "./dist",
+    "module": "CommonJS",
+    "target": "ES2022",
+    "esModuleInterop": true,
+    "skipLibCheck": true
   },
-  "lib": ["es2015"],
-  "include": ["src", "src/global.d.ts", "src/jest.d.ts"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
 }

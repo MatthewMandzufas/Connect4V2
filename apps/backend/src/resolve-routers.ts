@@ -8,12 +8,15 @@ import InMemoryGameRepository from "./game/in-memory-game-repository";
 import { InternalEventPublisher, Stage } from "./global";
 import createInviteEventPublishers from "./invite/create-invite-event-publishers";
 import InMemoryInviteRepository from "./invite/in-memory-invite-repository";
+import { InviteRepository } from "./invite/invite-repository";
 import inviteRouterFactory from "./invite/invite-router-factory";
 import InviteService from "./invite/invite-service";
 import InMemorySessionRepository from "./session/in-memory-session-repository";
 import sessionRouterFactory from "./session/session-router-factory";
 import SessionService from "./session/session-service";
+import { SessionRepository } from "./session/types";
 import InMemoryUserRepositoryFactory from "./user/in-memory-user-repository";
+import { UserRepository } from "./user/user-repository";
 
 export enum RouterType {
   "userRouter",
@@ -48,34 +51,37 @@ const resolveRouters = ({
       : new InMemoryGameRepository();
   const gameService = new GameService(
     gameRepository,
-    (...args) => new Game(...args)
+    (...args) => new Game(...args),
   );
   const sessionRepository =
     env !== "production"
       ? new InMemorySessionRepository()
       : new InMemorySessionRepository();
-  const sessionService = new SessionService(sessionRepository, gameService);
+  const sessionService = new SessionService(
+    sessionRepository as SessionRepository,
+    gameService,
+  );
 
-  const userService = new UserService(userRepository);
+  const userService = new UserService(userRepository as UserRepository);
   const inviteService = new InviteService(
     userService,
-    inviteRepository,
+    inviteRepository as InviteRepository,
     createInviteEventPublishers(publishInternalEvent),
-    sessionService
+    sessionService,
   );
   return {
     [RouterType.userRouter]: userRouterFactory(
       userService,
       keys,
-      serverSideWebSocketPath
+      serverSideWebSocketPath,
     ),
     [RouterType.inviteRouter]: inviteRouterFactory(
       inviteService,
-      sessionService
+      sessionService,
     ),
     [RouterType.sessionRouter]: sessionRouterFactory(
       sessionService,
-      userService
+      userService,
     ),
   };
 };

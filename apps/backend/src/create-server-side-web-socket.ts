@@ -16,7 +16,7 @@ export type ExpressWithPortAndSocket = Express & {
 
 export const createSocketServer = (
   app: ExpressWithPortAndSocket,
-  { path, privateKey }: ServerSideWebSocketOptions
+  { path = "/notification", privateKey }: ServerSideWebSocketOptions,
 ) => {
   const httpServer = http.createServer(app).listen().unref();
 

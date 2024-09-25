@@ -13,8 +13,8 @@ export default class GameService implements GameServiceInterface {
   #gameFactory: GameFactory;
 
   constructor(
-    gameRepository: InMemoryGameRepository,
-    gameFactory: (...args: ConstructorParameters<typeof Game>) => Game
+    gameRepository: InMemoryGameRepository = new InMemoryGameRepository(),
+    gameFactory: (...args: ConstructorParameters<typeof Game>) => Game,
   ) {
     this.#gameRepository = gameRepository;
     this.#gameFactory = gameFactory;
@@ -23,7 +23,7 @@ export default class GameService implements GameServiceInterface {
   async createGame() {
     const game = this.#gameFactory();
     const { uuid: gameUuid } = await this.#gameRepository.saveGame(
-      game.getDetails()
+      game.getDetails(),
     );
     return gameUuid;
   }

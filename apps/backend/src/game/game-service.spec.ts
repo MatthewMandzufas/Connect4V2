@@ -2,7 +2,7 @@ import _toAsciiTable from "@/util/to-ascii-table";
 import Game from "./game";
 import GameService from "./game-service";
 import InMemoryGameRepository from "./in-memory-game-repository";
-import { BoardCell } from "./types.d";
+import { Board, BoardCell } from "./types.d";
 
 const toAsciiTable = (board: Array<Array<BoardCell>>): string =>
   _toAsciiTable<BoardCell>(board, (value): string => {
@@ -22,7 +22,7 @@ describe("game-service", () => {
     const gameRepository = new InMemoryGameRepository();
     gameService = new GameService(
       gameRepository,
-      (...args: ConstructorParameters<typeof Game>) => new Game(...args)
+      (...args: ConstructorParameters<typeof Game>) => new Game(...args),
     );
   });
   describe("creating a game service", () => {
@@ -32,7 +32,7 @@ describe("game-service", () => {
           const gameRepository = new InMemoryGameRepository();
           const gameService = new GameService(
             gameRepository,
-            (...args: ConstructorParameters<typeof Game>) => new Game(...args)
+            (...args: ConstructorParameters<typeof Game>) => new Game(...args),
           );
           expect(gameService).toBeInstanceOf(GameService);
         });
@@ -66,7 +66,7 @@ describe("game-service", () => {
             },
             status: "IN_PROGRESS",
             uuid: expect.toBeUUID(),
-          })
+          }),
         );
       });
     });
@@ -84,10 +84,11 @@ describe("game-service", () => {
                 row: 0,
                 column: 0,
               },
-            })
+            }),
           ).resolves.toEqual({ moveSuccessful: true });
           const gameDetails = await gameService.getGameDetails(gameUuid);
-          expect(toAsciiTable(gameDetails.board)).toMatchInlineSnapshot(`
+          expect(toAsciiTable(gameDetails.board as Board))
+            .toMatchInlineSnapshot(`
 "
 |---|--|--|--|--|--|--|
 | 1 |  |  |  |  |  |  |

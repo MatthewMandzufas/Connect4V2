@@ -1,9 +1,7 @@
-import resolveRouters, { RouterType } from "@/resolve-routers";
-import { KeyPairSet } from "@/user/user-router.d";
-import validateUserSignupRequest from "@/user/validate-user-signup-request";
 import express, { RequestHandler } from "express";
 import { jwtDecrypt, KeyLike } from "jose";
 import { Subject } from "rxjs";
+import { Server } from "socket.io";
 import {
   createSocketServer,
   ExpressWithPortAndSocket,
@@ -13,11 +11,14 @@ import createInviteEventListener, {
   InviteCreatedEvent,
 } from "./invite/create-invite-event-listener";
 import createDispatchNotification from "./notification/create-dispatch-notification";
+import resolveRouters, { RouterType } from "./resolve-routers";
+import { KeyPairSet } from "./user/user-router.d";
+import validateUserSignupRequest from "./user/validate-user-signup-request";
 
 type AppFactoryParameters = {
   stage: Stage;
   keys: KeyPairSet;
-  publishInternalEvent?: InternalEventPublisher<unknown, unknown>;
+  publishInternalEvent: InternalEventPublisher<any, any>;
   internalEventSubscriber?: Subject<InviteCreatedEvent>;
 };
 
@@ -61,12 +62,12 @@ export const appFactory = (
 
   createSocketServer(app, {
     path: "/notification",
-    privateKey: keys.jwtKeyPair.privateKey,
+    privateKey: keys.jwtKeyPair?.privateKey as KeyLike,
   });
 
   createInviteEventListener(
     internalEventSubscriber,
-    createDispatchNotification(app.server),
+    createDispatchNotification(app?.server as Server),
   );
 
   const routers = resolveRouters({
@@ -77,7 +78,9 @@ export const appFactory = (
   });
 
   app.use(express.json());
-  app.use(createAuthenticationMiddleware(keys.jwtKeyPair.privateKey));
+  app.use(
+    createAuthenticationMiddleware(keys.jwtKeyPair?.privateKey as KeyLike),
+  );
   app.use("/user", validateUserSignupRequest, routers[RouterType.userRouter]);
   app.use("/invite", routers[RouterType.inviteRouter]);
   app.use("/session", routers[RouterType.sessionRouter]);

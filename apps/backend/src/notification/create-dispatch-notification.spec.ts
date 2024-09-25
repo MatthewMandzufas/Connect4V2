@@ -1,17 +1,19 @@
 import { ExpressWithPortAndSocket } from "@/create-server-side-web-socket";
-import http from "http";
+import { InviteDetails } from "@/invite/invite-service.d";
 import { generateKeyPair } from "jose";
 import { last, pipe, split } from "ramda";
+import { Server } from "socket.io";
 import { io as ioc, Socket } from "socket.io-client";
 import { appFactory } from "../app";
 import TestFixture from "../test-fixture";
-import createDispatchNotification from "./create-dispatch-notification";
+import createDispatchNotification, {
+  NotificationDetails,
+} from "./create-dispatch-notification";
 
-let httpServer: http.Server;
 let app: ExpressWithPortAndSocket;
 let testFixture: TestFixture;
 let resolvePromiseWhenUserJoinsRoom = (value: unknown) => {};
-let dispatchNotification;
+let dispatchNotification: (notification: NotificationDetails) => Promise<void>;
 
 beforeEach(async () => {
   const jwtKeyPair = await generateKeyPair("RS256");
@@ -22,7 +24,7 @@ beforeEach(async () => {
     publishInternalEvent: (payload) => Promise.resolve(),
   });
 
-  dispatchNotification = createDispatchNotification(app.server);
+  dispatchNotification = createDispatchNotification(app.server as Server);
   testFixture = new TestFixture(app);
 });
 describe(`create-dispatch-notification`, () => {
@@ -120,7 +122,7 @@ describe(`create-dispatch-notification`, () => {
           });
 
           recipientSocket.connect();
-          const messages = [];
+          const messages: Array<InviteDetails> = [];
           let messagesReceived = 0;
           recipientSocket
             .on("example_event", (details) => {
@@ -266,8 +268,8 @@ describe(`create-dispatch-notification`, () => {
         it(`each user receives a message`, async () => {
           let resolveFirstUserEventPromise: (value: unknown) => void;
           let resolveSecondUserEventPromise: (value: unknown) => void;
-          let resolveSecondWhenUserJoins;
-          let resolveFirstWhenUserJoins;
+          let resolveSecondWhenUserJoins: (value: unknown) => void;
+          let resolveFirstWhenUserJoins: (value: unknown) => void;
 
           const firstUserConnectionPromise = new Promise((resolve) => {
             resolveFirstWhenUserJoins = resolve;
@@ -322,7 +324,7 @@ describe(`create-dispatch-notification`, () => {
               resolveFirstUserEventPromise(details);
             })
             .on("connection_established", () => {
-              resolveFirstWhenUserJoins();
+              resolveFirstWhenUserJoins("");
             });
           await firstUserConnectionPromise;
 
@@ -331,7 +333,7 @@ describe(`create-dispatch-notification`, () => {
               resolveSecondUserEventPromise(details);
             })
             .on("connection_established", () => {
-              resolveSecondWhenUserJoins();
+              resolveSecondWhenUserJoins("");
             });
           await secondUserConnectionPromise;
 
