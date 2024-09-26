@@ -1,28 +1,9 @@
-// {
-//   "compilerOptions": {
-//     // "module": "ESNext",
-//     "module": "CommonJS",
-//     "types": ["jest"],
-//     "esModuleInterop": true,
-//     // "target": "ES2022",
-//     "target": "ESNext",
-//     "moduleResolution": "Node",
-//     "outDir": "dist",
-//     "isolatedModules": true,
-//     "baseUrl": "./",
-//     "paths": {
-//       "@*": ["./src/*"]
-//     }
-//   },
-//   // "lib": ["es2015"],
-//   "include": ["src", "src/**/*", "src/global.d.ts", "src/jest.d.ts"]
-// }
-
 {
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@*": ["./src/*"]
     },
     "outDir": "./dist",
     "module": "CommonJS",
@@ -32,5 +13,5 @@
     "lib": ["ES2022"]
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "dist"]
 }

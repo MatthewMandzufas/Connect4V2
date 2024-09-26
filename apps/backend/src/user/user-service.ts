@@ -1,4 +1,4 @@
-import argon2, { hash } from "argon2";
+import argon2, { hash } from "@node-rs/argon2";
 import { isEmpty } from "ramda";
 import {
   AuthenticationFailedError,

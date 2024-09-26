@@ -1,6 +1,7 @@
 import InMemoryUserRepository from "@/user/in-memory-user-repository";
 import UserService from "@/user/user-service";
-import argon2 from "argon2";
+import argon2 from "@node-rs/argon2";
+
 import {
   AuthenticationFailedError,
   NoSuchUserError,
@@ -26,7 +27,7 @@ describe("user-service", () => {
             lastName: "Doe",
             email: "john.doe@foo.com",
             uuid: expect.toBeUUID(),
-          })
+          }),
         );
       });
     });
@@ -36,7 +37,7 @@ describe("user-service", () => {
         const userService = new UserService(userRepository);
         await userService.create(user1Details);
         expect(userService.create(user1Details)).rejects.toThrow(
-          new UserAlreadyExistsError("A user with that email already exists")
+          new UserAlreadyExistsError("A user with that email already exists"),
         );
       });
     });
@@ -52,10 +53,10 @@ describe("user-service", () => {
         };
         await userService.create(userDetails);
         const [{ password: hashedPassword }] = await userRepository.findByEmail(
-          userDetails.email
+          userDetails.email,
         );
         expect(
-          await argon2.verify(hashedPassword, userDetails.password)
+          await argon2.verify(hashedPassword, userDetails.password),
         ).toBeTruthy();
       });
     });
@@ -79,7 +80,7 @@ describe("user-service", () => {
             password: "wrongpasswordlmao",
           };
           expect(userService.authenticate(userCredentials)).rejects.toThrow(
-            new AuthenticationFailedError("Authentication failed")
+            new AuthenticationFailedError("Authentication failed"),
           );
         });
       });
@@ -99,7 +100,7 @@ describe("user-service", () => {
             password: "dhfgkjhsdfkljghlksdfhg",
           };
           await expect(
-            userService.authenticate(userCredentials)
+            userService.authenticate(userCredentials),
           ).resolves.toEqual({
             message: "Authentication succeeded",
           });
@@ -116,7 +117,7 @@ describe("user-service", () => {
             password: "lidfhglksdhfglkjhsdlkfjhgkl",
           };
           expect(userService.authenticate(userCredentials)).rejects.toThrow(
-            new AuthenticationFailedError("Authentication failed")
+            new AuthenticationFailedError("Authentication failed"),
           );
         });
       });
@@ -131,7 +132,7 @@ describe("user-service", () => {
         const userEmail = "Tim.Kelley@email.com";
 
         expect(userService.getUserDetails(userEmail)).rejects.toThrow(
-          new NoSuchUserError("User does not exist")
+          new NoSuchUserError("User does not exist"),
         );
       });
     });
@@ -149,7 +150,7 @@ describe("user-service", () => {
         await userService.create(userSignupDetails);
 
         await expect(
-          userService.getUserDetails(userSignupDetails.email)
+          userService.getUserDetails(userSignupDetails.email),
         ).resolves.toEqual({
           firstName: "Patrick",
           lastName: "Lipinski",
@@ -192,7 +193,7 @@ describe("user-service", () => {
         };
         await userService.create(userSignupDetails);
         await expect(
-          userService.getDoesUserExist("Jeff.Bezos@email.com")
+          userService.getDoesUserExist("Jeff.Bezos@email.com"),
         ).resolves.toBe(true);
       });
     });

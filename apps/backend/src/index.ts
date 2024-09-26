@@ -6,6 +6,7 @@ import resolvePublishInternalEvent from "./resolve-publish-internal-event";
 
 async function main() {
   const subject = new Subject<InviteCreatedEvent>();
+  console.log("process.env.JWT_PUBLIC_KEY", process.env.JWT_PUBLIC_KEY);
   const app = appFactory({
     keys: {
       jwtKeyPair: {
@@ -26,9 +27,9 @@ async function main() {
     internalEventSubscriber: subject,
   });
 
-  app.listen(process.env.PORT, () => {
-    console.log(`Listening on port: ${process.env.PORT}`);
-  });
+  // app.listen(process.env.PORT, () => {
+  //   console.log(`Listening on port: ${process.env.PORT}`);
+  // });
 }
 
 main().catch((error) => console.error("Error starting: ", error));
