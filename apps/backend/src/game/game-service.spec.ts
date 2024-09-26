@@ -2,7 +2,6 @@ import _toAsciiTable from "@/util/to-ascii-table";
 import Game from "./game";
 import GameService from "./game-service";
 import InMemoryGameRepository from "./in-memory-game-repository";
-import { Board, BoardCell } from "./types.d";
 
 const toAsciiTable = (board: Array<Array<BoardCell>>): string =>
   _toAsciiTable<BoardCell>(board, (value): string => {
@@ -22,7 +21,7 @@ describe("game-service", () => {
     const gameRepository = new InMemoryGameRepository();
     gameService = new GameService(
       gameRepository,
-      (...args: ConstructorParameters<typeof Game>) => new Game(...args),
+      (...args) => new Game(...args),
     );
   });
   describe("creating a game service", () => {

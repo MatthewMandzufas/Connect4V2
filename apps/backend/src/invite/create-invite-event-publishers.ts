@@ -1,12 +1,8 @@
-import {
-  InviteDetails,
-  InviteEvents,
-  InviteServiceEventPublishers,
-} from "@/invite/invite-service.d";
 import { InviteCreatedEvent } from "./create-invite-event-listener";
+import { InviteEvents } from "./invite-service";
 
 const createInviteEventPublishers = (
-  eventPublisher: (eventDetails: InviteCreatedEvent) => Promise<unknown>
+  eventPublisher: (eventDetails: InviteCreatedEvent) => Promise<unknown>,
 ): InviteServiceEventPublishers => {
   return {
     [InviteEvents.INVITATION_CREATED]: (inviteDetails: InviteDetails) =>

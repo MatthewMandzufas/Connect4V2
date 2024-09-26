@@ -1,6 +1,6 @@
 import { NotificationDetails } from "@/notification/create-dispatch-notification";
 import { Subject } from "rxjs";
-import { InviteDetails, InviteEvents } from "./invite-service.d";
+import { InviteEvents } from "./invite-service";
 
 export type InviteCreatedEvent = {
   type: InviteEvents.INVITATION_CREATED;
@@ -9,7 +9,7 @@ export type InviteCreatedEvent = {
 
 const createInviteEventListener = <T extends InviteCreatedEvent>(
   subscription: Subject<T>,
-  notificationFn: (notification: NotificationDetails) => Promise<void>
+  notificationFn: (notification: NotificationDetails) => Promise<void>,
 ) => {
   subscription.subscribe({
     next: (inviteEvent: InviteCreatedEvent) => {

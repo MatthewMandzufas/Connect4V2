@@ -2,7 +2,7 @@ import { Subject } from "rxjs";
 import createInviteEventListener, {
   InviteCreatedEvent,
 } from "./create-invite-event-listener";
-import { InviteEvents, InviteStatus } from "./invite-service.d";
+import { InviteEvents, InviteStatus } from "./invite-service";
 
 describe(`create-invite-event-listener`, () => {
   describe(`given an event subscription`, () => {

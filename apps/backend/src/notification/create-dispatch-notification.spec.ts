@@ -1,5 +1,4 @@
 import { ExpressWithPortAndSocket } from "@/create-server-side-web-socket";
-import { InviteDetails } from "@/invite/invite-service.d";
 import { generateKeyPair } from "jose";
 import { last, pipe, split } from "ramda";
 import { Server } from "socket.io";

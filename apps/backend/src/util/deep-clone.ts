@@ -1,8 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-function deepClone<T>(
+export default function deepClone<T>(
   value: T,
-  visited: WeakMap<any, any> = new WeakMap<any, any>()
+  visited: WeakMap<any, any> = new WeakMap<any, any>(),
 ): T {
   if (!(value instanceof Object) || typeof value === "function") {
     return value;
@@ -27,5 +25,3 @@ function deepClone<T>(
 
   return result;
 }
-
-export default deepClone;

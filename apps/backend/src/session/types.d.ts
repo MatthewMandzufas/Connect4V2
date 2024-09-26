@@ -1,19 +1,17 @@
-import { PlayerMoveResult } from "@/game/types.d";
-
 type Uuid = `${string}-${string}-${string}-${string}-${string}`;
 
-export type SessionCreationDetails = {
+type SessionCreationDetails = {
   inviterUuid: Uuid;
   inviteeUuid: Uuid;
 };
 
-export type GameMetaData = {
+type GameMetaData = {
   gameUuid: Uuid;
   playerOneUuid: Uuid;
   playerTwoUuid: Uuid;
 };
 
-export type SessionDetails = {
+type SessionDetails = {
   uuid: Uuid;
   invitee: {
     uuid: Uuid;
@@ -21,12 +19,12 @@ export type SessionDetails = {
   inviter: {
     uuid: Uuid;
   };
-  status: SessionStatus;
+  status: "IN_PROGRESS";
   games: Array<GameMetaData>;
   activeGameUuid?: Uuid;
 };
 
-export type MoveDetails = {
+type MoveDetails = {
   sessionUuid: Uuid;
   playerUuid: Uuid;
   targetCell: {
@@ -35,13 +33,9 @@ export type MoveDetails = {
   };
 };
 
-export enum SessionStatus {
-  IN_PROGRESS = "IN_PROGRESS",
-}
-
-export interface SessionInterface {
+interface SessionInterface {
   createSession: (
-    sessionDetails: SessionCreationDetails
+    sessionDetails: SessionCreationDetails,
   ) => Promise<SessionDetails>;
   getSession: (sessionId: Uuid) => Promise<SessionDetails>;
   getGameMetaData: (sessionUuid: Uuid) => Promise<Array<GameMetaData>>;
@@ -49,24 +43,22 @@ export interface SessionInterface {
   addNewGame: (
     sessionUuid: Uuid,
     playerOneUuid: Uuid,
-    playerTwoUuid: Uuid
+    playerTwoUuid: Uuid,
   ) => Promise<Uuid>;
   submitMove: (moveDetails: MoveDetails) => Promise<PlayerMoveResult>;
   getActivePlayer: (sessionUuid: Uuid) => Promise<Uuid>;
 }
 
-export interface SessionRepository {
+interface SessionRepository {
   create: (
-    sessionCreationDetails: SessionCreationDetails
+    sessionCreationDetails: SessionCreationDetails,
   ) => Promise<SessionDetails>;
   getSession: (sessionUuid: Uuid) => Promise<SessionDetails>;
   addGame: (
     sessionUuid: Uuid,
     gameUuid: Uuid,
     playerOneUuid: Uuid,
-    playerTwoUuid: Uuid
+    playerTwoUuid: Uuid,
   ) => Promise<SessionDetails>;
   setActiveGame: (sessionUuid: Uuid, gameUuid: Uuid) => Promise<SessionDetails>;
 }
-
-export class ActiveGameInProgressError extends Error {}

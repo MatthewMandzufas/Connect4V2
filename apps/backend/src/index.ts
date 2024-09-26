@@ -1,7 +1,6 @@
 import { importJWK, KeyLike } from "jose";
 import { Subject } from "rxjs";
 import { appFactory } from "./app";
-import { InternalEventPublisher, Stage } from "./global";
 import { InviteCreatedEvent } from "./invite/create-invite-event-listener";
 import resolvePublishInternalEvent from "./resolve-publish-internal-event";
 

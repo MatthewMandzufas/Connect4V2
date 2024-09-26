@@ -1,5 +1,4 @@
 import { appFactory } from "@/app";
-import { InternalEventPublisher } from "@/global";
 import TestFixture from "@/test-fixture";
 import { Express } from "express";
 import { generateKeyPair } from "jose";
@@ -7,8 +6,7 @@ import { last, pipe, split } from "ramda";
 import { Subject } from "rxjs";
 import { io as ioc, Socket } from "socket.io-client";
 import { InviteCreatedEvent } from "./create-invite-event-listener";
-import { InviteReceivedMessage } from "./invite-notification-integration";
-import { InviteStatus } from "./invite-service.d";
+import { InviteStatus } from "./invite-service";
 
 describe(`invite-notification-integration.ts`, () => {
   let app: Express;

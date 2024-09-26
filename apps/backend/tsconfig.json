@@ -28,7 +28,8 @@
     "module": "CommonJS",
     "target": "ES2022",
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "lib": ["ES2022"]
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules"]

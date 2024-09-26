@@ -1,5 +1,6 @@
-import validateUserSignupRequestBody from "@/user/validate-user-signup-request-body";
-import { UserSignupRequestBody } from "./user-router.d";
+import validateUserSignupRequestBody, {
+  UserSignupRequestBody,
+} from "@/user/validate-user-signup-request-body";
 
 describe("validate-user-signup-request-body", () => {
   describe("given a well-formatted user signup request body", () => {

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import deepClone from "./deep-clone";
 
 describe("deepClone", () => {

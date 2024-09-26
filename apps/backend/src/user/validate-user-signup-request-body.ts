@@ -1,5 +1,3 @@
-import { UserSignupRequestBody } from "@/user/user-router.d";
-import { ValidationResult } from "@/user/validation.d";
 import Joi, { ValidationErrorItem } from "joi";
 import { applySpec, join, map, path, pipe, prop } from "ramda";
 
@@ -9,6 +7,14 @@ const validSchema = Joi.object({
   email: Joi.string().email().required(),
   password: Joi.string().min(8).required(),
 });
+
+export type UserSignupRequestBody = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+};
+
 export default function validateUserSignupRequestBody(
   userSignUpRequestBody: UserSignupRequestBody,
 ): ValidationResult {

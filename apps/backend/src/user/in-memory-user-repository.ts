@@ -1,6 +1,3 @@
-import { Uuid } from "@/global";
-import { UserRepository } from "./user-repository";
-
 export type PersistedUser = {
   firstName: string;
   lastName: string;
@@ -31,7 +28,7 @@ export default class InMemoryUserRepositoryFactory implements UserRepository {
 
   async findByEmail(email: string) {
     return Promise.resolve(
-      Array.from(this.users.values()).filter((user) => user.email === email)
+      Array.from(this.users.values()).filter((user) => user.email === email),
     );
   }
 

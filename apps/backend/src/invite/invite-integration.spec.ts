@@ -4,7 +4,7 @@ import { Express } from "express";
 import halson from "halson";
 import { generateKeyPair, GenerateKeyPairResult, KeyLike } from "jose";
 import request from "supertest";
-import { InviteStatus } from "./invite-service.d";
+import { InviteStatus } from "./invite-service";
 
 describe("invite-integration", () => {
   let app: Express;

@@ -8,12 +8,7 @@ import UserService from "@/user/user-service";
 import createInviteEventPublishers from "./create-invite-event-publishers";
 import { InvalidInvitationError } from "./errors";
 import InMemoryInviteRepository from "./in-memory-invite-repository";
-import InviteService from "./invite-service";
-import {
-  InviteEvents,
-  InviteServiceEventHandler,
-  InviteStatus,
-} from "./invite-service.d";
+import InviteService, { InviteEvents, InviteStatus } from "./invite-service";
 
 let inviteService: InviteService;
 

@@ -1,4 +1,3 @@
-import { Uuid } from "@/global";
 import UserService from "@/user/user-service";
 import Express, { RequestHandler } from "express";
 import halson from "halson";
@@ -14,12 +13,10 @@ const createGetSessionRequestHandler =
       inviter: { uuid: inviterUuid },
     } = await sessionService.getSession(req.params.sessionUuid as Uuid);
 
-    const { email: inviteeEmail } = await userService.getUserDetailsByUuid(
-      inviteeUuid
-    );
-    const { email: inviterEmail } = await userService.getUserDetailsByUuid(
-      inviterUuid
-    );
+    const { email: inviteeEmail } =
+      await userService.getUserDetailsByUuid(inviteeUuid);
+    const { email: inviterEmail } =
+      await userService.getUserDetailsByUuid(inviterUuid);
     res.status(200).json(
       halson({
         uuid,
@@ -37,17 +34,17 @@ const createGetSessionRequestHandler =
           href: `/session/${uuid}/leave`,
           // @ts-ignore
           method: "GET",
-        })
+        }),
     );
   };
 const sessionRouterFactory = (
   sessionService: SessionService,
-  userService: UserService
+  userService: UserService,
 ) => {
   const sessionRouter = Express.Router();
   sessionRouter.get(
     "/:sessionUuid",
-    createGetSessionRequestHandler(sessionService, userService)
+    createGetSessionRequestHandler(sessionService, userService),
   );
 
   return sessionRouter;

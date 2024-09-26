@@ -1,16 +1,22 @@
-import { KeyPairSet } from "@/user/user-router.d";
 import UserService from "@/user/user-service";
 import express, { RequestHandler } from "express";
 import { EncryptJWT, generateKeyPair, KeyLike } from "jose";
 import { omit } from "ramda";
 import { AuthenticationFailedError } from "./errors";
 
+type KeyPairSet = {
+  jwtKeyPair?: {
+    publicKey: KeyLike;
+    privateKey: KeyLike;
+  };
+};
+
 const userDetailsRequestHandlerFactory =
   (userService: UserService, jwtPrivateKey: KeyLike): RequestHandler =>
   async (req, res, next) => {
     if (res.locals.claims?.email) {
       const userDetails = await userService.getUserDetails(
-        res.locals.claims.email
+        res.locals.claims.email,
       );
       res.status(200).send(omit(["uuid"], userDetails));
     } else {
@@ -50,7 +56,7 @@ const loginRequestHandlerFactory =
   (
     userService: UserService,
     jwtPublicKey: KeyLike,
-    authority: string
+    authority: string,
   ): RequestHandler =>
   async (req, res, next) => {
     jwtPublicKey ??= (await generateKeyPair("RS256")).publicKey;
@@ -73,7 +79,7 @@ const loginRequestHandlerFactory =
           res
             .status(200)
             .setHeader("Authorization", `Bearer: ${jwtContent}`)
-            .send({ notification: { uri: `ws://${authority}/notification` } })
+            .send({ notification: { uri: `ws://${authority}/notification` } }),
         );
     } catch (err) {
       if (err instanceof AuthenticationFailedError)
@@ -86,12 +92,12 @@ const loginRequestHandlerFactory =
 const userRouterFactory = (
   userService: UserService,
   keys: KeyPairSet,
-  authority: string
+  authority: string,
 ) => {
   const userRouter = express.Router();
   userRouter.get(
     "/",
-    userDetailsRequestHandlerFactory(userService, keys.jwtKeyPair.privateKey)
+    userDetailsRequestHandlerFactory(userService, keys.jwtKeyPair.privateKey),
   );
   userRouter.post("/signup", signupRequestHandlerFactory(userService));
   userRouter.post(
@@ -99,8 +105,8 @@ const userRouterFactory = (
     loginRequestHandlerFactory(
       userService,
       keys.jwtKeyPair.publicKey,
-      authority
-    )
+      authority,
+    ),
   );
   return userRouter;
 };

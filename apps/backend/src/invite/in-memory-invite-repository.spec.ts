@@ -1,6 +1,5 @@
 import InMemoryInviteRepository from "@/invite/in-memory-invite-repository";
-import { InviteCreationDetails } from "./invite-repository";
-import { InviteStatus } from "./invite-service.d";
+import { InviteStatus } from "./invite-service";
 
 describe("in-memory-invite-repository", () => {
   describe("given the details of an invite", () => {
@@ -13,9 +12,8 @@ describe("in-memory-invite-repository", () => {
       } satisfies InviteCreationDetails;
 
       const inMemoryInviteRepository = new InMemoryInviteRepository();
-      const createdInvite = await inMemoryInviteRepository.create(
-        inviteDetails
-      );
+      const createdInvite =
+        await inMemoryInviteRepository.create(inviteDetails);
 
       expect(createdInvite).toEqual({
         inviter: "player1@email.com",
@@ -38,7 +36,7 @@ describe("in-memory-invite-repository", () => {
       const inMemoryInviteRepository = new InMemoryInviteRepository();
       await inMemoryInviteRepository.create(inviteDetails);
       await expect(
-        inMemoryInviteRepository.loadInviteeInvites("player2@email.com")
+        inMemoryInviteRepository.loadInviteeInvites("player2@email.com"),
       ).resolves.toEqual([
         {
           inviter: "player1@email.com",
@@ -62,11 +60,10 @@ describe("in-memory-invite-repository", () => {
         } satisfies InviteCreationDetails;
 
         const inMemoryInviteRepository = new InMemoryInviteRepository();
-        const createdInvite = await inMemoryInviteRepository.create(
-          inviteDetails
-        );
+        const createdInvite =
+          await inMemoryInviteRepository.create(inviteDetails);
         await expect(
-          inMemoryInviteRepository.getInviteDetails(createdInvite.uuid)
+          inMemoryInviteRepository.getInviteDetails(createdInvite.uuid),
         ).resolves.toEqual({
           inviter: "player1@email.com",
           invitee: "player2@email.com",
@@ -88,12 +85,11 @@ describe("in-memory-invite-repository", () => {
         } satisfies InviteCreationDetails;
 
         const inMemoryInviteRepository = new InMemoryInviteRepository();
-        const createdInvite = await inMemoryInviteRepository.create(
-          inviteDetails
-        );
+        const createdInvite =
+          await inMemoryInviteRepository.create(inviteDetails);
 
         expect(
-          await inMemoryInviteRepository.deleteInvite(createdInvite.uuid)
+          await inMemoryInviteRepository.deleteInvite(createdInvite.uuid),
         ).toEqual({ isSuccess: true });
       });
       // TODO: Should we just mark invite as accepted rather than delete it?
@@ -110,12 +106,11 @@ describe("in-memory-invite-repository", () => {
         } satisfies InviteCreationDetails;
 
         const inMemoryInviteRepository = new InMemoryInviteRepository();
-        const createdInvite = await inMemoryInviteRepository.create(
-          inviteDetails
-        );
+        const createdInvite =
+          await inMemoryInviteRepository.create(inviteDetails);
 
         expect(
-          await inMemoryInviteRepository.acceptInvite(createdInvite.uuid)
+          await inMemoryInviteRepository.acceptInvite(createdInvite.uuid),
         ).toEqual({
           inviter: "player1@email.com",
           invitee: "player2@email.com",
@@ -125,7 +120,7 @@ describe("in-memory-invite-repository", () => {
         });
 
         expect(
-          await inMemoryInviteRepository.getInviteDetails(createdInvite.uuid)
+          await inMemoryInviteRepository.getInviteDetails(createdInvite.uuid),
         ).toEqual({
           inviter: "player1@email.com",
           invitee: "player2@email.com",

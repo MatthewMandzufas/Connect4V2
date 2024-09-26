@@ -1,25 +1,19 @@
 import deepClone from "@/util/deep-clone";
 import getIsWinningMove from "./get-is-winning-move";
-import {
-  Board,
-  BoardDimensions,
-  GameDetails,
-  GameInterface,
-  GameStatus,
-  PlayerColorsType,
-  PlayerMoveDetails,
-  PlayerMoveResult,
-  PlayerNumber,
-  PlayerStats,
-  ValidationResult,
-  ValidCellOnBoard,
-} from "./types.d";
+
 const DEFAULT_BOARD_DIMENSIONS: BoardDimensions = {
   rows: 6,
   columns: 7,
 };
 
-export default class Game implements GameInterface {
+export enum GameStatus {
+  IN_PROGRESS = "IN_PROGRESS",
+  PLAYER_ONE_WIN = "PLAYER_ONE_WIN",
+  PLAYER_TWO_WIN = "PLAYER_TWO_WIN",
+  DRAW = "DRAW",
+}
+
+class Game implements GameInterface {
   #board: Board;
   #activePlayer: 1 | 2;
   #status: GameStatus;
@@ -61,9 +55,10 @@ export default class Game implements GameInterface {
           discsLeft: 21,
         },
       },
-    }
+    },
   ) {
-    (this.#board = board), (this.#boardDimensions = boardDimensions);
+    this.#board = board;
+    this.#boardDimensions = this.#boardDimensions;
     this.#activePlayer = activePlayer;
     this.#status = status;
     this.#players = players;
@@ -92,7 +87,7 @@ export default class Game implements GameInterface {
     const board = new Array(boardDimensions.rows).fill(undefined).map(() =>
       new Array(boardDimensions.columns).fill(undefined).map(() => {
         return { occupyingPlayer: undefined };
-      })
+      }),
     );
     return board;
   }
@@ -130,7 +125,7 @@ export default class Game implements GameInterface {
   }
 
   #createValidatedMove(
-    moveFunction: (playerMoveDetails: PlayerMoveDetails) => PlayerMoveResult
+    moveFunction: (playerMoveDetails: PlayerMoveDetails) => PlayerMoveResult,
   ): (playerMoveDetails: PlayerMoveDetails) => PlayerMoveResult {
     return (playerMoveDetails): PlayerMoveResult => {
       const { isValid, message } = this.#validateMove(playerMoveDetails);
@@ -144,7 +139,7 @@ export default class Game implements GameInterface {
   #validateMove({
     player,
     targetCell: { row, column },
-  }: PlayerMoveDetails): ValidationResult {
+  }: PlayerMoveDetails): MoveValidationResult {
     if (this.#status === "PLAYER_ONE_WIN") {
       return {
         isValid: false,
@@ -233,3 +228,5 @@ export default class Game implements GameInterface {
     return this.#board[row][column].occupyingPlayer !== undefined;
   }
 }
+
+export default Game;

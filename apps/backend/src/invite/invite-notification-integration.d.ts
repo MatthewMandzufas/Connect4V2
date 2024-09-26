@@ -1,6 +1,4 @@
-import { InviteStatus } from "./invite-service.d";
-
-export type InviteReceivedMessage = {
+type InviteReceivedMessage = {
   inviter: string;
   invitee: string;
   exp: number;

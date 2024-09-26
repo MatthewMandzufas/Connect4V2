@@ -1,6 +1,3 @@
-import { Uuid } from "@/global";
-import { InviteStatus } from "./invite-service.d";
-
 type InviteCreationDetails = {
   inviter: string;
   invitee: string;
@@ -13,9 +10,9 @@ type PersistedInvite = InviteCreationDetails & {
   uuid: Uuid;
 };
 
-export interface InviteRepository {
+interface InviteRepository {
   create: (
-    inviteCreationDetails: InviteCreationDetails
+    inviteCreationDetails: InviteCreationDetails,
   ) => Promise<PersistedInvite>;
   loadInviteeInvites: (userEmail: string) => Promise<Array<PersistedInvite>>;
   getInviteDetails: (inviteUuid: Uuid) => Promise<PersistedInvite>;

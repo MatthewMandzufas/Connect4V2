@@ -1,7 +1,11 @@
 import { generateKeyPair } from "jose";
 import { appFactory } from "./app";
-import { InviteStatus } from "./invite/invite-service.d";
 import TestFixture from "./test-fixture";
+
+enum InviteStatus {
+  PENDING = "PENDING",
+  ACCEPTED = "ACCEPTED",
+}
 
 describe(`test-fixture.js`, () => {
   describe(`Given no parameters`, () => {

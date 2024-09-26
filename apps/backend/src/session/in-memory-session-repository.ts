@@ -1,10 +1,4 @@
-import { Uuid } from "@/global";
-import {
-  SessionCreationDetails,
-  SessionDetails,
-  SessionRepository,
-  SessionStatus,
-} from "./types.d";
+import { SessionStatus } from "./session-service";
 
 export default class InMemorySessionRepository implements SessionRepository {
   #sessions: Map<Uuid, SessionDetails>;

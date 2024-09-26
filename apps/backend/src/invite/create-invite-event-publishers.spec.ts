@@ -1,5 +1,5 @@
 import createInviteEventPublishers from "./create-invite-event-publishers";
-import { InviteEvents } from "./invite-service.d";
+import { InviteEvents } from "./invite-service";
 
 describe("create-invite-event-handler", () => {
   describe("given an event publisher", () => {

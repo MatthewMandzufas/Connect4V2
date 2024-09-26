@@ -1,10 +1,4 @@
-import { Uuid } from "@/global";
-import {
-  InviteCreationDetails,
-  InviteRepository,
-  PersistedInvite,
-} from "./invite-repository";
-import { InviteStatus } from "./invite-service.d";
+import { InviteStatus } from "./invite-service";
 
 export default class InMemoryInviteRepository implements InviteRepository {
   private invites: Map<string, PersistedInvite>;
@@ -33,7 +27,7 @@ export default class InMemoryInviteRepository implements InviteRepository {
 
   async loadInviteeInvites(inviteeEmail: string) {
     return Array.from(this.invites.values()).filter(
-      (invite) => invite.invitee === inviteeEmail
+      (invite) => invite.invitee === inviteeEmail,
     );
   }
 

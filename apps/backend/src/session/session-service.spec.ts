@@ -1,11 +1,11 @@
 import Game from "@/game/game";
 import GameService from "@/game/game-service";
 import InMemoryGameRepository from "@/game/in-memory-game-repository";
-import { Uuid } from "@/global";
 import { NoSuchSessionError } from "./errors";
 import InMemorySessionRepository from "./in-memory-session-repository";
-import SessionService from "./session-service";
-import { ActiveGameInProgressError, SessionStatus } from "./types.d";
+import SessionService, { SessionStatus } from "./session-service";
+
+class ActiveGameInProgressError extends Error {}
 
 describe("session-service", () => {
   let sessionRepository: InMemorySessionRepository;
@@ -15,7 +15,7 @@ describe("session-service", () => {
     const gameRepository = new InMemoryGameRepository();
     const gameService = new GameService(
       gameRepository,
-      (...args: ConstructorParameters<typeof Game>) => new Game(...args)
+      (...args: ConstructorParameters<typeof Game>) => new Game(...args),
     );
     sessionService = new SessionService(sessionRepository, gameService);
   });
@@ -44,7 +44,7 @@ describe("session-service", () => {
               uuid: "53d13d08-6d6f-4d62-8753-52a91cc7b52e",
             }),
             status: "IN_PROGRESS",
-          })
+          }),
         );
       });
     });
@@ -69,7 +69,7 @@ describe("session-service", () => {
                 uuid: "900821b2-fcec-414a-b1a6-02abbad7d35f",
               },
               status: SessionStatus.IN_PROGRESS,
-            })
+            }),
           );
         });
       });
@@ -78,7 +78,7 @@ describe("session-service", () => {
       it("throws a 'no such session' error", () => {
         const sessionUuid = "fakeNews" as Uuid;
         expect(sessionService.getSession(sessionUuid)).rejects.toThrow(
-          new NoSuchSessionError()
+          new NoSuchSessionError(),
         );
       });
     });
@@ -93,21 +93,20 @@ describe("session-service", () => {
           });
 
           expect(sessionService.getGameMetaData(sessionUuid)).resolves.toEqual(
-            []
+            [],
           );
           expect(
-            sessionService.getActiveGameUuid(sessionUuid)
+            sessionService.getActiveGameUuid(sessionUuid),
           ).resolves.toBeUndefined();
           expect(
             await sessionService.addNewGame(
               sessionUuid,
               "70b9b52d-b993-4108-8719-8490878a3e35",
-              "e5fef403-214c-46de-89be-655b90b9a79f"
-            )
+              "e5fef403-214c-46de-89be-655b90b9a79f",
+            ),
           ).toBeUUID();
-          const activeGameId = await sessionService.getActiveGameUuid(
-            sessionUuid
-          );
+          const activeGameId =
+            await sessionService.getActiveGameUuid(sessionUuid);
           expect(activeGameId).toBeUUID();
           expect(sessionService.getGameMetaData(sessionUuid)).resolves.toEqual([
             {
@@ -117,7 +116,7 @@ describe("session-service", () => {
             },
           ]);
           expect(await sessionService.getActivePlayer(sessionUuid)).toBe(
-            "70b9b52d-b993-4108-8719-8490878a3e35"
+            "70b9b52d-b993-4108-8719-8490878a3e35",
           );
         });
       });
@@ -131,19 +130,19 @@ describe("session-service", () => {
           await sessionService.addNewGame(
             sessionUuid,
             "335f8389-9ff7-4027-9b16-1040c5018106",
-            "637d72af-10c6-4421-a577-dd7a7d911075"
+            "637d72af-10c6-4421-a577-dd7a7d911075",
           );
 
           expect(
             sessionService.addNewGame(
               sessionUuid,
               "637d72af-10c6-4421-a577-dd7a7d911075",
-              "335f8389-9ff7-4027-9b16-1040c5018106"
-            )
+              "335f8389-9ff7-4027-9b16-1040c5018106",
+            ),
           ).rejects.toThrow(
             new ActiveGameInProgressError(
-              "You cannot add games whilst a game is in progress."
-            )
+              "You cannot add games whilst a game is in progress.",
+            ),
           );
         });
       });
@@ -162,7 +161,7 @@ describe("session-service", () => {
             await sessionService.addNewGame(
               sessionUuid,
               "73d67a64-9724-4a8a-9418-055a761e4df4",
-              "ca1747c8-fe35-4807-9508-b88c0f39a8ff"
+              "ca1747c8-fe35-4807-9508-b88c0f39a8ff",
             );
 
             const moveResult = await sessionService.submitMove({
@@ -175,7 +174,7 @@ describe("session-service", () => {
             });
             expect(moveResult).toEqual({ moveSuccessful: true });
             expect(await sessionService.getActivePlayer(sessionUuid)).toBe(
-              "ca1747c8-fe35-4807-9508-b88c0f39a8ff"
+              "ca1747c8-fe35-4807-9508-b88c0f39a8ff",
             );
           });
         });
@@ -189,7 +188,7 @@ describe("session-service", () => {
             await sessionService.addNewGame(
               sessionUuid,
               "5aff0192-5494-4488-84d5-387c6f499848",
-              "bb896844-1cf8-4c87-b055-e75eb90aff39"
+              "bb896844-1cf8-4c87-b055-e75eb90aff39",
             );
 
             const moveResult = await sessionService.submitMove({
@@ -205,7 +204,7 @@ describe("session-service", () => {
               message: "Player 2 cannot move as player 1 is currently active",
             });
             expect(await sessionService.getActivePlayer(sessionUuid)).toEqual(
-              "5aff0192-5494-4488-84d5-387c6f499848"
+              "5aff0192-5494-4488-84d5-387c6f499848",
             );
           });
         });

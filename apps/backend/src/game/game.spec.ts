@@ -1,6 +1,5 @@
 import _toAsciiTable from "@/util/to-ascii-table";
-import Game from "./game";
-import { BoardCell, GameDetails, GameStatus } from "./types.d";
+import Game, { GameStatus } from "./game";
 
 function toAsciiTable(board: Array<Array<BoardCell>>): string {
   const cellResolver = (cell: BoardCell) =>
@@ -89,7 +88,7 @@ describe("game", () => {
             },
           },
           status: "IN_PROGRESS",
-        })
+        }),
       );
     });
   });

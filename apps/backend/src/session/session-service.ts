@@ -1,14 +1,11 @@
 import GameService from "@/game/game-service";
-import { PlayerNumber } from "@/game/types.d";
 import { NoSuchSessionError } from "./errors";
-import {
-  ActiveGameInProgressError,
-  GameMetaData,
-  SessionCreationDetails,
-  SessionInterface,
-  SessionRepository,
-  Uuid,
-} from "./types.d";
+
+class ActiveGameInProgressError extends Error {}
+
+export enum SessionStatus {
+  IN_PROGRESS = "IN_PROGRESS",
+}
 
 export default class SessionService implements SessionInterface {
   #sessionRepository: SessionRepository;
@@ -45,7 +42,7 @@ export default class SessionService implements SessionInterface {
   async addNewGame(
     sessionUuid: Uuid,
     playerOneUuid: Uuid,
-    playerTwoUuid: Uuid
+    playerTwoUuid: Uuid,
   ) {
     if ((await this.getActiveGameUuid(sessionUuid)) === undefined) {
       const newGameUuid = await this.#gameService.createGame();
@@ -53,13 +50,13 @@ export default class SessionService implements SessionInterface {
         sessionUuid,
         newGameUuid,
         playerOneUuid,
-        playerTwoUuid
+        playerTwoUuid,
       );
       await this.#sessionRepository.setActiveGame(sessionUuid, newGameUuid);
       return newGameUuid;
     } else {
       throw new ActiveGameInProgressError(
-        "You cannot add games whilst a game is in progress."
+        "You cannot add games whilst a game is in progress.",
       );
     }
   }
@@ -78,7 +75,7 @@ export default class SessionService implements SessionInterface {
 
   async #mapPlayerNumberToPlayerUuid(
     playerNumber: PlayerNumber,
-    gameMetaData: GameMetaData
+    gameMetaData: GameMetaData,
   ) {
     return playerNumber === 1
       ? gameMetaData.playerOneUuid
@@ -91,7 +88,7 @@ export default class SessionService implements SessionInterface {
     const gameMetaData = await this.getGameMetaData(sessionUuid);
     return await this.#mapPlayerNumberToPlayerUuid(
       gameDetails.activePlayer,
-      gameMetaData.at(-1)
+      gameMetaData.at(-1),
     );
   }
 }

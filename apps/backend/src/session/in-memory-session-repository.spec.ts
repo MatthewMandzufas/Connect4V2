@@ -1,5 +1,4 @@
 import InMemorySessionRepository from "./in-memory-session-repository";
-import { SessionCreationDetails } from "./types.d";
 
 describe("in-memory-session-repository", () => {
   const inMemorySessionRepository = new InMemorySessionRepository();
@@ -10,9 +9,8 @@ describe("in-memory-session-repository", () => {
         inviteeUuid: "7d9bdeb5-a159-4b61-ad42-948d73ff5574",
       };
 
-      const createdSession = await inMemorySessionRepository.create(
-        sessionDetails
-      );
+      const createdSession =
+        await inMemorySessionRepository.create(sessionDetails);
       expect(createdSession).toEqual(
         expect.objectContaining({
           uuid: expect.toBeUUID(),
@@ -23,7 +21,7 @@ describe("in-memory-session-repository", () => {
             uuid: "7d9bdeb5-a159-4b61-ad42-948d73ff5574",
           }),
           status: "IN_PROGRESS",
-        })
+        }),
       );
     });
   });
@@ -34,14 +32,12 @@ describe("in-memory-session-repository", () => {
         inviteeUuid: "8d7bd04e-33ff-4b5a-bb37-12ee36e77a77",
       };
 
-      const returnedSession = await inMemorySessionRepository.create(
-        sessionDetails
-      );
+      const returnedSession =
+        await inMemorySessionRepository.create(sessionDetails);
 
       const sessionUuid = returnedSession.uuid;
-      const retrievedSession = await inMemorySessionRepository.getSession(
-        sessionUuid
-      );
+      const retrievedSession =
+        await inMemorySessionRepository.getSession(sessionUuid);
       expect(retrievedSession).toEqual(
         expect.objectContaining({
           uuid: sessionUuid,
@@ -52,7 +48,7 @@ describe("in-memory-session-repository", () => {
             uuid: "8d7bd04e-33ff-4b5a-bb37-12ee36e77a77",
           }),
           status: "IN_PROGRESS",
-        })
+        }),
       );
     });
   });
@@ -69,11 +65,10 @@ describe("in-memory-session-repository", () => {
             sessionUuid,
             gameUuid,
             "6f7923a8-8998-4625-bf1c-ddefe949e0e6",
-            "5de4084a-96e0-48b0-8307-7c80165e707b"
+            "5de4084a-96e0-48b0-8307-7c80165e707b",
           );
-          const sessionDetails = await inMemorySessionRepository.getSession(
-            sessionUuid
-          );
+          const sessionDetails =
+            await inMemorySessionRepository.getSession(sessionUuid);
           expect(sessionDetails.games).toEqual([
             {
               gameUuid,
@@ -91,9 +86,8 @@ describe("in-memory-session-repository", () => {
             inviterUuid: "5305e259-570c-4228-80dc-d3c8be07e3ce",
           });
           await inMemorySessionRepository.setActiveGame(sessionUuid, gameUuid);
-          const sessionDetails = await inMemorySessionRepository.getSession(
-            sessionUuid
-          );
+          const sessionDetails =
+            await inMemorySessionRepository.getSession(sessionUuid);
           expect(sessionDetails.activeGameUuid).toEqual(gameUuid);
         });
       });

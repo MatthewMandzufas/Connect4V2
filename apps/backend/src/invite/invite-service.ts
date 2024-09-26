@@ -1,22 +1,23 @@
-import { Uuid } from "@/global";
-import {
-  InviteEvents,
-  InviteServiceEventPublishers,
-  InviteStatus,
-  type InviteCreationDetails,
-  type InviteDetails,
-} from "@/invite/invite-service.d";
 import SessionService from "@/session/session-service";
 import UserService from "@/user/user-service";
 import { InvalidInvitationError } from "./errors";
 import InMemoryInviteRepository from "./in-memory-invite-repository";
-import { InviteRepository } from "./invite-repository";
+
+export enum InviteStatus {
+  PENDING = "PENDING",
+  ACCEPTED = "ACCEPTED",
+}
+
+export enum InviteEvents {
+  INVITATION_CREATED = "INVITATION_CREATED",
+}
+
 interface InviteServiceInterface {
   create: (
-    inviteCreationDetails: InviteCreationDetails
+    inviteCreationDetails: InviteCreationDetails,
   ) => Promise<InviteDetails>;
   getInvitesReceivedByUser: (
-    inviterEmail: string
+    inviterEmail: string,
   ) => Promise<Array<InviteDetails>>;
   acceptInvite: (inviteUuid: Uuid) => Promise<Uuid>;
   getInvite: (inviteUuid: Uuid) => Promise<InviteDetails>;
@@ -34,7 +35,7 @@ class InviteService implements InviteServiceInterface {
     userService: UserService,
     inviteRepository: InviteRepository = new InMemoryInviteRepository(),
     eventPublishers: InviteServiceEventPublishers,
-    sessionService: SessionService
+    sessionService: SessionService,
   ) {
     this.#userService = userService;
     this.#inviteRepository = inviteRepository;
@@ -46,16 +47,15 @@ class InviteService implements InviteServiceInterface {
     return await this.#inviteRepository.loadInviteeInvites(inviteeEmail);
   }
 
-  async create(inviteCreationDetails: InviteCreationDetails) {
+  async create(inviteCreationDetails: ServiceInviteCreationDetails) {
     const { inviter, invitee } = inviteCreationDetails;
     if (inviter === invitee) {
       throw new InvalidInvitationError(
-        "Users cannot send invites to themselves"
+        "Users cannot send invites to themselves",
       );
     }
-    const inviteeDoesNotExist = !(await this.#userService.getDoesUserExist(
-      invitee
-    ));
+    const inviteeDoesNotExist =
+      !(await this.#userService.getDoesUserExist(invitee));
     if (inviteeDoesNotExist) {
       throw new InvalidInvitationError("Invitee does not exist");
     }
@@ -73,22 +73,21 @@ class InviteService implements InviteServiceInterface {
   }
 
   async acceptInvite(inviteUuid: Uuid) {
-    const inviteDetails = await this.#inviteRepository.getInviteDetails(
-      inviteUuid
-    );
+    const inviteDetails =
+      await this.#inviteRepository.getInviteDetails(inviteUuid);
 
     const inviteeDetails = await this.#userService.getUserDetails(
-      inviteDetails.invitee
+      inviteDetails.invitee,
     );
     const inviterDetails = await this.#userService.getUserDetails(
-      inviteDetails.inviter
+      inviteDetails.inviter,
     );
     const sessionCreationDetails = {
       inviteeUuid: inviteeDetails.uuid,
       inviterUuid: inviterDetails.uuid,
     };
     const sessionDetails = await this.#sessionService.createSession(
-      sessionCreationDetails
+      sessionCreationDetails,
     );
 
     await this.#inviteRepository.acceptInvite(inviteUuid);

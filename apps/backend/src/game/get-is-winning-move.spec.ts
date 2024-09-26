@@ -1,6 +1,5 @@
 import parseAsciiTable from "@/util/parse-ascii-table";
 import getIsWinningMove from "./get-is-winning-move";
-import { BoardCell, PlayerMoveDetails } from "./types.d";
 
 describe("get-is-winning-move", () => {
   const customResolver = (value: string): BoardCell => {
@@ -41,7 +40,7 @@ describe("get-is-winning-move", () => {
           expect(getIsWinningMove(board, playerMove)).toEqual(
             expect.objectContaining({
               isWin: true,
-            })
+            }),
           );
         });
       });
@@ -66,7 +65,7 @@ describe("get-is-winning-move", () => {
           expect(getIsWinningMove(board, playerMove)).toEqual(
             expect.objectContaining({
               isWin: false,
-            })
+            }),
           );
         });
       });
@@ -96,7 +95,7 @@ describe("get-is-winning-move", () => {
             expect(getIsWinningMove(board, playerMove)).toEqual(
               expect.objectContaining({
                 isWin: true,
-              })
+              }),
             );
           });
         });
@@ -124,7 +123,7 @@ describe("get-is-winning-move", () => {
           expect(getIsWinningMove(board, playerMove)).toEqual(
             expect.objectContaining({
               isWin: true,
-            })
+            }),
           );
         });
       });
@@ -147,7 +146,7 @@ describe("get-is-winning-move", () => {
           expect(getIsWinningMove(board, playerMove)).toEqual(
             expect.objectContaining({
               isWin: true,
-            })
+            }),
           );
         });
       });
@@ -170,7 +169,7 @@ describe("get-is-winning-move", () => {
           expect(getIsWinningMove(board, playerMove)).toEqual(
             expect.objectContaining({
               isWin: true,
-            })
+            }),
           );
         });
       });
@@ -193,7 +192,7 @@ describe("get-is-winning-move", () => {
           expect(getIsWinningMove(board, playerMove)).toEqual(
             expect.objectContaining({
               isWin: true,
-            })
+            }),
           );
         });
       });
@@ -216,7 +215,7 @@ describe("get-is-winning-move", () => {
           expect(getIsWinningMove(board, playerMove)).toEqual(
             expect.objectContaining({
               isWin: false,
-            })
+            }),
           );
         });
       });
@@ -239,7 +238,7 @@ describe("get-is-winning-move", () => {
           expect(getIsWinningMove(board, playerMove)).toEqual(
             expect.objectContaining({
               isWin: false,
-            })
+            }),
           );
         });
       });
@@ -263,7 +262,7 @@ describe("get-is-winning-move", () => {
             expect(getIsWinningMove(board, playerMove)).toEqual(
               expect.objectContaining({
                 isWin: true,
-              })
+              }),
             );
           });
         });
@@ -296,7 +295,7 @@ describe("get-is-winning-move", () => {
             expect(getIsWinningMove(board, playerMove)).toEqual(
               expect.objectContaining({
                 isWin: true,
-              })
+              }),
             );
           });
         });
@@ -323,7 +322,7 @@ describe("get-is-winning-move", () => {
             expect(getIsWinningMove(board, playerMove)).toEqual(
               expect.objectContaining({
                 isWin: true,
-              })
+              }),
             );
           });
         });
@@ -350,7 +349,7 @@ describe("get-is-winning-move", () => {
             expect(getIsWinningMove(board, playerMove)).toEqual(
               expect.objectContaining({
                 isWin: true,
-              })
+              }),
             );
           });
         });
@@ -377,7 +376,7 @@ describe("get-is-winning-move", () => {
             expect(getIsWinningMove(board, playerMove)).toEqual(
               expect.objectContaining({
                 isWin: true,
-              })
+              }),
             );
           });
         });
@@ -406,7 +405,7 @@ describe("get-is-winning-move", () => {
             expect(getIsWinningMove(board, playerMove)).toEqual(
               expect.objectContaining({
                 isWin: true,
-              })
+              }),
             );
           });
         });
@@ -435,7 +434,7 @@ describe("get-is-winning-move", () => {
             expect(getIsWinningMove(board, playerMove)).toEqual(
               expect.objectContaining({
                 isWin: true,
-              })
+              }),
             );
           });
         });
@@ -467,7 +466,7 @@ describe("get-is-winning-move", () => {
               expect(getIsWinningMove(board, playerMove)).toEqual(
                 expect.objectContaining({
                   isWin: true,
-                })
+                }),
               );
             });
           });
@@ -493,7 +492,7 @@ describe("get-is-winning-move", () => {
             expect(getIsWinningMove(board, playerMove)).toEqual(
               expect.objectContaining({
                 isWin: false,
-              })
+              }),
             );
           });
         });
@@ -518,7 +517,7 @@ describe("get-is-winning-move", () => {
             expect(getIsWinningMove(board, playerMove)).toEqual(
               expect.objectContaining({
                 isWin: false,
-              })
+              }),
             );
           });
         });
@@ -549,7 +548,7 @@ describe("get-is-winning-move", () => {
             expect(getIsWinningMove(board, playerMove)).toEqual(
               expect.objectContaining({
                 isWin: true,
-              })
+              }),
             );
           });
         });
@@ -576,7 +575,7 @@ describe("get-is-winning-move", () => {
             expect(getIsWinningMove(board, playerMove)).toEqual(
               expect.objectContaining({
                 isWin: true,
-              })
+              }),
             );
           });
         });
@@ -603,7 +602,7 @@ describe("get-is-winning-move", () => {
             expect(getIsWinningMove(board, playerMove)).toEqual(
               expect.objectContaining({
                 isWin: true,
-              })
+              }),
             );
           });
         });
@@ -630,7 +629,7 @@ describe("get-is-winning-move", () => {
             expect(getIsWinningMove(board, playerMove)).toEqual(
               expect.objectContaining({
                 isWin: true,
-              })
+              }),
             );
           });
         });
@@ -659,7 +658,7 @@ describe("get-is-winning-move", () => {
             expect(getIsWinningMove(board, playerMove)).toEqual(
               expect.objectContaining({
                 isWin: true,
-              })
+              }),
             );
           });
         });
@@ -688,7 +687,7 @@ describe("get-is-winning-move", () => {
             expect(getIsWinningMove(board, playerMove)).toEqual(
               expect.objectContaining({
                 isWin: true,
-              })
+              }),
             );
           });
         });
@@ -719,7 +718,7 @@ describe("get-is-winning-move", () => {
             expect(getIsWinningMove(board, playerMove)).toEqual(
               expect.objectContaining({
                 isWin: true,
-              })
+              }),
             );
           });
         });
@@ -744,7 +743,7 @@ describe("get-is-winning-move", () => {
             expect(getIsWinningMove(board, playerMove)).toEqual(
               expect.objectContaining({
                 isWin: false,
-              })
+              }),
             );
           });
         });
@@ -769,7 +768,7 @@ describe("get-is-winning-move", () => {
             expect(getIsWinningMove(board, playerMove)).toEqual(
               expect.objectContaining({
                 isWin: false,
-              })
+              }),
             );
           });
         });

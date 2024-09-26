@@ -1,10 +1,3 @@
-import { Uuid } from "@/global";
-import type {
-  UserCredentials,
-  UserDetails,
-  UserRepository,
-  UserSignupDetails,
-} from "@/user/user-repository.d";
 import argon2, { hash } from "argon2";
 import { isEmpty } from "ramda";
 import {
@@ -15,10 +8,10 @@ import {
 
 interface UserServiceInterface {
   create: (
-    userDetails: UserSignupDetails
+    userDetails: UserSignupDetails,
   ) => Promise<UserSignupDetails & { uuid: Uuid }>;
   authenticate: (
-    userCredentials: UserCredentials
+    userCredentials: UserCredentials,
   ) => Promise<{ message: string }>;
   getUserDetails: (userEmail: string) => Promise<UserDetails>;
   getDoesUserExist: (userEmail: string) => Promise<boolean>;
@@ -43,16 +36,15 @@ class UserService implements UserServiceInterface {
   }
 
   async authenticate({ email, password }: UserCredentials) {
-    const usersWithProvidedEmail = await this.#userRepository.findByEmail(
-      email
-    );
+    const usersWithProvidedEmail =
+      await this.#userRepository.findByEmail(email);
     const userDetails = usersWithProvidedEmail[0];
     if (userDetails === undefined) {
       throw new AuthenticationFailedError("Authentication failed");
     }
     const isInvalidPassword = !(await argon2.verify(
       userDetails.password,
-      password
+      password,
     ));
     if (isInvalidPassword) {
       throw new AuthenticationFailedError("Authentication failed");

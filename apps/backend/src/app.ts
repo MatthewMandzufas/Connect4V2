@@ -6,14 +6,19 @@ import {
   createSocketServer,
   ExpressWithPortAndSocket,
 } from "./create-server-side-web-socket";
-import { InternalEventPublisher, Stage } from "./global";
 import createInviteEventListener, {
   InviteCreatedEvent,
 } from "./invite/create-invite-event-listener";
 import createDispatchNotification from "./notification/create-dispatch-notification";
 import resolveRouters, { RouterType } from "./resolve-routers";
-import { KeyPairSet } from "./user/user-router.d";
 import validateUserSignupRequest from "./user/validate-user-signup-request";
+
+type KeyPairSet = {
+  jwtKeyPair?: {
+    publicKey: KeyLike;
+    privateKey: KeyLike;
+  };
+};
 
 type AppFactoryParameters = {
   stage: Stage;

@@ -1,28 +1,31 @@
-import userRouterFactory from "@/user/user-router";
-import { KeyPairSet } from "@/user/user-router.d";
 import UserService from "@/user/user-service";
 import { Router } from "express";
+import { KeyLike } from "jose";
 import Game from "./game/game";
 import GameService from "./game/game-service";
 import InMemoryGameRepository from "./game/in-memory-game-repository";
-import { InternalEventPublisher, Stage } from "./global";
 import createInviteEventPublishers from "./invite/create-invite-event-publishers";
 import InMemoryInviteRepository from "./invite/in-memory-invite-repository";
-import { InviteRepository } from "./invite/invite-repository";
 import inviteRouterFactory from "./invite/invite-router-factory";
 import InviteService from "./invite/invite-service";
 import InMemorySessionRepository from "./session/in-memory-session-repository";
 import sessionRouterFactory from "./session/session-router-factory";
 import SessionService from "./session/session-service";
-import { SessionRepository } from "./session/types";
 import InMemoryUserRepositoryFactory from "./user/in-memory-user-repository";
-import { UserRepository } from "./user/user-repository";
+import userRouterFactory from "./user/user-router";
 
 export enum RouterType {
   "userRouter",
   "inviteRouter",
   "sessionRouter",
 }
+
+type KeyPairSet = {
+  jwtKeyPair?: {
+    publicKey: KeyLike;
+    privateKey: KeyLike;
+  };
+};
 
 type ResolveRouterParameters = {
   stage: Stage;

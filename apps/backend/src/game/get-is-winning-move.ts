@@ -1,5 +1,3 @@
-import { Board, BoardCell, PlayerMoveDetails } from "./types.d";
-
 type WinState = {
   consecutiveDiscs: number;
   isWinning: boolean;
@@ -16,7 +14,7 @@ type DiagonalMovement = {
 
 function isConsecutiveWin(
   cellArray: Array<BoardCell>,
-  player: 1 | 2 | undefined
+  player: 1 | 2 | undefined,
 ): boolean {
   const { isWinning } = cellArray.reduce(
     (state: WinState, currentCell: BoardCell): WinState => {
@@ -29,7 +27,7 @@ function isConsecutiveWin(
           }
         : { consecutiveDiscs: 0, isWinning };
     },
-    { consecutiveDiscs: 0, isWinning: false }
+    { consecutiveDiscs: 0, isWinning: false },
   );
 
   return isWinning;
@@ -38,7 +36,7 @@ function isConsecutiveWin(
 function isDirectionalDiagonalWin(
   board: Board,
   playerMove: PlayerMoveDetails,
-  diagonalMovement: DiagonalMovement
+  diagonalMovement: DiagonalMovement,
 ): boolean {
   const {
     player,
@@ -113,7 +111,7 @@ function isVerticalWin(board: Board, playerMove: PlayerMoveDetails): boolean {
     targetCell: { row, column },
   } = playerMove;
   const columnToCheck = board.map(
-    (row: Array<BoardCell>): BoardCell => row[column]
+    (row: Array<BoardCell>): BoardCell => row[column],
   );
   columnToCheck[row] = { occupyingPlayer: player };
 
@@ -137,7 +135,7 @@ function isHorizontalWin(board: Board, playerMove: PlayerMoveDetails): boolean {
 
 function getIsWinningMove(
   board: Board,
-  playerMove: PlayerMoveDetails
+  playerMove: PlayerMoveDetails,
 ): {
   isWin: boolean;
 } {
