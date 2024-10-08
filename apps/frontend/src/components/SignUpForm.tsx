@@ -1,21 +1,24 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import PulseLoader from "react-spinners/PulseLoader";
 
-type LoginDetails = {
+type SignUpDetails = {
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
 };
 
-type LoginResponse = {
+type SignUpResponse = {
   isSuccess: boolean;
   message: string;
 };
 
-type LoginHandler = (loginDetails: LoginDetails) => Promise<LoginResponse>;
+type SignUpHandler = (signUpDetails: SignUpDetails) => Promise<SignUpResponse>;
 
-type LoginFormProps = {
-  loginHandler: LoginHandler;
-  signUpLink: { href?: string };
+type SignUpHandlerProps = {
+  redirectToLoginHandler: (values: any) => void;
+  signUpHandler: SignUpHandler;
 };
 
 type ValidationResult = {
@@ -27,7 +30,7 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const validateFields = ({
   email,
   password,
-}: LoginDetails): ValidationResult => {
+}: SignUpDetails): ValidationResult => {
   if (!email.match(emailRegex)) {
     return {
       isValid: false,
@@ -47,13 +50,6 @@ const validateFields = ({
   };
 };
 
-enum LoginState {
-  IDLE = "IDLE",
-  PENDING = "PENDING",
-  SUCCESS = "SUCCESS",
-  FAILED = "FAILED",
-}
-
 type MessageProps = {
   isError: boolean;
   message: string;
@@ -67,11 +63,20 @@ const Message = ({ isError, message }: MessageProps) => (
   </span>
 );
 
-const LoginForm = ({
-  loginHandler = () => Promise.reject(),
-  signUpLink = {},
-}: LoginFormProps) => {
+enum LoginState {
+  IDLE = "IDLE",
+  PENDING = "PENDING",
+  SUCCESS = "SUCCESS",
+  FAILED = "FAILED",
+}
+
+const SignUpForm = ({
+  redirectToLoginHandler,
+  signUpHandler,
+}: SignUpHandlerProps) => {
   const [email, setEmail] = useState<string>();
+  const [firstName, setFirstName] = useState<string>();
+  const [lastName, setLastName] = useState<string>();
   const [password, setPassword] = useState<string>();
   const [message, setMessage] = useState({ isError: false, message: "" });
   const [loginState, setLoginState] = useState(LoginState.IDLE);
@@ -79,6 +84,43 @@ const LoginForm = ({
   return (
     <div className="border border-grey-300- rounded-md p-6 max-w-md mx-auto">
       <form className="flex flex-col bg-stone-700 max-w-44 gap-3 p-4 mx-auto max-w-md">
+        <label htmlFor="firstName">First Name</label>
+        <input
+          readOnly={
+            loginState === LoginState.PENDING ||
+            loginState === LoginState.SUCCESS
+          }
+          className="text-black"
+          // type=""
+          name="firstName"
+          id="firstName"
+          placeholder="Enter Your First Name"
+          required
+          onChange={(event) => {
+            console.log(loginState);
+            setFirstName(event.target.value);
+            setLoginState(LoginState.IDLE);
+            setMessage({ isError: false, message: "" });
+          }}
+        />
+        <label htmlFor="Last Name">Last Name</label>
+        <input
+          readOnly={
+            loginState === LoginState.PENDING ||
+            loginState === LoginState.SUCCESS
+          }
+          className="text-black"
+          // type=""
+          name="lastName"
+          id="lastName"
+          placeholder="Enter Your Last Name"
+          required
+          onChange={(event) => {
+            setLastName(event.target.value);
+            setLoginState(LoginState.IDLE);
+            setMessage({ isError: false, message: "" });
+          }}
+        />
         <label htmlFor="email">Email</label>
         <input
           readOnly={
@@ -130,8 +172,13 @@ const LoginForm = ({
             onClick={async (event) => {
               event.preventDefault();
 
-              if (email && password) {
-                const { isValid, error } = validateFields({ email, password });
+              if (email && password && firstName && lastName) {
+                const { isValid, error } = validateFields({
+                  firstName,
+                  lastName,
+                  email,
+                  password,
+                });
 
                 if (!isValid) {
                   setLoginState(LoginState.FAILED);
@@ -139,19 +186,23 @@ const LoginForm = ({
                   return;
                 }
 
-                setMessage({ isError: false, message: error! });
+                setMessage({ isError: false, message: "" });
                 setLoginState(LoginState.PENDING);
                 try {
-                  const { message, isSuccess } = await loginHandler({
+                  const { message, isSuccess } = await signUpHandler({
+                    firstName,
+                    lastName,
                     email,
                     password,
                   });
-                  setLoginState(LoginState.SUCCESS);
                   setMessage({ isError: !isSuccess, message });
+                  setLoginState(
+                    isSuccess === true ? LoginState.SUCCESS : LoginState.FAILED
+                  );
                 } catch (error) {
-                  const { message } = error as LoginResponse;
-                  setLoginState(LoginState.FAILED);
+                  const { message } = error as SignUpResponse;
                   setMessage({ isError: true, message });
+                  setLoginState(LoginState.FAILED);
                 }
               } else {
                 setMessage({
@@ -161,15 +212,19 @@ const LoginForm = ({
               }
             }}
           >
-            Login
+            Sign Up
           </button>
         )}
-        <a {...signUpLink} className="flex justify-center">
-          Sign Up
+        <a {...redirectToLoginHandler} className="flex justify-center">
+          Login In
         </a>
+
         <Message {...message} />
       </form>
     </div>
   );
 };
-export default LoginForm;
+
+export default SignUpForm;
+
+// hooks/useAuth.js :)export const useAuth = () => {  const dispatch = useDispatch();  const handleLogin = async (credentials) => {    const user = await login(credentials);    dispatch(loginSuccess(user));  };  return { handleLogin };};

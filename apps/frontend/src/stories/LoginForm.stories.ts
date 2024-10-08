@@ -12,7 +12,7 @@ const meta: Meta<typeof LoginForm> = {
 export default meta;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const filOutLoginFormCorrectly = async (canvas: any) => {
+const fillOutLoginFormCorrectly = async (canvas: any) => {
   const emailInput = canvas.getByPlaceholderText("Enter Your Email");
   const passwordInput = canvas.getByPlaceholderText("Enter Your Password");
   await userEvent.type(emailInput, "hello@email.com");
@@ -26,6 +26,12 @@ export const TheOneWithALoginHandler: Story = {
     loginHandler: fn((loginValues) => {
       return loginValues;
     }),
+  },
+};
+
+export const TheOneWithASignUpLink: Story = {
+  args: {
+    signUpLink: { href: "/test/signup" },
   },
 };
 
@@ -70,7 +76,7 @@ export const TheOneWithALoginInProgress: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await filOutLoginFormCorrectly(canvas);
+    await fillOutLoginFormCorrectly(canvas);
     const loginButton = canvas.getByRole("button");
     await userEvent.click(loginButton);
   },
@@ -87,7 +93,7 @@ export const TheOneWithAFailedLogin: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await filOutLoginFormCorrectly(canvas);
+    await fillOutLoginFormCorrectly(canvas);
     const loginButton = canvas.getByRole("button");
     await userEvent.click(loginButton);
   },
@@ -101,7 +107,7 @@ export const TheOneWithASuccessfulLogin: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await filOutLoginFormCorrectly(canvas);
+    await fillOutLoginFormCorrectly(canvas);
     const loginButton = canvas.getByRole("button");
     await userEvent.click(loginButton);
   },
