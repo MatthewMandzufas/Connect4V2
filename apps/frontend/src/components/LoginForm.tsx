@@ -1,4 +1,5 @@
-import { useState } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { MouseEvent, useState } from "react";
 import PulseLoader from "react-spinners/PulseLoader";
 
 type LoginDetails = {
@@ -15,7 +16,7 @@ type LoginHandler = (loginDetails: LoginDetails) => Promise<LoginResponse>;
 
 type LoginFormProps = {
   loginHandler: LoginHandler;
-  signUpLink: { href?: string };
+  redirectToSignUpHandler: () => Promise<void>;
 };
 
 type ValidationResult = {
@@ -69,7 +70,7 @@ const Message = ({ isError, message }: MessageProps) => (
 
 const LoginForm = ({
   loginHandler = () => Promise.reject(),
-  signUpLink = {},
+  redirectToSignUpHandler,
 }: LoginFormProps) => {
   const [email, setEmail] = useState<string>();
   const [password, setPassword] = useState<string>();
@@ -164,7 +165,13 @@ const LoginForm = ({
             Login
           </button>
         )}
-        <a {...signUpLink} className="flex justify-center">
+        <a
+          onClick={(event: MouseEvent) => {
+            event.preventDefault();
+            redirectToSignUpHandler();
+          }}
+          className="flex justify-center cursor-pointer"
+        >
           Sign Up
         </a>
         <Message {...message} />

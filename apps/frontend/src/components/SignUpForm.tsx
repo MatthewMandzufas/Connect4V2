@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from "react";
+import { MouseEvent, useState } from "react";
 import PulseLoader from "react-spinners/PulseLoader";
 
 type SignUpDetails = {
@@ -17,7 +17,7 @@ type SignUpResponse = {
 type SignUpHandler = (signUpDetails: SignUpDetails) => Promise<SignUpResponse>;
 
 type SignUpHandlerProps = {
-  redirectToLoginHandler: (values: any) => void;
+  redirectToLoginHandler: () => Promise<void>;
   signUpHandler: SignUpHandler;
 };
 
@@ -215,7 +215,13 @@ const SignUpForm = ({
             Sign Up
           </button>
         )}
-        <a {...redirectToLoginHandler} className="flex justify-center">
+        <a
+          onClick={(event: MouseEvent) => {
+            event.preventDefault();
+            redirectToLoginHandler();
+          }}
+          className="flex justify-center cursor-pointer"
+        >
           Login In
         </a>
 
@@ -226,5 +232,3 @@ const SignUpForm = ({
 };
 
 export default SignUpForm;
-
-// hooks/useAuth.js :)export const useAuth = () => {  const dispatch = useDispatch();  const handleLogin = async (credentials) => {    const user = await login(credentials);    dispatch(loginSuccess(user));  };  return { handleLogin };};

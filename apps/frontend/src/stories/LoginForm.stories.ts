@@ -31,7 +31,7 @@ export const TheOneWithALoginHandler: Story = {
 
 export const TheOneWithASignUpLink: Story = {
   args: {
-    signUpLink: { href: "/test/signup" },
+    redirectToSignUpHandler: fn(() => Promise.resolve()),
   },
 };
 
