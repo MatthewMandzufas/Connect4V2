@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "test:watch": "jest --watch",
+    "test:watch": "jest --watchAll",
     "build": "tsc && esbuild dist/index.js --bundle --platform=node --target=node20.15 --outfile=dist/index.js --allow-overwrite",
     "start:prod": "pnpm run build && node dist/index.js",
     "start:dev": "node build.js && node --env-file=.dev.env dist/index.js ",
