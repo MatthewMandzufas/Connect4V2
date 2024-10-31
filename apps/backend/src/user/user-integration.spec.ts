@@ -1,4 +1,5 @@
 import { appFactory } from "@/app";
+import TestFixture from "@/test-fixture";
 import { Express } from "express";
 import {
   generateKeyPair,
@@ -8,7 +9,6 @@ import {
 } from "jose";
 import { last, path, pipe, split } from "ramda";
 import request, { Response } from "supertest";
-import TestFixture from "./test-fixture";
 
 const user1Details = {
   firstName: "John",
@@ -49,7 +49,7 @@ describe("user-integration", () => {
             lastName: "Doe",
             email: "john.doe@foo.com",
             uuid: expect.toBeUUID(),
-          })
+          }),
         );
         expect(response.headers["content-type"]).toMatch(/json/);
       });
@@ -108,8 +108,8 @@ describe("user-integration", () => {
               pipe<[Response], string, Array<string>, string>(
                 path(["headers", "authorization"]),
                 split(" "),
-                last
-              )(loginResponse)
+                last,
+              )(loginResponse),
             )
             .then((jwt) => jwtDecrypt(jwt, jwtKeyPair.privateKey));
 
@@ -141,7 +141,7 @@ describe("user-integration", () => {
 
           const testFixture = new TestFixture(app);
           const response = await testFixture.signUpAndLoginEmailResponse(
-            "notification@email.com"
+            "notification@email.com",
           );
           expect(response.body.notification).toEqual({
             uri: expect.any(String),
@@ -237,8 +237,8 @@ describe("user-integration", () => {
             .send(userCredentials)
             .then((loginResponse) =>
               pipe<[Response], string>(path(["headers", "authorization"]))(
-                loginResponse
-              )
+                loginResponse,
+              ),
             );
 
           jest.setSystemTime(200000);
@@ -277,8 +277,8 @@ describe("user-integration", () => {
             .send(userCredentials)
             .then((loginResponse) =>
               pipe<[Response], string>(path(["headers", "authorization"]))(
-                loginResponse
-              )
+                loginResponse,
+              ),
             );
 
           const response = await request(app)
