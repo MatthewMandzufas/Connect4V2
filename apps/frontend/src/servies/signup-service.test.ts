@@ -1,16 +1,19 @@
+import SignUpService from "./signup-service";
+
+const backendUrl = "http://localhost:3001/user/signup";
+
 describe("signup-service", () => {
   describe("given valid user details", () => {
-    it("signs up the user", () => {
-      // TODO: createSignUpService - what does this require as arguments?
-      const signUpService = new createSignUpService({ backendUrl: "" });
+    it("signs up the user", async () => {
+      const signUpService = new SignUpService({ backendUrl });
       expect(
-        signUpService.signUp({
+        await signUpService.signUp({
           firstName: "First",
           lastName: "Last",
           email: "email@mail.com",
           password: "SomethingSecure!",
         })
-      ).resolves.toEqual({ isSuccess: true, token: expect.any(String) });
+      ).toEqual({ isSuccess: true });
     });
   });
 });

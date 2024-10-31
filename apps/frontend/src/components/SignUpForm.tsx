@@ -72,7 +72,12 @@ enum LoginState {
 
 const SignUpForm = ({
   redirectToLoginHandler,
-  signUpHandler,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  signUpHandler = (signUpDetails: SignUpDetails) =>
+    Promise.resolve({
+      isSuccess: false,
+      message: "Failure",
+    }),
 }: SignUpHandlerProps) => {
   const [email, setEmail] = useState<string>();
   const [firstName, setFirstName] = useState<string>();
@@ -222,7 +227,7 @@ const SignUpForm = ({
           }}
           className="flex justify-center cursor-pointer"
         >
-          Login In
+          Login
         </a>
 
         <Message {...message} />
