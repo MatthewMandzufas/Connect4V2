@@ -1,4 +1,4 @@
-import argon2, { hash } from "@node-rs/argon2";
+import crypto from "crypto";
 import { isEmpty } from "ramda";
 import {
   AuthenticationFailedError,
@@ -24,12 +24,35 @@ class UserService implements UserServiceInterface {
     this.#userRepository = userRepository;
   }
 
+  async hash(password) {
+    return new Promise((resolve, reject) => {
+      const salt = crypto.randomBytes(8).toString("hex");
+
+      crypto.scrypt(password, salt, 64, (err, derivedKey) => {
+        if (err) reject(err);
+        resolve(salt + ":" + derivedKey.toString("hex"));
+      });
+    });
+  }
+
+  async verify(password, hash) {
+    return new Promise((resolve, reject) => {
+      const [salt, key] = hash.split(":");
+      crypto.scrypt(password, salt, 64, (err, derivedKey) => {
+        if (err) reject(err);
+        resolve(key === derivedKey.toString("hex"));
+      });
+    });
+  }
+
   async create(userDetails: UserSignupDetails) {
     if (isEmpty(await this.#userRepository.findByEmail(userDetails.email))) {
-      return await this.#userRepository.create({
+      const password = (await this.hash(userDetails.password)) as string;
+      const user = await this.#userRepository.create({
         ...userDetails,
-        password: await hash(userDetails.password),
+        password,
       });
+      return user;
     } else {
       throw new UserAlreadyExistsError("A user with that email already exists");
     }
@@ -42,11 +65,8 @@ class UserService implements UserServiceInterface {
     if (userDetails === undefined) {
       throw new AuthenticationFailedError("Authentication failed");
     }
-    const isInvalidPassword = !(await argon2.verify(
-      userDetails.password,
-      password,
-    ));
-    if (isInvalidPassword) {
+    const isValidPassword = await this.verify(password, userDetails.password);
+    if (!isValidPassword) {
       throw new AuthenticationFailedError("Authentication failed");
     }
     return {

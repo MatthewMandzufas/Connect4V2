@@ -1,6 +1,6 @@
 import InMemoryUserRepository from "@/user/in-memory-user-repository";
 import UserService from "@/user/user-service";
-import argon2 from "@node-rs/argon2";
+import crypto from "crypto";
 
 import {
   AuthenticationFailedError,
@@ -14,6 +14,16 @@ const user1Details = {
   email: "john.doe@foo.com",
   password: "iamjohndoe",
 };
+
+async function verify(password: string, hash): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    const [salt, key] = hash.split(":");
+    crypto.scrypt(password, salt, 64, (err, derivedKey) => {
+      if (err) reject(err);
+      resolve(key == derivedKey.toString("hex"));
+    });
+  });
+}
 
 describe("user-service", () => {
   describe("user creation", () => {
@@ -55,9 +65,7 @@ describe("user-service", () => {
         const [{ password: hashedPassword }] = await userRepository.findByEmail(
           userDetails.email,
         );
-        expect(
-          await argon2.verify(hashedPassword, userDetails.password),
-        ).toBeTruthy();
+        expect(await verify(userDetails.password, hashedPassword)).toBeTruthy();
       });
     });
   });
