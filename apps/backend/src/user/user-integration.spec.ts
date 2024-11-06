@@ -81,6 +81,27 @@ describe("user-integration", () => {
       });
     });
   });
+
+  describe("delete", () => {
+    describe("given the user exists", () => {
+      describe("and a valid email is provided", () => {
+        it("deletes the user", async () => {
+          const userDetails = {
+            firstName: "1",
+            lastName: "2",
+            email: "someUser@email.com",
+            password: "superStrongISwear",
+          };
+          await request(app).post("/user/signup").send(userDetails);
+          const response = await request(app).post("/user/delete").send({
+            email: "someUser@email.com",
+          });
+          expect(response.status).toBe(200);
+          expect(response.body).toEqual({ isSuccess: true });
+        });
+      });
+    });
+  });
   describe("login", () => {
     describe("given a user already exists", () => {
       describe("and they provide the correct credentials", () => {

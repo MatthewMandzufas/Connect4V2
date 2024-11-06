@@ -70,6 +70,26 @@ describe("user-service", () => {
     });
   });
 
+  describe("user deletion", () => {
+    describe("given an email associated with an existing user", () => {
+      it("deletes the user", async () => {
+        const userRepository = new InMemoryUserRepository();
+        const userService = new UserService(userRepository);
+        const userDetails = {
+          firstName: "realUser",
+          lastName: "deletedSoon",
+          email: "email@email.com",
+          password: "shortpassword",
+        };
+        await userService.create(userDetails);
+        const deletionResult = await userService.delete(userDetails.email);
+
+        expect(deletionResult).toEqual({ isSuccess: true });
+        expect(await userRepository.findByEmail(userDetails.email)).toEqual([]);
+      });
+    });
+  });
+
   describe("user authentication", () => {
     describe("given a registered user", () => {
       describe("when an authentication attempt for that user is made with invalid credentials", () => {

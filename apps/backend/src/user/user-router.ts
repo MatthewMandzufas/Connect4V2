@@ -12,7 +12,7 @@ type KeyPairSet = {
 };
 
 const userDetailsRequestHandlerFactory =
-  (userService: UserService, jwtPrivateKey: KeyLike): RequestHandler =>
+  (userService: UserService): RequestHandler =>
   async (req, res, next) => {
     if (res.locals.claims?.email) {
       const userDetails = await userService.getUserDetails(
@@ -84,9 +84,15 @@ const loginRequestHandlerFactory =
     } catch (err) {
       if (err instanceof AuthenticationFailedError)
         res.status(403).send({ errors: [{ message: "Login failed" }] });
-    } finally {
-      next();
     }
+  };
+
+const deleteRequestHandlerFactory =
+  (userService: UserService): RequestHandler =>
+  async (req, res, next) => {
+    const { email } = req.body;
+    const response = await userService.delete(email);
+    res.status(200).send(response);
   };
 
 const userRouterFactory = (
@@ -95,10 +101,7 @@ const userRouterFactory = (
   authority: string,
 ) => {
   const userRouter = express.Router();
-  userRouter.get(
-    "/",
-    userDetailsRequestHandlerFactory(userService, keys.jwtKeyPair.privateKey),
-  );
+  userRouter.get("/", userDetailsRequestHandlerFactory(userService));
   userRouter.post("/signup", signupRequestHandlerFactory(userService));
   userRouter.post(
     "/login",
@@ -108,6 +111,7 @@ const userRouterFactory = (
       authority,
     ),
   );
+  userRouter.post("/delete", deleteRequestHandlerFactory(userService));
   return userRouter;
 };
 export default userRouterFactory;
