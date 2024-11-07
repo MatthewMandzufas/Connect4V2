@@ -1,9 +1,14 @@
+import BackendApi from "@/backend-api";
 import LoginService from "./login-service";
 
 describe("login-service", () => {
+  const backendApi = new BackendApi({
+    url: `http://localhost:3000`,
+  });
+
   describe("given a user exists", () => {
     beforeAll(async () => {
-      const a = await fetch(`http://localhost:3000/user/signup`, {
+      await fetch(`http://localhost:3000/user/signup`, {
         method: "POST",
         body: JSON.stringify({
           firstName: "John",
@@ -20,7 +25,7 @@ describe("login-service", () => {
     describe("and the user logs in with their email and password", () => {
       it("logs in the user", async () => {
         const loginService = new LoginService({
-          url: "http://localhost:3000",
+          backendApi,
         });
         const response = await loginService.login({
           email: "john.pork@gmail.com",
@@ -37,7 +42,7 @@ describe("login-service", () => {
     describe("and the user attempts to log in with an invalid password", () => {
       it("the user fails to log in", async () => {
         const loginService = new LoginService({
-          url: "http://localhost:3000",
+          backendApi,
         });
         const response = await loginService.login({
           email: "john.pork@gmail.com",
@@ -55,7 +60,7 @@ describe("login-service", () => {
     describe("and the user attempts to log in", () => {
       it("login fails", async () => {
         const loginService = new LoginService({
-          url: "http://localhost:3000",
+          backendApi,
         });
         const response = await loginService.login({
           email: "nonExistentUser@gmail.com",

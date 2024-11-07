@@ -1,30 +1,23 @@
+import { BackendApiInterface } from "@/backend-api";
+
 type LoginDetails = {
   email: string;
   password: string;
 };
 
 type LoginServiceParams = {
-  url: string;
+  backendApi: BackendApiInterface;
 };
 
 class LoginService {
-  url: string;
+  backendApi: BackendApiInterface;
 
-  constructor({ url }: LoginServiceParams) {
-    this.url = url;
+  constructor({ backendApi }: LoginServiceParams) {
+    this.backendApi = backendApi;
   }
 
   async login(loginDetails: LoginDetails) {
-    const response = await fetch(`${this.url}/user/login`, {
-      method: "POST",
-      body: JSON.stringify({
-        userName: loginDetails.email,
-        password: loginDetails.password,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await this.backendApi.login(loginDetails);
 
     if (response.status === 200) {
       return {
@@ -32,16 +25,18 @@ class LoginService {
         token: response.headers.get("authorization"),
         message: "Login Successful!",
       };
-    }
-
-    if (response.status === 403) {
+    } else if (response.status === 403) {
       return {
         isSuccess: false,
         message: "Login Failed.",
       };
     }
 
-    return { isSuccess: false, message: "Error occurred while logging in." };
+    // TODO: Try create a test to trigger this fail safe.
+    return {
+      isSuccess: false,
+      message: "Something went wrong, please try again.",
+    };
   }
 }
 
