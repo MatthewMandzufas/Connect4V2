@@ -2,7 +2,7 @@
 import { MouseEvent, useState } from "react";
 import PulseLoader from "react-spinners/PulseLoader";
 
-type LoginDetails = {
+export type LoginDetails = {
   email: string;
   password: string;
 };

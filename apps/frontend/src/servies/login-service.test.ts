@@ -1,6 +1,8 @@
 import BackendApi from "@/backend-api";
 import LoginService from "./login-service";
 
+// Need the backend server running for these to pass
+
 describe("login-service", () => {
   const backendApi = new BackendApi({
     url: `http://localhost:3000`,
