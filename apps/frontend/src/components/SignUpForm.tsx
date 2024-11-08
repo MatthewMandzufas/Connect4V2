@@ -202,7 +202,7 @@ const SignUpForm = ({
                   });
                   setMessage({ isError: !isSuccess, message });
                   setLoginState(
-                    isSuccess === true ? LoginState.SUCCESS : LoginState.FAILED
+                    isSuccess ? LoginState.SUCCESS : LoginState.FAILED
                   );
                 } catch (error) {
                   const { message } = error as SignUpResponse;
