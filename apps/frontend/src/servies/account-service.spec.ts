@@ -1,6 +1,15 @@
+import nock from "nock";
 import AccountService from "./account-service";
 
 const backendUrl = "http://localhost:3001/user";
+
+nock("http://localhost:3001")
+  .post("/user/signup")
+  .reply(201, { isSuccess: true });
+
+nock("http://localhost:3001")
+  .post("/user/delete")
+  .reply(200, { isSuccess: true });
 
 const accountService = new AccountService({ backendUrl });
 describe("signup-service", () => {
