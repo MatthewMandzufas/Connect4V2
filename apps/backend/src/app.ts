@@ -1,3 +1,4 @@
+import cors from "cors";
 import express, { RequestHandler } from "express";
 import { jwtDecrypt, KeyLike } from "jose";
 import { Subject } from "rxjs";
@@ -83,6 +84,7 @@ export const appFactory = (
   });
 
   app.use(express.json());
+  app.use(cors({ origin: "*" }));
   app.use(
     createAuthenticationMiddleware(keys.jwtKeyPair?.privateKey as KeyLike),
   );

@@ -24,12 +24,18 @@ importers:
       '@types/amqplib':
         specifier: ^0.10.5
         version: 0.10.5
+      '@types/cors':
+        specifier: ^2.8.17
+        version: 2.8.17
       '@types/node':
         specifier: ^22.6.1
         version: 22.8.2
       amqplib:
         specifier: ^0.10.4
         version: 0.10.4
+      cors:
+        specifier: ^2.8.5
+        version: 2.8.5
       express:
         specifier: ^4.19.2
         version: 4.21.1
@@ -11239,7 +11245,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 20.17.2
+      '@types/node': 22.8.2
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
