@@ -24,4 +24,5 @@ interface UserRepository {
   create: (userDetails: UserSignupDetails) => Promise<PersistedUser>;
   findByEmail: (email: string) => Promise<Array<PersistedUser>>;
   findByUuid: (userUuid: Uuid) => Promise<PersistedUser>;
+  delete: (email: string) => Promise<{ isSuccess: boolean }>;
 }

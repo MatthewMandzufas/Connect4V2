@@ -26,6 +26,12 @@ export default class InMemoryUserRepositoryFactory implements UserRepository {
     } as PersistedUser);
   }
 
+  async delete(email: string) {
+    const user = await this.findByEmail(email);
+    const isSuccess = this.users.delete(user[0].uuid);
+    return { isSuccess };
+  }
+
   async findByEmail(email: string) {
     return Promise.resolve(
       Array.from(this.users.values()).filter((user) => user.email === email),

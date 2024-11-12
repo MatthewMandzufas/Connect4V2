@@ -57,6 +57,19 @@ describe("in-memory-user-repository", () => {
         }),
       ]);
     });
+    it("deletes a user", async () => {
+      const inMemoryUserRepository = new InMemoryUserRepository();
+      const createdUser = await inMemoryUserRepository.create({
+        firstName: "some",
+        lastName: "user",
+        email: "222@email.com",
+        password:
+          "$argon2id$v=19$m=65536,t=3,p=4$42OHhoG0FCA+xCPt5PppZQ$XAk4t8UkXR2WFuGdU5EDTXB7/dtdzpmlHQODWOzsa6E",
+      });
+      expect(await inMemoryUserRepository.delete(createdUser.email)).toEqual({
+        isSuccess: true,
+      });
+    });
   });
   describe("given a uuid", () => {
     it("returns the user details", async () => {

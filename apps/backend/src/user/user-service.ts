@@ -10,6 +10,7 @@ interface UserServiceInterface {
   create: (
     userDetails: UserSignupDetails,
   ) => Promise<UserSignupDetails & { uuid: Uuid }>;
+  delete: (userEmail: string) => Promise<{ isSuccess: boolean }>;
   authenticate: (
     userCredentials: UserCredentials,
   ) => Promise<{ message: string }>;
@@ -98,6 +99,10 @@ class UserService implements UserServiceInterface {
     }
     const { password, ...userDetails } = persistedUser;
     return userDetails;
+  }
+
+  async delete(userEmail: string) {
+    return await this.#userRepository.delete(userEmail);
   }
 }
 
