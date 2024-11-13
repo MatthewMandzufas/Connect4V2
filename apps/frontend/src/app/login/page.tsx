@@ -9,12 +9,7 @@ const loginHandler = async (loginDetails: LoginDetails) => {
   const backendApi = new BackendApi({ url: "http://localhost:3001" });
   const accountService = new AccountService({ backendApi });
 
-  const response = await accountService.login(loginDetails);
-
-  return {
-    ...response,
-    message: response.isSuccess ? "Success" : "An Error Occurred",
-  };
+  return await accountService.login(loginDetails);
 };
 
 const LoginPage = () => {
