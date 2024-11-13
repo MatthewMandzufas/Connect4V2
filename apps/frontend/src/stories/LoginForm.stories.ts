@@ -87,7 +87,7 @@ export const TheOneWithALoginInProgress: Story = {
 export const TheOneWithAFailedLogin: Story = {
   args: {
     loginHandler: fn(() =>
-      Promise.reject({ isSuccess: false, message: "Login Failed" })
+      Promise.reject({ isSuccess: false, message: "Login Failed." })
     ),
   },
   play: async ({ canvasElement }) => {
