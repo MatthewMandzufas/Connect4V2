@@ -85,19 +85,77 @@ describe("user-integration", () => {
   describe("delete", () => {
     describe("given the user exists", () => {
       describe("and a valid email is provided", () => {
-        it("deletes the user", async () => {
-          const userDetails = {
-            firstName: "1",
-            lastName: "2",
-            email: "someUser@email.com",
-            password: "superStrongISwear",
-          };
-          await request(app).post("/user/signup").send(userDetails);
-          const response = await request(app).post("/user/delete").send({
-            email: "someUser@email.com",
+        describe("and the email of the user to be deleted is the same as the user email making the request", () => {
+          it("deletes the user", async () => {
+            const userSignupDetails = {
+              firstName: "test",
+              lastName: "1",
+              email: "test1@email.com",
+              password: "testPassword",
+            };
+
+            await request(app).post("/user/signup").send(userSignupDetails);
+
+            const userCredentials = {
+              userName: "test1@email.com",
+              password: "testPassword",
+            };
+            const authorizationHeader = await request(app)
+              .post("/user/login")
+              .send(userCredentials)
+              .then((loginResponse) =>
+                pipe<[Response], string>(path(["headers", "authorization"]))(
+                  loginResponse,
+                ),
+              );
+
+            const response = await request(app)
+              .post("/user/delete")
+              .set("Authorization", authorizationHeader)
+              .send({ email: "test1@email.com" });
+            expect(response.body).toEqual({ isSuccess: true });
           });
-          expect(response.status).toBe(200);
-          expect(response.body).toEqual({ isSuccess: true });
+        });
+        describe("and a user is attempting to delete another users account", () => {
+          it("does not delete the user", async () => {
+            const userSignupDetails = {
+              firstName: "testUser",
+              lastName: "2",
+              email: "test2@email.com",
+              password: "testPassword",
+            };
+
+            const anotherUserSignUpDetails = {
+              firstName: "another",
+              lastName: "user",
+              email: "anotherUser@email.com",
+              password: "testPassword",
+            };
+
+            await request(app)
+              .post("/user/signup")
+              .send(anotherUserSignUpDetails);
+            await request(app).post("/user/signup").send(userSignupDetails);
+
+            const userCredentials = {
+              userName: "test2@email.com",
+              password: "testPassword",
+            };
+            const authorizationHeader = await request(app)
+              .post("/user/login")
+              .send(userCredentials)
+              .then((loginResponse) =>
+                pipe<[Response], string>(path(["headers", "authorization"]))(
+                  loginResponse,
+                ),
+              );
+
+            const response = await request(app)
+              .post("/user/delete")
+              .set("Authorization", authorizationHeader)
+              .send({ email: "anotherUser@email.com" });
+            expect(response.body).toEqual({ isSuccess: false });
+          });
         });
       });
     });
@@ -111,16 +169,16 @@ describe("user-integration", () => {
           jest.setSystemTime(date);
 
           const userDetails = {
-            firstName: "Dung",
-            lastName: "Eater",
-            email: "dung.eater@gmail.com",
-            password: "iamthedungeater",
+            firstName: "timmy",
+            lastName: "blue",
+            email: "timmy@gmail.com",
+            password: "timmyBlue",
           };
           await request(app).post("/user/signup").send(userDetails);
 
           const userCredentials = {
-            userName: "dung.eater@gmail.com",
-            password: "iamthedungeater",
+            userName: "timmy@gmail.com",
+            password: "timmyBlue",
           };
           const { protectedHeader, payload } = await request(app)
             .post("/user/login")
@@ -145,9 +203,9 @@ describe("user-integration", () => {
             iss: "connect4-http-gameserver",
             iat: currentDateInSeconds,
             exp: currentDateInSeconds + durationOfDayInSeconds,
-            sub: "dung.eater@gmail.com",
+            sub: "timmy@gmail.com",
             nbf: currentDateInSeconds,
-            userName: "dung.eater@gmail.com",
+            userName: "timmy@gmail.com",
             roles: [],
           });
           jest.useRealTimers();

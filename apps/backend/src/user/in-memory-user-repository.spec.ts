@@ -57,17 +57,29 @@ describe("in-memory-user-repository", () => {
         }),
       ]);
     });
-    it("deletes a user", async () => {
-      const inMemoryUserRepository = new InMemoryUserRepository();
-      const createdUser = await inMemoryUserRepository.create({
-        firstName: "some",
-        lastName: "user",
-        email: "222@email.com",
-        password:
-          "$argon2id$v=19$m=65536,t=3,p=4$42OHhoG0FCA+xCPt5PppZQ$XAk4t8UkXR2WFuGdU5EDTXB7/dtdzpmlHQODWOzsa6E",
+    describe("that is for a valid user", () => {
+      it("deletes a user", async () => {
+        const inMemoryUserRepository = new InMemoryUserRepository();
+        const createdUser = await inMemoryUserRepository.create({
+          firstName: "some",
+          lastName: "user",
+          email: "222@email.com",
+          password:
+            "$argon2id$v=19$m=65536,t=3,p=4$42OHhoG0FCA+xCPt5PppZQ$XAk4t8UkXR2WFuGdU5EDTXB7/dtdzpmlHQODWOzsa6E",
+        });
+        expect(await inMemoryUserRepository.delete(createdUser.email)).toEqual({
+          isSuccess: true,
+        });
       });
-      expect(await inMemoryUserRepository.delete(createdUser.email)).toEqual({
-        isSuccess: true,
+    });
+    describe("that is not for a valid user", () => {
+      it("does nothing and returns isSuccess false", async () => {
+        const inMemoryUserRepository = new InMemoryUserRepository();
+        expect(
+          await inMemoryUserRepository.delete(
+            "non-existant-user-email@email.com",
+          ),
+        ).toEqual({ isSuccess: false });
       });
     });
   });

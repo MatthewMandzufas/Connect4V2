@@ -88,6 +88,20 @@ describe("user-service", () => {
         expect(await userRepository.findByEmail(userDetails.email)).toEqual([]);
       });
     });
+    describe("given an email for a user that does not exists", () => {
+      it("does nothing and returns isSuccess false", async () => {
+        const userRepository = new InMemoryUserRepository();
+        const userService = new UserService(userRepository);
+        const userDetails = {
+          firstName: "Raymond",
+          lastName: "Holt",
+          email: "raymond@email.com",
+          password: "captain",
+        };
+        const deletionResult = await userService.delete(userDetails.email);
+        expect(deletionResult).toEqual({ isSuccess: false });
+      });
+    });
   });
 
   describe("user authentication", () => {
