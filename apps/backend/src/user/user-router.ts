@@ -90,9 +90,14 @@ const loginRequestHandlerFactory =
 const deleteRequestHandlerFactory =
   (userService: UserService): RequestHandler =>
   async (req, res, next) => {
+    const authenticatedUsersEmail = res.locals.claims.email;
     const { email } = req.body;
-    const response = await userService.delete(email);
-    res.status(200).send(response);
+    if (authenticatedUsersEmail === email) {
+      const response = await userService.delete(email);
+      res.status(200).send(response);
+    } else {
+      res.status(200).send({ isSuccess: false });
+    }
   };
 
 const userRouterFactory = (
