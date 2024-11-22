@@ -36,7 +36,6 @@ export default class AccountService implements AccountServiceInterface {
 
   async signUp(signUpDetails: SignUpDetails) {
     const response = await this.#backendApi.signUp(signUpDetails);
-
     return {
       isSuccess: response.status === 201,
       message:

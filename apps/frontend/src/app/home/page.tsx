@@ -1,3 +1,5 @@
+"use client";
+
 import BackendApi from "@/backend-api";
 import InviteForm from "@/components/InviteForm";
 import InviteService from "@/services/invite-service";
@@ -18,7 +20,7 @@ const inviteHandler: InviteHandler = async (inviteDetails) => {
 
 const LandingPage = () => {
   return (
-    <div className="w-100 flex justify-center m-auto">
+    <div className="w-100 flex flex-col m-auto justify-center m-auto">
       <h1>Welcome to Connect4</h1>
       <InviteForm inviteHandler={inviteHandler} />
     </div>

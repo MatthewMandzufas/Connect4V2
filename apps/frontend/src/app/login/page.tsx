@@ -2,7 +2,7 @@
 
 import BackendApi from "@/backend-api";
 import LoginForm from "@/components/LoginForm";
-import AccountService, { LoginDetails } from "@/servies/account-service";
+import AccountService, { LoginDetails } from "@/services/account-service";
 import { useRouter } from "next/navigation";
 
 const loginHandler = async (loginDetails: LoginDetails) => {
@@ -15,12 +15,13 @@ const loginHandler = async (loginDetails: LoginDetails) => {
 const LoginPage = () => {
   const router = useRouter();
   const signUpRedirectHandler = async () => router.push("/signup");
-
+  const homeRedirectHandler = async () => router.push("/home");
   return (
     <div>
       <LoginForm
         loginHandler={loginHandler}
         redirectToSignUpHandler={signUpRedirectHandler}
+        redirectToHomeHandler={homeRedirectHandler}
       />
     </div>
   );

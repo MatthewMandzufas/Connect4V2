@@ -96,13 +96,11 @@ const SignUpForm = ({
             loginState === LoginState.SUCCESS
           }
           className="text-black"
-          // type=""
           name="firstName"
           id="firstName"
           placeholder="Enter Your First Name"
           required
           onChange={(event) => {
-            console.log(loginState);
             setFirstName(event.target.value);
             setLoginState(LoginState.IDLE);
             setMessage({ isError: false, message: "" });

@@ -17,6 +17,7 @@ type LoginHandler = (loginDetails: LoginDetails) => Promise<LoginResponse>;
 type LoginFormProps = {
   loginHandler: LoginHandler;
   redirectToSignUpHandler: () => Promise<void>;
+  redirectToHomeHandler: () => Promise<void>;
 };
 
 type ValidationResult = {
@@ -71,6 +72,7 @@ const Message = ({ isError, message }: MessageProps) => (
 const LoginForm = ({
   loginHandler = () => Promise.reject(),
   redirectToSignUpHandler,
+  redirectToHomeHandler,
 }: LoginFormProps) => {
   const [email, setEmail] = useState<string>();
   const [password, setPassword] = useState<string>();
@@ -149,6 +151,8 @@ const LoginForm = ({
                   });
                   setLoginState(LoginState.SUCCESS);
                   setMessage({ isError: !isSuccess, message });
+                  console.log("should work");
+                  redirectToHomeHandler();
                 } catch (error) {
                   const { message } = error as LoginResponse;
                   setLoginState(LoginState.FAILED);

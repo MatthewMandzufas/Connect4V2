@@ -1,7 +1,8 @@
 import { useState } from "react";
 
-type InviteValues = {
+type InviteDetails = {
   invitee: string;
+  inviter: string;
 };
 
 type InviteResponse = {
@@ -10,7 +11,7 @@ type InviteResponse = {
 };
 
 type InviteFormProps = {
-  inviteHandler: (inviteValues: InviteValues) => Promise<InviteResponse>;
+  inviteHandler: (inviteValues: InviteDetails) => Promise<InviteResponse>;
 };
 
 const InviteForm = ({ inviteHandler }: InviteFormProps) => {
@@ -31,7 +32,10 @@ const InviteForm = ({ inviteHandler }: InviteFormProps) => {
       <button
         onClick={async (event) => {
           event.preventDefault();
-          const response = await inviteHandler({ invitee });
+          const response = await inviteHandler({
+            invitee,
+            inviter: "john@mail.com",
+          });
           setIsSuccess(response.isSuccess);
           setMessage(response.message);
         }}
