@@ -39,7 +39,6 @@ const createAuthenticationMiddleware =
           authorizationField.split(" ")[1],
           jwtPrivateKey,
         );
-        // console.log(payload.userName);
         res.locals.claims = {
           email: payload.userName,
         };
@@ -63,8 +62,6 @@ export const appFactory = (
   },
 ) => {
   const app = express() as ExpressWithPortAndSocket;
-
-  // const keys = convertToKey(jwkKeys)
 
   createSocketServer(app, {
     path: "/notification",

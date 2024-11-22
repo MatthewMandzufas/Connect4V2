@@ -6,7 +6,6 @@ import registerInviteAcceptanceMiddleware from "./register-invite-acceptance-mid
 import registerInviteCreationMiddleware from "./register-invite-creation-middleware";
 
 const createAuthorizationMiddleware: RequestHandler = (req, res, next) => {
-  // console.log(res.locals.claims.email);
   res.locals.claims?.email
     ? next()
     : res.status(401).send({
